@@ -28,9 +28,8 @@ const HOTSPOT_LIST = [
   },
   {
     id: "door",
-    label: "the door",
+    label: "the way out",
     promptLabel: "to head out",
-    objects: ["EXIT_DOOR"],
     trigger: [0, 0, 1.95],
     highlight: [0, 1.2, 2.4],
     color: 0xffe2a8,
