@@ -44,6 +44,9 @@ const SEE_OFF_WALK_SECONDS = 1.3;
 const SEE_OFF_TURN_SECONDS = 0.5;
 // Widest aspect ratio at which the whole room still fits the overhead shot.
 const OVERHEAD_FIT_ASPECT = 0.68;
+const STATION_POLL_MS = 120;
+const STATION_CLOSE_ATTEMPTS = 8;
+const STATION_SETTLE_TIMEOUT_MS = 8000;
 
 const stage = { current: "loading" };
 const cameraTravel = { elapsed: 0, path: null, lookPath: null, onFrame: null, onArrive: null };
@@ -417,6 +420,26 @@ async function leaveSpot() {
   stage.current = "room";
 }
 
+// Picking a station while another is open closes the open one, lets the camera
+// settle back in the room, then opens the new one.
+async function openStationFromMenu(target) {
+  if (isModalOpen()) await closeOpenStations();
+  if (stage.current === "room") openHotspotView(target);
+}
+
+async function closeOpenStations() {
+  for (let attempt = 0; attempt < STATION_CLOSE_ATTEMPTS && isModalOpen(); attempt += 1) {
+    closeOpenModal();
+    await pause(STATION_POLL_MS * 4);
+  }
+  const deadline = performance.now() + STATION_SETTLE_TIMEOUT_MS;
+  while (stage.current !== "room" && performance.now() < deadline) await pause(STATION_POLL_MS);
+}
+
+function pause(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
 function wireMenu() {
   const menu = document.getElementById("menu");
   document.getElementById("menuBtn")?.addEventListener("click", () => {
@@ -430,7 +453,7 @@ function wireMenu() {
       const target = button.getAttribute("data-target");
       if (!target) return;
       menu.classList.add("hidden");
-      openHotspotView(target);
+      openStationFromMenu(target);
     });
   });
 }

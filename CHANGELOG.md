@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-03
+
+### Fixed
+- The post-it wall panel was unstyled, so the 3D canvas sat over it and notes could not be posted. The styles were deleted by mistake when the visual effects were removed; they are restored, and `tests/styleCoverage.test.js` now fails if a station's styles go missing.
+- Choosing another station from the menu while one is open now closes the open one, waits for the camera to settle, and opens the new one. Before, the request was silently ignored.
+
 ## 2026-10-02
 
 ### Added
