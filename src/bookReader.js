@@ -1,6 +1,6 @@
 import { READING_INTRO, RECOMMENDED_BOOKS } from "./readingList.js";
 import { typewrite } from "./typewriter.js";
-import { burstPaperFlecks } from "./flourish.js";
+import { playPageTurn } from "./sfx.js";
 
 const TYPE_INTERVAL_MS = 22;
 const PAGE_TURN_MS = 750;
@@ -85,7 +85,7 @@ async function turnPage(step) {
 
 // Forward turns lift the right page over the spine; backward turns the left.
 async function flipTurner({ direction, front, back }) {
-  burstPaperFlecks(element("book"));
+  playPageTurn();
   if (matchMedia(NARROW_LAYOUT_QUERY).matches) return;
   state.isTurning = true;
   const turner = element("bookTurner");

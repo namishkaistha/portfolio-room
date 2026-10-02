@@ -6,7 +6,7 @@
 - Post-it wall: a cluster of notes on the left wall opens a panel where visitors read and leave short notes (140 characters, optional name). Notes are stored in the `room_notes` table (Neon) through `api/notes.js`. Posting is limited to 5 notes per hour per visitor, links are rejected, and visitors are identified only by an HMAC of their address. Hide a note with `UPDATE room_notes SET is_hidden = true WHERE id = ...`. Requires `DATABASE_URL` and `NOTES_SALT`; create the table with `scripts/create-notes-table.mjs`.
 - Photo wall: clicking the collage or the far half of the desk zooms in on an about card with a portrait, a word-by-word story reveal, Free time and Goals tabs, a résumé button and icon links to Substack, TikTok, Instagram, LinkedIn and email.
 - Travel globe: 11 places with photos and written pieces.
-- Effects: footstep dust, keystroke sparks in the terminal, paper flecks when the book turns, and a dust puff when a record is pulled.
+- Sound effects, synthesized with Web Audio (no audio files): footsteps while walking, key clicks in the terminal, a page turn in the book and a slide when a record is pulled. A menu item turns them off; the choice is remembered.
 - Tapping outside a station's window (desk, tripod, bookshelf, records, post-it wall) steps back out of it.
 - Mobile: tappable quick-command buttons in the desk terminal.
 - Tests for note validation (`npm test`).

@@ -15,7 +15,7 @@ import { closeCrateDigging, isCrateDiggingOpen, openCrateDigging, updateRecordSh
 import { closeBookReader, isBookReaderOpen, openBookReader, wireBookReader } from "./bookReader.js";
 import { pullBookOut, pushBookBack, updateBookPull } from "./bookPull.js";
 import { typeIntroMessage } from "./introText.js";
-import { installDust, updateDust } from "./dust.js";
+import { isMuted, setMuted, unlockAudio, updateFootsteps } from "./sfx.js";
 import { CameraDirector, easeInOutCubic } from "./cameraDirector.js";
 import {
   CAMERA_INTRO_LOOK,
@@ -78,7 +78,6 @@ async function bootstrap() {
   roomMixer = mixer;
   player = new Player(avatar);
   installLights(scene);
-  installDust(scene);
   highlights = installHighlights(roomGroup, HOTSPOTS);
 
   door = new DoorController(doorGroup, camera, canvas);
@@ -89,6 +88,7 @@ async function bootstrap() {
   hideRoomForIntro();
   wireInteraction();
   wireMenu();
+  wireSoundEffects();
   wireMobile();
   wirePanelDismissal();
   wireTravelGlobe();
@@ -114,7 +114,7 @@ function step() {
     player.advance(delta, resolveMovement);
   } else if (stage.current === "room") {
     player.advance(delta, resolveMovement);
-    updateDust(delta, player.position);
+    updateFootsteps(player.position);
     syncMobileControls();
     resumeMusicWhenStationCloses();
     refreshHotspotUi();
@@ -125,7 +125,7 @@ function step() {
     player.advance(delta, resolveMovement);
   } else if (stage.current === "seated") {
     player.advance(delta, resolveMovement);
-    updateDust(delta, player.position);
+    updateFootsteps(player.position);
     syncMobileControls();
     resumeMusicWhenStationCloses();
     director.update(delta);
@@ -433,6 +433,18 @@ function wireMenu() {
       openHotspotView(target);
     });
   });
+}
+
+function wireSoundEffects() {
+  window.addEventListener("pointerdown", unlockAudio);
+  window.addEventListener("keydown", unlockAudio);
+  const toggle = document.getElementById("sfxToggle");
+  const showState = () => { toggle.textContent = `Sound effects · ${isMuted() ? "off" : "on"}`; };
+  toggle?.addEventListener("click", () => {
+    setMuted(!isMuted());
+    showState();
+  });
+  if (toggle) showState();
 }
 
 function wireMobile() {
