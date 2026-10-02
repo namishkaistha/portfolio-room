@@ -2,6 +2,9 @@
 
 ## 2026-10-03
 
+### Added
+- Three warm globe styles to match the amber pixel "TRAVEL" title: Arcade (square pixel land, blocky pins), CRT (monochrome amber phosphor with scanlines) and Postcard (cream paper, rust land). Preview them at `/?globe=arcade`, `/?globe=crt` or `/?globe=postcard`; any `?globe` URL shows a style switcher. The default stays the original until one is chosen.
+
 ### Fixed
 - The post-it wall panel was unstyled, so the 3D canvas sat over it and notes could not be posted. The styles were deleted by mistake when the visual effects were removed; they are restored, and `tests/styleCoverage.test.js` now fails if a station's styles go missing.
 - Choosing another station from the menu while one is open now closes the open one, waits for the camera to settle, and opens the new one. Before, the request was silently ignored.
