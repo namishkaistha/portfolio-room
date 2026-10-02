@@ -5,27 +5,34 @@ const MAX_MESSAGE_LENGTH = 140;
 const TILT_STEPS = 7;
 const EMPTY_MESSAGE = "The wall is empty. Be the first to stick one up.";
 const LOAD_ERROR = "Couldn't load the wall. Try again in a bit.";
-const SENT_MESSAGE = "Stuck it up. Thanks!";
 const SEND_ERROR = "Couldn't post that. Try again in a bit.";
+const THANKS_MESSAGE = "Stuck it up. Thanks!";
+const THANKS_VISIBLE_MS = 3000;
 
-const state = { isOpen: false, onExit: null, isSending: false };
+const state = { isOpen: false, isComposing: false, onExit: null, isSending: false, noteCount: 0, thanksTimer: null };
 
 export function openNotesPanel({ onExit } = {}) {
   state.onExit = onExit ?? null;
   state.isOpen = true;
   element("notesPanel").classList.remove("hidden");
-  element("notesStatus").textContent = "";
-  updateCount();
+  hideComposer();
   loadNotes();
   element("notesClose").focus({ preventScroll: true });
 }
 
 export function closeNotesPanel() {
   state.isOpen = false;
+  hideComposer();
   element("notesPanel").classList.add("hidden");
   const callback = state.onExit;
   state.onExit = null;
   callback?.();
+}
+
+// Escape and outside taps close the composer first, then the wall.
+export function dismissNotesLayer() {
+  if (state.isComposing) hideComposer();
+  else closeNotesPanel();
 }
 
 export function isNotesPanelOpen() {
@@ -34,8 +41,11 @@ export function isNotesPanelOpen() {
 
 export function wireNotesPanel() {
   element("notesClose").addEventListener("click", closeNotesPanel);
+  element("notesAdd").addEventListener("click", showComposer);
+  element("notesCancel").addEventListener("click", hideComposer);
   element("notesForm").addEventListener("submit", onSubmit);
-  element("notesMessage").addEventListener("input", updateCount);
+  element("notesForm").addEventListener("click", closeComposerOnBackdrop);
+  element("notesMessage").addEventListener("input", updateCharacterCount);
 }
 
 async function loadNotes() {
@@ -47,10 +57,13 @@ async function loadNotes() {
     renderBoard(board, notes);
   } catch {
     board.replaceChildren(create("p", "notes-empty", LOAD_ERROR));
+    showCount("");
   }
 }
 
 function renderBoard(board, notes) {
+  state.noteCount = notes.length;
+  showCount(describeCount(notes.length));
   if (notes.length === 0) {
     board.replaceChildren(create("p", "notes-empty", EMPTY_MESSAGE));
     return;
@@ -80,8 +93,7 @@ async function onSubmit(event) {
     const response = await fetch(NOTES_ENDPOINT, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error ?? SEND_ERROR);
-    placeNewNote(result.note);
-    element("notesStatus").textContent = SENT_MESSAGE;
+    stickUpNewNote(result.note);
   } catch (error) {
     element("notesStatus").textContent = error.message || SEND_ERROR;
   } finally {
@@ -89,14 +101,36 @@ async function onSubmit(event) {
   }
 }
 
-function placeNewNote(note) {
+function stickUpNewNote(note) {
   const board = element("notesBoard");
   board.querySelector(".notes-empty")?.remove();
   const fresh = buildNote(note);
   fresh.classList.add("is-new");
   board.prepend(fresh);
+  board.scrollIntoView({ block: "start" });
+  state.noteCount += 1;
+  hideComposer();
+  showCount(THANKS_MESSAGE);
+  clearTimeout(state.thanksTimer);
+  state.thanksTimer = setTimeout(() => showCount(describeCount(state.noteCount)), THANKS_VISIBLE_MS);
+}
+
+function showComposer() {
+  state.isComposing = true;
+  element("notesStatus").textContent = "";
+  element("notesForm").classList.remove("hidden");
+  updateCharacterCount();
+  element("notesMessage").focus();
+}
+
+function hideComposer() {
+  state.isComposing = false;
+  element("notesForm").classList.add("hidden");
   element("notesMessage").value = "";
-  updateCount();
+}
+
+function closeComposerOnBackdrop(event) {
+  if (event.target === event.currentTarget) hideComposer();
 }
 
 function setSending(isSending) {
@@ -104,8 +138,17 @@ function setSending(isSending) {
   element("notesSubmit").disabled = isSending;
 }
 
-function updateCount() {
-  element("notesCount").textContent = String(MAX_MESSAGE_LENGTH - element("notesMessage").value.length);
+function updateCharacterCount() {
+  element("notesChars").textContent = String(MAX_MESSAGE_LENGTH - element("notesMessage").value.length);
+}
+
+function describeCount(count) {
+  if (count === 0) return "";
+  return count === 1 ? "1 note on the wall" : `${count} notes on the wall`;
+}
+
+function showCount(text) {
+  element("notesCount").textContent = text;
 }
 
 function element(id) {

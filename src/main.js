@@ -9,7 +9,7 @@ import { dismissTravelLayer, isTravelGlobeOpen, openTravelGlobe, wireTravelGlobe
 import { closeIDE, dismissIDELayer, isIDEOpen, openIDE } from "./ide.js";
 import { closeIframePanel, isIframePanelOpen, openIframePanel } from "./iframePanel.js";
 import { closeAboutCard, isAboutCardOpen, openAboutCard } from "./aboutCard.js";
-import { closeNotesPanel, isNotesPanelOpen, openNotesPanel, wireNotesPanel } from "./notesPanel.js";
+import { dismissNotesLayer, isNotesPanelOpen, openNotesPanel, wireNotesPanel } from "./notesPanel.js";
 import { hideNowPlaying, mountNowPlaying, pausePlayback, resumePlayback, revealNowPlaying, startPlayback } from "./nowPlaying.js";
 import { closeCrateDigging, isCrateDiggingOpen, openCrateDigging, updateRecordShelf, wireCrateDigging } from "./crateDigging.js";
 import { closeBookReader, isBookReaderOpen, openBookReader, wireBookReader } from "./bookReader.js";
@@ -299,7 +299,7 @@ function closeOpenModal() {
   else if (isCrateDiggingOpen()) closeCrateDigging();
   else if (isBookReaderOpen()) closeBookReader();
   else if (isAboutCardOpen()) closeAboutCard();
-  else if (isNotesPanelOpen()) closeNotesPanel();
+  else if (isNotesPanelOpen()) dismissNotesLayer();
 }
 
 function isModalOpen() {
@@ -491,7 +491,7 @@ function wirePanelDismissal() {
   closeOnBackdropClick("idePanel", dismissIDELayer);
   closeOnBackdropClick("iframePanel", closeIframePanel);
   closeOnBackdropClick("bookReader", closeBookReader);
-  closeOnBackdropClick("notesPanel", closeNotesPanel);
+  closeOnBackdropClick("notesPanel", dismissNotesLayer);
 }
 
 // Tapping the dimmed area around a station's window steps back out of it.

@@ -12,7 +12,7 @@ export const CONTACT_LEAD = "Say hi";
 export const CONTACT_LINKS = [
   { label: "Substack", icon: "substack", tint: "#e2662b", href: "https://namishkaistha.substack.com/?utm_campaign=profile_chips" },
   { label: "TikTok", icon: "tiktok", tint: "#fe2c55", href: "https://tiktok.com/@namyaps" },
-  { label: "Instagram", icon: "instagram", tint: "#c13584", href: "https://instagram.com/namishkaistha" },
+  { label: "Instagram", icon: "instagram", tint: "#c13584", href: "https://instagram.com/nam_yaps" },
   { label: "LinkedIn", icon: "linkedin", tint: "#2f66b8", href: "https://linkedin.com/in/namishkaistha" },
   { label: "Email", icon: "mail", tint: "#d44638", href: "mailto:namishkaistha@gmail.com" },
 ];
