@@ -32,7 +32,8 @@ const CASING_WIDTH = 0.09;
 const CASING_DEPTH = 0.14;
 const CASING_OVERLAP = 0.02;
 const EXIT_LIGHT_DEPTH = 0.5;
-const EXIT_POST_HEIGHT = 1.0;
+const EXIT_DOOR_OPEN_ANGLE = -Math.PI / 2 + 0.2;
+const EXIT_KEEP_OUT = 0.3;
 const EXIT_SILL_HEIGHT = 0.04;
 
 const OBSTACLE_INFLATE = 0.01;
@@ -279,22 +280,22 @@ function buildHallway() {
 }
 
 // The big front wall is cut away for the overhead view, so the doorway is
-// drawn on its own: two low posts, a sill and a strip of hallway light on the
-// floor, kept low so they never hide the avatar from the overhead camera.
+// drawn on its own: the full casing, an open panelled door leaf swung out
+// into the hallway, a sill, and a strip of hallway light on the floor.
 function buildExitDoor() {
   const exit = new THREE.Group();
   exit.name = "EXIT_DOOR";
   const trimMaterial = new THREE.MeshStandardMaterial({ color: COLOR.hallwayTrim, roughness: 0.6 });
-  const wallZ = ROOM.maxZ + ROOM.wallThickness / 2;
-  const postX = DOOR.width / 2 - CASING_OVERLAP + CASING_WIDTH / 2;
-  for (const side of [-1, 1]) {
-    addBox(exit, trimMaterial, { size: [CASING_WIDTH, EXIT_POST_HEIGHT, CASING_DEPTH], position: [side * postX, EXIT_POST_HEIGHT / 2, wallZ] });
-  }
-  addBox(exit, trimMaterial, { size: [postX * 2 + CASING_WIDTH, EXIT_SILL_HEIGHT, CASING_DEPTH], position: [0, EXIT_SILL_HEIGHT / 2, wallZ] });
-  const light = new THREE.Mesh(new THREE.PlaneGeometry(DOOR.width, EXIT_LIGHT_DEPTH), new THREE.MeshBasicMaterial({ color: COLOR.exitLight, transparent: true, opacity: 0.55 }));
+  addDoorCasing(exit, trimMaterial, ROOM.maxZ + ROOM.wallThickness / 2);
+  addBox(exit, trimMaterial, { size: [DOOR.width + CASING_WIDTH, EXIT_SILL_HEIGHT, CASING_DEPTH], position: [0, EXIT_SILL_HEIGHT / 2, ROOM.maxZ + ROOM.wallThickness / 2] });
+  const leaf = buildDoorGroup();
+  leaf.rotation.y = EXIT_DOOR_OPEN_ANGLE;
+  exit.add(leaf);
+  const light = new THREE.Mesh(new THREE.PlaneGeometry(DOOR.width, EXIT_LIGHT_DEPTH), new THREE.MeshBasicMaterial({ color: COLOR.exitLight, transparent: true, opacity: 0.45 }));
   light.rotation.x = -Math.PI / 2;
   light.position.set(0, 0.012, ROOM.maxZ - EXIT_LIGHT_DEPTH / 2);
   exit.add(light);
+  OBSTACLES.push({ minX: -DOOR.width / 2, maxX: DOOR.width / 2, minZ: ROOM.maxZ - EXIT_KEEP_OUT, maxZ: ROOM.maxZ + 1 });
   return exit;
 }
 
