@@ -17,6 +17,7 @@ const COLOR = {
   doorSlab: 0x7a4a26,
   doorPanel: 0x5a331a,
   doorKnob: 0xe7c07b,
+  exitLight: 0xffe2a8,
   trim: 0x2b1c10,
   hallwayTrim: 0xf1e9d8,
   hallwayFloor: 0x8a6a4e,
@@ -30,6 +31,9 @@ const TRIM_DEPTH = 0.05;
 const CASING_WIDTH = 0.09;
 const CASING_DEPTH = 0.14;
 const CASING_OVERLAP = 0.02;
+const EXIT_LIGHT_DEPTH = 0.5;
+const EXIT_POST_HEIGHT = 1.0;
+const EXIT_SILL_HEIGHT = 0.04;
 
 const OBSTACLE_INFLATE = 0.01;
 const TRIPOD_INFLATE = 0.02;
@@ -60,7 +64,7 @@ const LAYOUT_OFFSETS = {
   HOTSPOT_LIBRARY: new THREE.Vector3(0.2, 0, 0),
   WINDOW: new THREE.Vector3(0, 0, 0.4),
   HOTSPOT_DESK: new THREE.Vector3(0, 0, 0.3),
-  HOTSPOT_TRIPOD: new THREE.Vector3(-0.55, 0, 0),
+  HOTSPOT_TRIPOD: new THREE.Vector3(-0.25, 0, 0),
 };
 
 // The tripod is turned so its phone screen faces into the room, toward the stool.
@@ -100,7 +104,11 @@ export async function buildScene(scene) {
   const doorGroup = buildDoorGroup();
   scene.add(doorGroup);
 
-  return { doorGroup, roomGroup, frontWall, avatar, roomMixer };
+  const exitDoor = buildExitDoor();
+  exitDoor.visible = false;
+  roomGroup.add(exitDoor);
+
+  return { doorGroup, exitDoor, roomGroup, frontWall, avatar, roomMixer };
 }
 
 export function installLights(scene) {
@@ -268,6 +276,26 @@ function buildHallway() {
   floor.receiveShadow = true;
   hallway.add(floor);
   return hallway;
+}
+
+// The big front wall is cut away for the overhead view, so the doorway is
+// drawn on its own: two low posts, a sill and a strip of hallway light on the
+// floor, kept low so they never hide the avatar from the overhead camera.
+function buildExitDoor() {
+  const exit = new THREE.Group();
+  exit.name = "EXIT_DOOR";
+  const trimMaterial = new THREE.MeshStandardMaterial({ color: COLOR.hallwayTrim, roughness: 0.6 });
+  const wallZ = ROOM.maxZ + ROOM.wallThickness / 2;
+  const postX = DOOR.width / 2 - CASING_OVERLAP + CASING_WIDTH / 2;
+  for (const side of [-1, 1]) {
+    addBox(exit, trimMaterial, { size: [CASING_WIDTH, EXIT_POST_HEIGHT, CASING_DEPTH], position: [side * postX, EXIT_POST_HEIGHT / 2, wallZ] });
+  }
+  addBox(exit, trimMaterial, { size: [postX * 2 + CASING_WIDTH, EXIT_SILL_HEIGHT, CASING_DEPTH], position: [0, EXIT_SILL_HEIGHT / 2, wallZ] });
+  const light = new THREE.Mesh(new THREE.PlaneGeometry(DOOR.width, EXIT_LIGHT_DEPTH), new THREE.MeshBasicMaterial({ color: COLOR.exitLight, transparent: true, opacity: 0.55 }));
+  light.rotation.x = -Math.PI / 2;
+  light.position.set(0, 0.012, ROOM.maxZ - EXIT_LIGHT_DEPTH / 2);
+  exit.add(light);
+  return exit;
 }
 
 function addWallPanel(group, material, { width, height, x, y, z }) {
