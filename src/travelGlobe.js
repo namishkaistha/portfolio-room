@@ -5,7 +5,7 @@ import { TRAVEL_PLACES } from "./travelPlaces.js";
 import { closeTravelCard, isTravelCardOpen, openTravelCard } from "./travelCard.js";
 import { scrambleText } from "./textScramble.js";
 import { createSeededRandom } from "./seededRandom.js";
-import { GLOBE_THEMES, isPreviewRequested, themeIdFromSearch } from "./globeThemes.js";
+import { GLOBE_STYLE as STYLE } from "./globeStyle.js";
 
 const RADIUS = 1;
 const DEG = Math.PI / 180;
@@ -16,7 +16,7 @@ const MASK_SIZE = { width: 1024, height: 512 };
 const MAX_DOT_LATITUDE = 84;
 const STAR_COUNT = 900;
 const ATMOSPHERE_RADIUS = 1.17;
-const PIN = { height: 0.07, headRadius: 0.018, hitRadius: 0.1, pulseSpeed: 0.7 };
+const PIN = { height: 0.07, headSize: 0.032, hitRadius: 0.1, pulseSpeed: 0.7 };
 const SPIN = { autoRadiansPerSecond: 0.07, dragRadiansPerPixel: 0.0055, inertiaDecayPerSecond: 3.5, maxFlingRadiansPerSecond: 2.4, tiltLimit: 1.15 };
 const START_VIEW = { lat: 36, lon: 4 };
 const OPEN_SECONDS = 1.6;
@@ -46,8 +46,6 @@ const state = {
   finishIntro: null,
   introTimer: 0,
   clock: new THREE.Clock(false),
-  themeId: themeIdFromSearch(location.search),
-  landMask: null,
   raycaster: new THREE.Raycaster(),
 };
 
@@ -112,82 +110,21 @@ function setUpGlobe() {
   state.renderer.setClearColor(0x000000, 0);
   state.scene = new THREE.Scene();
   state.camera = new THREE.PerspectiveCamera(40, 1, 0.1, 100);
-  populateScene();
-  mountThemeSwitcher();
-  canvas.addEventListener("pointerdown", onPointerDown);
-  canvas.addEventListener("pointermove", onPointerMove);
-  canvas.addEventListener("pointerup", onPointerUp);
-  canvas.addEventListener("pointercancel", onPointerUp);
-  window.addEventListener("resize", resize);
-  state.isReady = true;
-}
-
-function populateScene() {
   state.world = new THREE.Group();
   state.globe = new THREE.Group();
-  state.hudRings = [];
-  state.globe.add(buildOcean(), buildRim(theme().rimStrength), buildLandDots(), buildGraticule());
+  state.globe.add(buildOcean(), buildRim(STYLE.rimStrength), buildLandDots(), buildGraticule());
   state.pins = TRAVEL_PLACES.map((place, index) => buildPin(place, index));
   for (const pin of state.pins) state.globe.add(pin.group);
   state.world.add(state.globe, buildAtmosphere());
   state.world.add(buildHudRings());
   state.scene.add(state.world, buildStars());
   buildLabels();
-  element("travelGlobe").dataset.theme = state.themeId;
-}
-
-function theme() {
-  return GLOBE_THEMES[state.themeId];
-}
-
-// Rebuilds everything the theme touches; the land mask and camera are kept.
-function switchTheme(themeId) {
-  if (themeId === state.themeId) return;
-  state.themeId = themeId;
-  disposeScene();
-  populateScene();
-  state.world.scale.setScalar(1);
-  syncThemeSwitcher();
-  rememberThemeInUrl();
-}
-
-function disposeScene() {
-  state.scene.traverse((object) => {
-    object.geometry?.dispose();
-    for (const material of [object.material].flat()) material?.dispose();
-  });
-  state.scene.clear();
-  element("travelLabels").replaceChildren();
-}
-
-function rememberThemeInUrl() {
-  const url = new URL(location.href);
-  url.searchParams.set("globe", state.themeId);
-  history.replaceState(null, "", url);
-}
-
-function mountThemeSwitcher() {
-  const switcher = element("travelThemes");
-  if (!switcher || !isPreviewRequested(location.search)) return;
-  switcher.replaceChildren(...Object.entries(GLOBE_THEMES).map(([id, { label }]) => buildThemeButton(id, label)));
-  switcher.classList.remove("hidden");
-  syncThemeSwitcher();
-}
-
-function buildThemeButton(id, label) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "travel-theme-button";
-  button.dataset.theme = id;
-  button.textContent = label;
-  button.addEventListener("click", () => switchTheme(id));
-  return button;
-}
-
-function syncThemeSwitcher() {
-  for (const button of element("travelThemes").querySelectorAll(".travel-theme-button")) {
-    button.setAttribute("aria-pressed", String(button.dataset.theme === state.themeId));
-  }
+  canvas.addEventListener("pointerdown", onPointerDown);
+  canvas.addEventListener("pointermove", onPointerMove);
+  canvas.addEventListener("pointerup", onPointerUp);
+  canvas.addEventListener("pointercancel", onPointerUp);
+  window.addEventListener("resize", resize);
+  state.isReady = true;
 }
 
 function tick() {
@@ -296,9 +233,9 @@ function openPlace(pin) {
 function buildHudRings() {
   const group = new THREE.Group();
   const specs = [
-    { radius: 1.27, width: 0.006, color: theme().colors.rim, opacity: 0.7, arcs: [[0.1, 1.1], [1.6, 0.5], [2.7, 1.4], [4.6, 0.9]], speed: 0.12 },
-    { radius: 1.34, width: 0.003, color: theme().colors.hud, opacity: 0.35, arcs: [[0, Math.PI * 2]], speed: 0 },
-    { radius: 1.4, width: 0.012, color: theme().colors.hud, opacity: 0.55, arcs: [[0.4, 0.35], [2.5, 0.2], [3.9, 0.55]], speed: -0.2 },
+    { radius: 1.27, width: 0.006, color: STYLE.colors.rim, opacity: 0.7, arcs: [[0.1, 1.1], [1.6, 0.5], [2.7, 1.4], [4.6, 0.9]], speed: 0.12 },
+    { radius: 1.34, width: 0.003, color: STYLE.colors.hud, opacity: 0.35, arcs: [[0, Math.PI * 2]], speed: 0 },
+    { radius: 1.4, width: 0.012, color: STYLE.colors.hud, opacity: 0.55, arcs: [[0.4, 0.35], [2.5, 0.2], [3.9, 0.55]], speed: -0.2 },
   ];
   for (const spec of specs) {
     const ring = new THREE.Group();
@@ -323,15 +260,15 @@ function buildTicks() {
     const direction = new THREE.Vector3(Math.cos(angle), Math.sin(angle), 0);
     points.push(direction.clone().multiplyScalar(1.46), direction.clone().multiplyScalar(1.46 + length));
   }
-  return new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: theme().colors.hud, transparent: true, opacity: 0.4 }));
+  return new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: STYLE.colors.hud, transparent: true, opacity: 0.4 }));
 }
 
 function hudMaterial(color, opacity) {
-  return new THREE.MeshBasicMaterial({ color, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false, blending: theme().blending });
+  return new THREE.MeshBasicMaterial({ color, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false, blending: STYLE.blending });
 }
 
 function buildOcean() {
-  const ocean = new THREE.Mesh(new THREE.SphereGeometry(RADIUS * 0.995, 64, 48), new THREE.MeshBasicMaterial({ color: theme().colors.ocean }));
+  const ocean = new THREE.Mesh(new THREE.SphereGeometry(RADIUS * 0.995, 64, 48), new THREE.MeshBasicMaterial({ color: STYLE.colors.ocean }));
   ocean.renderOrder = 0;
   return ocean;
 }
@@ -339,14 +276,14 @@ function buildOcean() {
 function buildRim(strength) {
   return new THREE.Mesh(
     new THREE.SphereGeometry(RADIUS * 1.002, 64, 48),
-    fresnelMaterial({ color: theme().colors.rim, power: 2.8, strength, side: THREE.FrontSide }),
+    fresnelMaterial({ color: STYLE.colors.rim, power: 2.8, strength, side: THREE.FrontSide }),
   );
 }
 
 function buildAtmosphere() {
   const edge = Math.sqrt(1 - (RADIUS / ATMOSPHERE_RADIUS) ** 2);
   const material = new THREE.ShaderMaterial({
-    uniforms: { color: { value: new THREE.Color(theme().colors.atmosphere) }, edge: { value: edge }, strength: { value: theme().atmosphereStrength } },
+    uniforms: { color: { value: new THREE.Color(STYLE.colors.atmosphere) }, edge: { value: edge }, strength: { value: STYLE.atmosphereStrength } },
     vertexShader: FRESNEL_VERTEX,
     fragmentShader: `
       uniform vec3 color;
@@ -360,7 +297,7 @@ function buildAtmosphere() {
       }`,
     side: THREE.BackSide,
     transparent: true,
-    blending: theme().blending,
+    blending: STYLE.blending,
     depthWrite: false,
   });
   return new THREE.Mesh(new THREE.SphereGeometry(ATMOSPHERE_RADIUS, 64, 48), material);
@@ -392,7 +329,7 @@ function fresnelMaterial({ color, power, strength, side }) {
       }`,
     side,
     transparent: true,
-    blending: theme().blending,
+    blending: STYLE.blending,
     depthWrite: false,
   });
 }
@@ -401,12 +338,11 @@ function fresnelMaterial({ color, power, strength, side }) {
 // equirectangular mask, then evenly spaced points on the sphere keep only the
 // ones that land inside it.
 function buildLandDots() {
-  state.landMask ??= rasteriseLand();
-  const mask = state.landMask;
+  const mask = rasteriseLand();
   const nextRandom = createSeededRandom(23);
   const positions = [];
   let rowIndex = 0;
-  const { spacingDegrees, size, keepFraction, isRound } = theme().dots;
+  const { spacingDegrees, size, keepFraction } = STYLE.dots;
   for (let lat = -MAX_DOT_LATITUDE; lat <= MAX_DOT_LATITUDE; lat += spacingDegrees) {
     const count = Math.max(1, Math.round((360 * Math.cos(lat * DEG)) / spacingDegrees));
     const stagger = (rowIndex % 2) * 0.5;
@@ -419,9 +355,8 @@ function buildLandDots() {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   const material = new THREE.PointsMaterial({
-    color: theme().colors.land,
+    color: STYLE.colors.land,
     size,
-    map: isRound ? dotTexture() : null,
     transparent: true,
     alphaTest: 0.25,
     depthWrite: false,
@@ -463,21 +398,6 @@ function isLand(mask, lat, lon) {
   return mask.data[(y * mask.width + x) * 4] > 128;
 }
 
-function dotTexture() {
-  const size = 64;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const context = canvas.getContext("2d");
-  const gradient = context.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  gradient.addColorStop(0, "rgba(255,255,255,1)");
-  gradient.addColorStop(0.55, "rgba(255,255,255,0.95)");
-  gradient.addColorStop(1, "rgba(255,255,255,0)");
-  context.fillStyle = gradient;
-  context.fillRect(0, 0, size, size);
-  return new THREE.CanvasTexture(canvas);
-}
-
 function buildGraticule() {
   const points = [];
   const radius = RADIUS * 1.001;
@@ -488,7 +408,7 @@ function buildGraticule() {
     for (let lon = -180; lon < 180; lon += 4) points.push(latLonToVector(lat, lon, radius), latLonToVector(lat, lon + 4, radius));
   }
   const geometry = new THREE.BufferGeometry().setFromPoints(points);
-  const material = new THREE.LineDashedMaterial({ color: theme().colors.grid, dashSize: 0.025, gapSize: 0.035, transparent: true, opacity: theme().graticuleOpacity, depthWrite: false });
+  const material = new THREE.LineDashedMaterial({ color: STYLE.colors.grid, dashSize: 0.025, gapSize: 0.035, transparent: true, opacity: STYLE.graticuleOpacity, depthWrite: false });
   const lines = new THREE.LineSegments(geometry, material);
   lines.computeLineDistances();
   return lines;
@@ -502,7 +422,7 @@ function buildStars() {
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-  return new THREE.Points(geometry, new THREE.PointsMaterial({ color: theme().colors.stars, size: 0.05, transparent: true, opacity: theme().starOpacity }));
+  return new THREE.Points(geometry, new THREE.PointsMaterial({ color: STYLE.colors.stars, size: 0.05, transparent: true, opacity: STYLE.starOpacity }));
 }
 
 function buildPin(place, index) {
@@ -510,14 +430,14 @@ function buildPin(place, index) {
   const group = new THREE.Group();
   group.position.copy(normal).multiplyScalar(RADIUS);
   group.quaternion.setFromUnitVectors(UP, normal);
-  const glow = new THREE.MeshBasicMaterial({ color: theme().colors.pin });
+  const glow = new THREE.MeshBasicMaterial({ color: STYLE.colors.pin });
   const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.003, 0.003, PIN.height, 8), glow);
   stem.position.y = PIN.height / 2;
-  const head = new THREE.Mesh(buildPinHeadGeometry(), glow);
+  const head = new THREE.Mesh(new THREE.BoxGeometry(PIN.headSize, PIN.headSize, PIN.headSize), glow);
   head.position.y = PIN.height;
   const ring = new THREE.Mesh(
     new THREE.RingGeometry(0.018, 0.026, 40),
-    new THREE.MeshBasicMaterial({ color: theme().colors.pin, transparent: true, side: THREE.DoubleSide, depthWrite: false }),
+    new THREE.MeshBasicMaterial({ color: STYLE.colors.pin, transparent: true, side: THREE.DoubleSide, depthWrite: false }),
   );
   ring.rotation.x = -Math.PI / 2;
   ring.position.y = 0.002;
@@ -527,11 +447,6 @@ function buildPin(place, index) {
   const pin = { place, index, group, head, ring, hit, label: null, phase: index * 0.37 };
   hit.userData.pin = pin;
   return pin;
-}
-
-function buildPinHeadGeometry() {
-  if (theme().pinShape === "block") return new THREE.BoxGeometry(PIN.headRadius * 1.8, PIN.headRadius * 1.8, PIN.headRadius * 1.8);
-  return new THREE.SphereGeometry(PIN.headRadius, 20, 16);
 }
 
 function pulsePin(pin, elapsed) {
