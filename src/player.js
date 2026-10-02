@@ -37,14 +37,16 @@ export class Player {
     this.isAtSpot = false;
   }
 
-  // Lies on its back at `position`, head toward the back wall (-Z).
-  lieDown(position) {
-    this.lying = position.clone();
+  // Lies on its back with the feet at `feet`, turned by `yaw` from head-to-back-wall.
+  lieDown({ feet, yaw }) {
+    this.lying = { feet: feet.clone(), yaw };
+    this.avatar.root.rotation.order = "YXZ";
     this.syncAvatar();
   }
 
   standUp() {
     this.lying = null;
+    this.avatar.root.rotation.order = "XYZ";
     this.syncAvatar();
   }
 
@@ -129,8 +131,8 @@ export class Player {
 
   syncAvatar() {
     if (this.lying) {
-      this.avatar.root.position.copy(this.lying);
-      this.avatar.root.rotation.set(-Math.PI / 2, 0, 0);
+      this.avatar.root.position.copy(this.lying.feet);
+      this.avatar.root.rotation.set(-Math.PI / 2, this.lying.yaw, 0);
       return;
     }
     this.avatar.root.position.set(this.position.x, 0, this.position.z);

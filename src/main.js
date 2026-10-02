@@ -28,7 +28,7 @@ import {
   ENTRY_PATH_CONTROLS,
   ROOM,
   ROOM_SPAWN,
-  SLEEP_POSITION,
+  SLEEP_POSE,
   SPOTS,
 } from "./roomConfig.js";
 
@@ -432,7 +432,7 @@ async function visitSpotAndOpen(spot, openPanelView) {
 }
 
 function startSleeping(onExit) {
-  player.lieDown(SLEEP_POSITION);
+  player.lieDown(SLEEP_POSE);
   sleepOverlay.open({ onExit: () => { player.standUp(); onExit(); } });
 }
 

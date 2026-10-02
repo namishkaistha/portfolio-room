@@ -8,6 +8,9 @@
 - Window: stand at the window (or use the menu) to raise the blinds and look out at a sky with three drifting clouds, one per goal from the About card (10% body fat, build a personal brand, learn to play piano).
 - `scripts/check-walkable.mjs` and a test that every station's standing spot is reachable from the spawn point using the real room model.
 
+### Fixed
+- Napping: the bookcase's body starts just above the mattress at the head wall, so a straight-lying avatar's head sank into it. The avatar now lies diagonally across the bed with its head clear of the bookcase, and the sleep camera pulls back to show the whole body.
+
 ### Changed
 - Music no longer starts by itself. The player card says "Press play for music" with a pulsing amber play button until it is pressed, then returns to "Namish is listening to…".
 - The bed is shorter (and nudged left), widening the walkway between its foot and the desk so the guitar corner is easy to reach.
