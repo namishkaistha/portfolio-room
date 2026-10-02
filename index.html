@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <title>Namish Kaistha — Room</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=JetBrains+Mono:wght@400;500;700&family=Silkscreen:wght@400;700&family=Special+Elite&family=Caveat:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+
+    <div id="loading" class="overlay center" role="status" aria-live="polite">
+      <div class="loading-card">
+        <div class="brand">Namish Kaistha</div>
+        <div class="spinner" aria-hidden="true"></div>
+        <div class="loading-text">Rendering the room…</div>
+      </div>
+    </div>
+
+    <div id="doorIntro" class="door-intro hidden" role="dialog" aria-label="Welcome">
+      <div class="dialog-box">
+        <p class="dialog-text" id="dialogText"></p>
+        <div class="dialog-hint">
+          <span class="hint-mouse">Click the door to enter</span>
+          <span class="hint-touch">Tap the door to enter</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="controlsToast" class="controls-toast hidden" role="status">
+      <div class="toast-row desktop-only"><span class="key">W A S D</span> <span>walk</span></div>
+      <div class="toast-row desktop-only"><span class="key">Space / E</span> <span>interact</span></div>
+      <div class="toast-row mobile-only"><span class="key">Stick</span> <span>walk</span></div>
+      <div class="toast-row mobile-only"><span class="key">◉</span> <span>interact</span></div>
+    </div>
+
+    <div id="prompt" class="prompt hidden" role="button" tabindex="0">
+      <span class="prompt-key">SPACE</span>
+      <span class="prompt-label">to view</span>
+    </div>
+
+    <div id="nowPlaying" class="now-playing hidden" aria-label="Now playing">
+      <img id="nowPlayingArt" class="now-playing-art" alt="" />
+      <div class="now-playing-text">
+        <div class="now-playing-eyebrow">Namish is listening to…</div>
+        <a id="nowPlayingTitle" class="now-playing-title" target="_blank" rel="noopener"></a>
+        <div id="nowPlayingArtist" class="now-playing-artist"></div>
+        <div id="nowPlayingStatus" class="now-playing-status"></div>
+      </div>
+      <button id="nowPlayingToggle" class="now-playing-toggle" aria-label="Play">▶</button>
+    </div>
+    <div class="spotify-player" aria-hidden="true"><div id="nowPlayingEmbed"></div></div>
+
+    <div id="hud" class="hud hidden">
+      <button id="menuBtn" class="hud-btn" aria-label="Menu">☰</button>
+    </div>
+
+    <div id="menu" class="overlay center hidden">
+      <div class="menu-card">
+        <div class="brand small">Menu</div>
+        <button data-target="about" class="menu-item">Photo wall · meet Namish</button>
+        <button data-target="notes" class="menu-item">Post-it wall · leave me a note</button>
+        <button data-target="laptop" class="menu-item">Desk · projects &amp; resume</button>
+        <button data-target="tripod" class="menu-item">Tripod · creative portfolio</button>
+        <button data-target="vinyl" class="menu-item">Vinyl · top 10 this month</button>
+        <button data-target="library" class="menu-item">Bookshelf · reading list</button>
+        <button data-target="travel" class="menu-item">Travel · places I've been</button>
+        <button id="menuClose" class="menu-close">Back to room</button>
+      </div>
+    </div>
+
+    <div id="mobileControls" class="mobile-controls hidden" aria-hidden="true">
+      <div id="joystick" class="joystick">
+        <div id="joyKnob" class="joy-knob"></div>
+      </div>
+      <button id="actionBtn" class="action-btn" aria-label="Interact">◉</button>
+    </div>
+
+    <div id="travelGlobe" class="travel-globe hidden" role="dialog" aria-modal="true" aria-label="Places I've been">
+      <canvas id="travelCanvas" class="travel-canvas"></canvas>
+      <div id="travelLabels" class="travel-labels"></div>
+      <header id="travelHud" class="travel-hud">
+        <p class="travel-hud-kicker">I use travel to grow my perspective</p>
+        <h2 id="travelTitle" class="travel-hud-title" aria-label="Travel"></h2>
+        <p class="travel-hud-body">From Southeast Asia and India to Europe and the United States, I've used travel to connect with people who are very different from me and to understand their perspectives. Click through some of my favorite places I've been in recent years.</p>
+        <span id="travelCount" class="travel-hud-count"></span>
+      </header>
+      <p class="travel-hint">drag to spin · tap a pin</p>
+      <button id="travelClose" class="travel-close" aria-label="Close globe">Close ✕</button>
+    </div>
+
+    <div id="crateHud" class="crate-hud hidden" role="dialog" aria-label="Dig through Namish's top 10">
+      <div class="crate-hud-eyebrow">Top 10 · last 4 weeks</div>
+      <div class="crate-hud-row">
+        <button id="cratePrev" class="crate-hud-nav" aria-label="Previous record">‹</button>
+        <div class="crate-hud-info">
+          <div id="crateRank" class="crate-hud-rank"></div>
+          <div id="crateTrack" class="crate-hud-track"></div>
+          <div id="crateArtist" class="crate-hud-artist"></div>
+        </div>
+        <button id="crateNext" class="crate-hud-nav" aria-label="Next record">›</button>
+      </div>
+      <div class="crate-hud-actions">
+        <button id="cratePlay" class="crate-hud-play">▶ Play this one</button>
+        <button id="crateClose" class="crate-hud-leave">Step back</button>
+      </div>
+      <div id="crateStatus" class="crate-hud-status" aria-live="polite"></div>
+    </div>
+
+    <div id="bookReader" class="book-reader hidden" role="dialog" aria-modal="true" aria-label="Namish's reading list">
+      <button id="bookClose" class="book-close" aria-label="Put the book back">✕</button>
+      <div id="book" class="book">
+        <div id="bookLeft" class="book-page book-page-left"></div>
+        <div id="bookRight" class="book-page book-page-right"></div>
+        <div id="bookTurner" class="book-turner hidden">
+          <div class="book-turner-front book-page"></div>
+          <div class="book-turner-back book-page"></div>
+        </div>
+      </div>
+      <div class="book-controls">
+        <button id="bookPrev" class="book-control" aria-label="Previous page">‹ Prev</button>
+        <span id="bookFolio" class="book-folio"></span>
+        <button id="bookNext" class="book-control" aria-label="Next page">Next ›</button>
+      </div>
+    </div>
+
+    <div id="notesPanel" class="notes-panel hidden" role="dialog" aria-modal="true" aria-label="Post-it note wall">
+      <div class="notes-sheet">
+        <button id="notesClose" class="notes-close" type="button">← Back to room</button>
+        <header class="notes-head">
+          <h2 class="notes-title">The wall.</h2>
+          <p class="notes-sub">Post-it notes and quotes are how I keep myself motivated. Drop one for me.</p>
+        </header>
+        <form id="notesForm" class="notes-form" autocomplete="off">
+          <label class="notes-field">
+            <span class="notes-label">Your note</span>
+            <textarea id="notesMessage" class="notes-input" maxlength="140" rows="3" required placeholder="A thought, a quote, a push…"></textarea>
+          </label>
+          <div class="notes-row">
+            <label class="notes-field notes-field-name">
+              <span class="notes-label">Name (optional)</span>
+              <input id="notesAuthor" class="notes-input" type="text" maxlength="24" placeholder="Anonymous" />
+            </label>
+            <span id="notesCount" class="notes-count" aria-hidden="true">140</span>
+            <button id="notesSubmit" class="notes-submit" type="submit">Stick it up</button>
+          </div>
+          <p id="notesStatus" class="notes-status" role="status"></p>
+        </form>
+        <div id="notesBoard" class="notes-board" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div id="iframePanel" class="iframe-panel hidden" role="dialog" aria-modal="true" aria-label="Creative portfolio">
+      <div class="iframe-window">
+      <div class="iframe-topbar">
+        <div id="iframeTitle" class="iframe-title">creative.namishkaistha.com</div>
+        <div class="iframe-actions">
+          <a id="iframeOpen" class="iframe-open" href="https://creative.namishkaistha.com" target="_blank" rel="noopener">Open in new tab ↗</a>
+          <button id="iframeClose" class="iframe-close" aria-label="Close">✕</button>
+        </div>
+      </div>
+      <iframe id="iframeFrame" class="iframe-frame" title="Creative portfolio" src="about:blank" referrerpolicy="no-referrer-when-downgrade" allow="clipboard-read; clipboard-write; fullscreen"></iframe>
+      </div>
+    </div>
+
+    <div id="idePanel" class="ide-panel hidden" role="dialog" aria-modal="true" aria-label="Namish's computer">
+      <div id="ideWindow" class="ide-window">
+      <div class="ide-titlebar">
+        <div class="ide-title">namish · personal projects</div>
+        <button id="ideClose" class="ide-close" aria-label="Close computer">✕</button>
+      </div>
+      <div class="ide-body">
+        <aside class="ide-explorer">
+          <div class="ide-explorer-header">Explorer</div>
+          <div class="ide-explorer-item root">▾ ~</div>
+          <div class="ide-explorer-item indent">📁 projects</div>
+          <div class="ide-explorer-item indent">📄 resume.pdf</div>
+          <div class="ide-explorer-item indent">📄 readme.md</div>
+        </aside>
+        <main class="ide-main">
+          <div id="ideTerminal" class="ide-terminal" aria-live="polite"></div>
+          <div id="ideQuick" class="ide-quick hidden" role="group" aria-label="Quick commands"></div>
+          <div id="ideGrid" class="ide-grid hidden"></div>
+          <input id="ideInput" class="ide-hidden-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Terminal input" />
+        </main>
+      </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
