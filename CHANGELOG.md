@@ -3,6 +3,8 @@
 ## 2026-10-03
 
 ### Changed
+- The post-it wall opens straight to browsing: every note is shown as an individual taped post-it with its note count, and an "Add a note" button opens a post-it composer. Escape or an outside tap closes the composer first, then the wall.
+- The Instagram icon in the about card links to @nam_yaps (TikTok is @namyaps).
 - The travel globe now matches the amber pixel "TRAVEL" title: square pixel land, blocky orange pins, pixel-font labels and a warm backdrop, instead of cold cyan.
 
 ### Fixed

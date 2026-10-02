@@ -136,27 +136,28 @@
 
     <div id="notesPanel" class="notes-panel hidden" role="dialog" aria-modal="true" aria-label="Post-it note wall">
       <div class="notes-sheet">
-        <button id="notesClose" class="notes-close" type="button">← Back to room</button>
-        <header class="notes-head">
-          <h2 class="notes-title">The wall.</h2>
-          <p class="notes-sub">Post-it notes and quotes are how I keep myself motivated. Drop one for me.</p>
+        <header class="notes-bar">
+          <button id="notesClose" class="notes-close" type="button">← Back to room</button>
+          <button id="notesAdd" class="notes-add" type="button"><span aria-hidden="true">＋</span> Add a note</button>
         </header>
-        <form id="notesForm" class="notes-form" autocomplete="off">
-          <label class="notes-field">
-            <span class="notes-label">Your note</span>
-            <textarea id="notesMessage" class="notes-input" maxlength="140" rows="3" required placeholder="A thought, a quote, a push…"></textarea>
-          </label>
-          <div class="notes-row">
-            <label class="notes-field notes-field-name">
-              <span class="notes-label">Name (optional)</span>
-              <input id="notesAuthor" class="notes-input" type="text" maxlength="24" placeholder="Anonymous" />
-            </label>
-            <span id="notesCount" class="notes-count" aria-hidden="true">140</span>
-            <button id="notesSubmit" class="notes-submit" type="submit">Stick it up</button>
-          </div>
-          <p id="notesStatus" class="notes-status" role="status"></p>
-        </form>
+        <div class="notes-head">
+          <h2 class="notes-title">The wall.</h2>
+          <p id="notesCount" class="notes-count" role="status"></p>
+        </div>
+        <p class="notes-sub">Post-it notes and quotes are how I keep myself motivated. Browse what people left, or add one of your own.</p>
         <div id="notesBoard" class="notes-board" aria-live="polite"></div>
+        <form id="notesForm" class="notes-composer hidden" autocomplete="off" aria-label="Add a note">
+          <div class="notes-paper">
+            <textarea id="notesMessage" class="notes-input" maxlength="140" rows="4" required placeholder="A thought, a quote, a push…" aria-label="Your note"></textarea>
+            <input id="notesAuthor" class="notes-input notes-input-name" type="text" maxlength="24" placeholder="Your name (optional)" aria-label="Your name (optional)" />
+            <div class="notes-composer-row">
+              <span id="notesChars" class="notes-chars" aria-hidden="true">140</span>
+              <button id="notesCancel" class="notes-cancel" type="button">Cancel</button>
+              <button id="notesSubmit" class="notes-submit" type="submit">Stick it up</button>
+            </div>
+            <p id="notesStatus" class="notes-status" role="status"></p>
+          </div>
+        </form>
       </div>
     </div>
 
