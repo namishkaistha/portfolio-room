@@ -50,7 +50,7 @@ export const TRAVEL_PLACES = [
     lat: 52.3676,
     lon: 4.9041,
     paragraphs: [
-      "Like Copenhagen, Amsterdam isn't a city with much to check off a list, and just existing in it was plenty. Café Belgique will always have a special place in my heart. The endless cold and wind made me feel right at home, and I never got over watching cyclists treat a bike like it was a car. The urban planning is something else.",
+      "Amsterdam isn't a place you go to check things off a list, and that's exactly what makes it so special. You go to exist in the vibe of the city and take in the culture, the people and the architecture. Café Belgique will always have a special place in my heart, the cold and wind made me feel right at home, and I never got over watching cyclists treat a bike like it was a car. The urban planning is something else. It's one of my favorite places I've been.",
       "My favorite memory is a night at Bar Skek, where I ended up friends with a group of Dutch students. A few pints in, one of them sat me down and asked, “So what's going on with Trump?” That turned into a long conversation about how Europe and the United States see each other. Kind people, immaculate vibe, and I'd go back in a heartbeat.",
     ],
     photos: [

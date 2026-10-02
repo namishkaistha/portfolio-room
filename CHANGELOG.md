@@ -3,6 +3,7 @@
 ## 2026-10-03
 
 ### Changed
+- Rewrote the Amsterdam intro so it reads as a love letter to a city you exist in, not a list of sights, instead of sounding like it lacked things to do.
 - Sound effects are now real recordings instead of generated noise: carpet footsteps, light key taps, book page flips and a cloth-and-thud record slide, all CC0 from Kenney.nl (licenses in `public/sfx/`). Each kind has several variants that never repeat back to back, with slight pitch changes. About 80 KB in total.
 - Leaving is now deliberate and needs no drawn door: a half-circle on the floor at the room's edge shows a "head out" prompt, and walking into the doorway no longer ejects you. Stand in the half-circle and press Space or E, or tap the action button, to leave.
 - The tripod, its stool and its camera views moved about 0.3 m into the room, and the post-it wall's standing spot moved in 0.3 m, so no floor ring pokes through the front wall.
