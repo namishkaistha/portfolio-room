@@ -46,8 +46,9 @@ const BED_CENTER = new THREE.Vector3(0.23, 0.8, -1.4);
 const CLOSET_CENTER = new THREE.Vector3(-1.7, 1.15, -0.5);
 export const WINDOW_CENTER = new THREE.Vector3(2.05, 1.48, -0.945);
 
-// Where the avatar lies on the mattress, feet toward the bed's foot.
-export const SLEEP_POSITION = new THREE.Vector3(0.23, 0.98, -0.6);
+// The bookcase's body starts just above the mattress at the head wall, so the
+// avatar lies diagonally: feet near the foot's right corner, head clear of it.
+export const SLEEP_POSE = { feet: new THREE.Vector3(0.9, 0.98, -0.5), yaw: Math.PI / 4 };
 
 // Each spot: where the avatar goes, which way it faces and how it poses, an
 // over-the-shoulder shot, then a close-up that fills the frame before the
@@ -86,7 +87,7 @@ export const SPOTS = {
     yaw: Math.PI,
     pose: "Idle",
     shoulderView: { position: new THREE.Vector3(1.4, 2.2, 0.9), look: BED_CENTER },
-    closeUpView: { position: new THREE.Vector3(1.25, 2.05, -0.1), look: BED_CENTER },
+    closeUpView: { position: new THREE.Vector3(1.9, 2.4, 0.55), look: BED_CENTER },
   },
   closet: {
     position: new THREE.Vector3(-1.3, 0, -0.5),
