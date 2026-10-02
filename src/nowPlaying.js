@@ -6,6 +6,7 @@ const PAUSE_ICON = "❚❚";
 const TRACK_END_TOLERANCE_MS = 750;
 const SITE_PLAYS_KEY = "namish-room:recent-site-plays";
 const SITE_PLAYS_LIMIT = 30;
+const IDLE_EYEBROW = "Press play for music";
 const RESUME_DELAY_MS = 600;
 const MAX_RESUME_ATTEMPTS = 3;
 
@@ -20,6 +21,7 @@ const state = {
   isAdvancing: false,
   shouldPlayWhenLoaded: false,
   isPaused: true,
+  hasPlayed: false,
   userPaused: false,
   resumeAttempts: 0,
   resumeTimer: null,
@@ -55,11 +57,6 @@ export function pausePlayback() {
 export function hideNowPlaying() {
   state.wantsVisible = false;
   document.getElementById("nowPlaying").classList.add("hidden");
-}
-
-export function startPlayback() {
-  state.wantsPlayback = true;
-  if (state.isReady) state.controller.play();
 }
 
 export function playTrackNow(track) {
@@ -228,6 +225,7 @@ function loadAndPlay(track) {
 
 function onPlaybackUpdate(playback) {
   state.isPaused = playback.isPaused;
+  if (!playback.isPaused) markFirstPlay();
   renderToggle(playback.isPaused);
   if (hasCurrentTrackEnded(playback)) playNextTrack();
   else if (playback.isPaused) resumeIfPausedUnintentionally();
@@ -267,6 +265,23 @@ async function chooseNextTrack() {
   return nextShuffledTrack();
 }
 
+// Music never starts by itself. Until the first play, the card invites the
+// visitor to press play instead of claiming something is playing.
+function markFirstPlay() {
+  if (state.hasPlayed) return;
+  state.hasPlayed = true;
+  renderIdleState();
+}
+
+function renderIdleState() {
+  const card = document.getElementById("nowPlaying");
+  card.classList.toggle("is-idle", !state.hasPlayed);
+  const eyebrow = card.querySelector(".now-playing-eyebrow");
+  if (!eyebrow) return;
+  eyebrow.dataset.liveText ??= eyebrow.textContent;
+  eyebrow.textContent = state.hasPlayed ? eyebrow.dataset.liveText : IDLE_EYEBROW;
+}
+
 function renderToggle(isPaused) {
   const toggle = document.getElementById("nowPlayingToggle");
   toggle.textContent = isPaused ? PLAY_ICON : PAUSE_ICON;
@@ -275,4 +290,5 @@ function renderToggle(isPaused) {
 
 function showCard() {
   document.getElementById("nowPlaying").classList.remove("hidden");
+  renderIdleState();
 }

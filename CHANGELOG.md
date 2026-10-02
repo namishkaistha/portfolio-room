@@ -2,7 +2,16 @@
 
 ## 2026-10-03
 
+### Added
+- Bed: stand at the foot of the bed, press Space (or tap the bed, or use the menu) to lie down and nap under a dimmed screen with floating Zs. Space, Enter, Escape or a tap wakes you.
+- Closet: stand at the closet to slide the door open and see the clothes hanging inside. A panel lets you mix and match tops (quarter zip, sweater, button down) and bottoms (trousers, parachute pants). Your avatar changes live and the choice is remembered. The selected piece's name scrambles in as a big pixel header, like the TRAVEL globe, with placeholder story text beneath it. Pieces currently differ by color and fabric sheen only; their real stories and looks are still to come.
+- Window: stand at the window (or use the menu) to raise the blinds and look out at a sky with three drifting clouds, one per goal from the About card (10% body fat, build a personal brand, learn to play piano).
+- `scripts/check-walkable.mjs` and a test that every station's standing spot is reachable from the spawn point using the real room model.
+
 ### Changed
+- Music no longer starts by itself. The player card says "Press play for music" with a pulsing amber play button until it is pressed, then returns to "Namish is listening to…".
+- The bed is shorter (and nudged left), widening the walkway between its foot and the desk so the guitar corner is easy to reach.
+- The bookshelf's page text rises in word by word, the same animation as the About card, instead of typing out. The typewriter module is removed.
 - Rewrote the Amsterdam intro so it reads as a love letter to a city you exist in, not a list of sights, instead of sounding like it lacked things to do.
 - Sound effects are now real recordings instead of generated noise: carpet footsteps, light key taps, book page flips and a cloth-and-thud record slide, all CC0 from Kenney.nl (licenses in `public/sfx/`). Each kind has several variants that never repeat back to back, with slight pitch changes. About 80 KB in total.
 - Leaving is now deliberate and needs no drawn door: a half-circle on the floor at the room's edge shows a "head out" prompt, and walking into the doorway no longer ejects you. Stand in the half-circle and press Space or E, or tap the action button, to leave.

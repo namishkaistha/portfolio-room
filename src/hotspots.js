@@ -8,6 +8,7 @@ const FULL_CIRCLE = { start: 0, length: Math.PI * 2 };
 const HALF_TOWARD_DOOR = { start: Math.PI, length: Math.PI };
 const HALF_TOWARD_BACK_WALL = { start: 0, length: Math.PI };
 const HALF_AWAY_FROM_DESK = { start: Math.PI / 2, length: Math.PI };
+const HALF_TOWARD_RIGHT_WALL = { start: -Math.PI / 2, length: Math.PI };
 
 const DEFAULT_TRIGGER_RADIUS = 0.75;
 
@@ -25,6 +26,39 @@ const HOTSPOT_LIST = [
     radius: SPOT_TRIGGER_RADIUS,
     arc: HALF_TOWARD_BACK_WALL,
     color: 0xf7c56a,
+  },
+  {
+    id: "bed",
+    label: "the bed",
+    promptLabel: "to take a nap",
+    objects: ["BED"],
+    trigger: SPOTS.bed.position.toArray(),
+    highlight: [0.23, 0.9, -1.4],
+    color: 0x9ec7e0,
+    radius: 0.4,
+    arc: HALF_TOWARD_DOOR,
+  },
+  {
+    id: "closet",
+    label: "the closet",
+    promptLabel: "to pick an outfit",
+    objects: ["CLOSET_DOOR_1", "CLOSET_DOOR_2"],
+    trigger: SPOTS.closet.position.toArray(),
+    highlight: [-1.85, 1.2, -0.5],
+    color: 0xd8b56a,
+    radius: 0.38,
+    arc: HALF_TOWARD_RIGHT_WALL,
+  },
+  {
+    id: "window",
+    label: "the window",
+    promptLabel: "to look outside",
+    objects: ["WINDOW"],
+    trigger: SPOTS.window.position.toArray(),
+    highlight: [2.0, 1.4, -0.945],
+    color: 0x9fd8ff,
+    radius: 0.3,
+    arc: HALF_AWAY_FROM_DESK,
   },
   {
     id: "door",

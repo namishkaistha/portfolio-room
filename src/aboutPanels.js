@@ -1,4 +1,5 @@
 import { create, replayAnimation } from "./dom.js";
+import { buildRevealWords, countWords } from "./wordReveal.js";
 import { createIcon } from "./aboutIcons.js";
 import { FREE_TIME, FREE_TIME_LEAD, GOALS, GOALS_LEAD, STORY } from "./aboutContent.js";
 
@@ -17,22 +18,11 @@ function buildStoryPanel() {
   let wordIndex = 0;
   for (const text of STORY) {
     const paragraph = create("p", "about-text");
-    for (const word of text.split(" ")) {
-      paragraph.append(createWord(word, wordIndex), " ");
-      wordIndex += 1;
-    }
+    paragraph.append(...buildRevealWords(text, wordIndex));
+    wordIndex += countWords(text);
     panel.append(paragraph);
   }
   return panel;
-}
-
-// Each word rises out of its own clipping box, staggered by position.
-function createWord(word, index) {
-  const frame = create("span", "about-word");
-  const inner = create("span", "about-word-inner", word);
-  inner.style.setProperty("--i", index);
-  frame.append(inner);
-  return frame;
 }
 
 function buildFreeTimePanel() {

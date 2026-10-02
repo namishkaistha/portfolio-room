@@ -9,8 +9,10 @@ import { dismissTravelLayer, isTravelGlobeOpen, openTravelGlobe, wireTravelGlobe
 import { closeIDE, dismissIDELayer, isIDEOpen, openIDE } from "./ide.js";
 import { closeIframePanel, isIframePanelOpen, openIframePanel } from "./iframePanel.js";
 import { closeAboutCard, isAboutCardOpen, openAboutCard } from "./aboutCard.js";
+import { createViewOverlay } from "./viewOverlay.js";
+import { closeCloset, isClosetOpen, openCloset, wearSavedOutfit, wireCloset } from "./closetPanel.js";
 import { dismissNotesLayer, isNotesPanelOpen, openNotesPanel, wireNotesPanel } from "./notesPanel.js";
-import { hideNowPlaying, mountNowPlaying, pausePlayback, resumePlayback, revealNowPlaying, startPlayback } from "./nowPlaying.js";
+import { hideNowPlaying, mountNowPlaying, pausePlayback, resumePlayback, revealNowPlaying } from "./nowPlaying.js";
 import { closeCrateDigging, isCrateDiggingOpen, openCrateDigging, updateRecordShelf, wireCrateDigging } from "./crateDigging.js";
 import { closeBookReader, isBookReaderOpen, openBookReader, wireBookReader } from "./bookReader.js";
 import { pullBookOut, pushBookBack, updateBookPull } from "./bookPull.js";
@@ -26,6 +28,7 @@ import {
   ENTRY_PATH_CONTROLS,
   ROOM,
   ROOM_SPAWN,
+  SLEEP_POSITION,
   SPOTS,
 } from "./roomConfig.js";
 
@@ -40,6 +43,8 @@ const FACING_DOOR = 0;
 const FACING_INTO_ROOM = Math.PI;
 const SEE_OFF_WALK_SECONDS = 1.3;
 const SEE_OFF_TURN_SECONDS = 0.5;
+const FACING_RIGHT_WALL = Math.PI / 2;
+const DRESSING_TURN_SECONDS = 0.5;
 // Widest aspect ratio at which the whole room still fits the overhead shot.
 const OVERHEAD_FIT_ASPECT = 0.68;
 const STATION_POLL_MS = 120;
@@ -66,6 +71,10 @@ let frontWall = null;
 let roomMixer = null;
 let activeHotspot = null;
 let wasModalOpen = false;
+let closetDoors = null;
+let windowView = null;
+const sleepOverlay = createViewOverlay("sleepOverlay", ["Space", "Enter"]);
+const windowOverlay = createViewOverlay("windowOverlay");
 
 bootstrap();
 
@@ -73,11 +82,15 @@ async function bootstrap() {
   window.addEventListener("resize", resizeToViewport);
   resizeToViewport();
 
-  const { doorGroup, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer } = await buildScene(scene);
+  const { doorGroup, closetDoors: doors, windowView: view, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer } = await buildScene(scene);
   roomGroup = room;
   frontWall = wall;
+  closetDoors = doors;
+  windowView = view;
   roomMixer = mixer;
   player = new Player(avatar);
+  wearSavedOutfit(avatar.root);
+  wireCloset(avatar.root);
   installLights(scene);
   highlights = installHighlights(roomGroup, HOTSPOTS);
 
@@ -132,6 +145,8 @@ function step() {
   }
 
   roomMixer.update(delta);
+  closetDoors?.update(delta);
+  windowView?.update(delta);
   updateRecordShelf(delta);
   updateBookPull(delta);
   // The globe overlay is opaque, so skip drawing the room underneath it.
@@ -156,7 +171,6 @@ function presentDoorIntro() {
 }
 
 function onDoorOpenStart() {
-  startPlayback();
   revealRoomBehindDoor();
   dismissDoorIntro();
   stage.current = "entering";
@@ -293,10 +307,13 @@ function closeOpenModal() {
   else if (isBookReaderOpen()) closeBookReader();
   else if (isAboutCardOpen()) closeAboutCard();
   else if (isNotesPanelOpen()) dismissNotesLayer();
+  else if (isClosetOpen()) closeCloset();
+  else if (sleepOverlay.isOpen()) sleepOverlay.close();
+  else if (windowOverlay.isOpen()) windowOverlay.close();
 }
 
 function isModalOpen() {
-  return isTravelGlobeOpen() || isIDEOpen() || isIframePanelOpen() || isCrateDiggingOpen() || isBookReaderOpen() || isAboutCardOpen() || isNotesPanelOpen();
+  return isTravelGlobeOpen() || isIDEOpen() || isIframePanelOpen() || isCrateDiggingOpen() || isBookReaderOpen() || isAboutCardOpen() || isNotesPanelOpen() || isClosetOpen() || sleepOverlay.isOpen() || windowOverlay.isOpen();
 }
 
 function setPrompt(hotspot) {
@@ -373,6 +390,18 @@ function openHotspotView(id) {
     visitSpotAndOpen(SPOTS.about, (onExit) => openAboutCard({ onExit }));
     return;
   }
+  if (id === "bed") {
+    visitSpotAndOpen(SPOTS.bed, startSleeping);
+    return;
+  }
+  if (id === "closet") {
+    visitSpotAndOpen(SPOTS.closet, startDressing);
+    return;
+  }
+  if (id === "window") {
+    visitSpotAndOpen(SPOTS.window, startLookingOutside);
+    return;
+  }
   if (id === "notes") {
     visitSpotAndOpen(SPOTS.notes, (onExit) => openNotesPanel({ onExit }));
     return;
@@ -400,6 +429,23 @@ async function visitSpotAndOpen(spot, openPanelView) {
   await Promise.all([player.moveToSpot(spot), director.flyTo(spot.shoulderView, SHOULDER_SHOT_SECONDS)]);
   await director.flyTo(spot.closeUpView, CLOSE_UP_SECONDS);
   openPanelView(leaveSpot);
+}
+
+function startSleeping(onExit) {
+  player.lieDown(SLEEP_POSITION);
+  sleepOverlay.open({ onExit: () => { player.standUp(); onExit(); } });
+}
+
+async function startDressing(onExit) {
+  closetDoors?.open();
+  await player.glideTo(SPOTS.closet.position, FACING_RIGHT_WALL, DRESSING_TURN_SECONDS);
+  openCloset({ onExit: () => { closetDoors?.close(); onExit(); } });
+}
+
+function startLookingOutside(onExit) {
+  player.setVisible(false);
+  windowView?.setBlindsOpen(true);
+  windowOverlay.open({ onExit: () => { windowView?.setBlindsOpen(false); player.setVisible(true); onExit(); } });
 }
 
 async function openReadingList(onExit) {
@@ -558,6 +604,7 @@ function createRenderer(target) {
   instance.outputColorSpace = THREE.SRGBColorSpace;
   instance.toneMapping = THREE.ACESFilmicToneMapping;
   instance.toneMappingExposure = 1.05;
+  instance.localClippingEnabled = true;
   instance.shadowMap.enabled = true;
   instance.shadowMap.type = THREE.PCFSoftShadowMap;
   return instance;

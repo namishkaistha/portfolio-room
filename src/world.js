@@ -8,6 +8,9 @@ import { hangCornerGallery } from "./wallArt.js";
 import { installRecordShelf } from "./crateDigging.js";
 import { replaceShelfTopDecor } from "./shelfDecor.js";
 import { installBookPull } from "./bookPull.js";
+import { installClosetDoors } from "./closetDoors.js";
+import { installWindowView } from "./windowView.js";
+import { GOALS } from "./aboutContent.js";
 import { addBox, addCylinder } from "./meshHelpers.js";
 
 const ROOM_MODEL_URL = "/room.glb";
@@ -73,6 +76,11 @@ const LAYOUT_WIDTH_SCALES = {
   BED: 0.88,
 };
 
+// A shorter bed, kept flush with the head wall, opens the walkway between its
+// foot and the desk so the guitar corner is easy to reach.
+const BED_LENGTH_SCALE = 0.86;
+const BED_SHIFT_X = -0.1;
+
 const SEAT_COLOR = 0x2a2522;
 const STOOL = { radius: 0.18, seatHeight: 0.45, seatThickness: 0.05, postRadius: 0.03 };
 
@@ -93,6 +101,8 @@ export async function buildScene(scene) {
   scene.add(roomGroup);
   roomGroup.add(avatar.root);
   const roomMixer = loopRoomAnimations(roomModel);
+  const closetDoors = installClosetDoors(roomGroup);
+  const windowView = installWindowView(roomGroup, GOALS.map((goal) => goal.title));
 
   const frontWall = buildHallway();
   scene.add(frontWall);
@@ -100,7 +110,7 @@ export async function buildScene(scene) {
   const doorGroup = buildDoorGroup();
   scene.add(doorGroup);
 
-  return { doorGroup, roomGroup, frontWall, avatar, roomMixer };
+  return { doorGroup, roomGroup, frontWall, avatar, roomMixer, closetDoors, windowView };
 }
 
 export function installLights(scene) {
@@ -203,6 +213,19 @@ function applyLayoutOffsets(root) {
   for (const [name, yaw] of Object.entries(LAYOUT_YAWS)) {
     root.getObjectByName(name)?.rotation.set(0, yaw, 0);
   }
+  shortenBed(root);
+}
+
+function shortenBed(root) {
+  const bed = root.getObjectByName("BED");
+  if (!bed) return;
+  root.updateMatrixWorld(true);
+  const before = new THREE.Box3().setFromObject(bed);
+  bed.scale.z *= BED_LENGTH_SCALE;
+  root.updateMatrixWorld(true);
+  const after = new THREE.Box3().setFromObject(bed);
+  bed.position.z += before.min.z - after.min.z;
+  bed.position.x += BED_SHIFT_X;
 }
 
 function buildTripodStool() {
