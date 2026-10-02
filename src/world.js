@@ -17,7 +17,6 @@ const COLOR = {
   doorSlab: 0x7a4a26,
   doorPanel: 0x5a331a,
   doorKnob: 0xe7c07b,
-  exitLight: 0xffe2a8,
   trim: 0x2b1c10,
   hallwayTrim: 0xf1e9d8,
   hallwayFloor: 0x8a6a4e,
@@ -31,10 +30,6 @@ const TRIM_DEPTH = 0.05;
 const CASING_WIDTH = 0.09;
 const CASING_DEPTH = 0.14;
 const CASING_OVERLAP = 0.02;
-const EXIT_LIGHT_DEPTH = 0.5;
-const EXIT_DOOR_OPEN_ANGLE = -Math.PI / 2 + 0.2;
-const EXIT_KEEP_OUT = 0.3;
-const EXIT_SILL_HEIGHT = 0.04;
 
 const OBSTACLE_INFLATE = 0.01;
 const TRIPOD_INFLATE = 0.02;
@@ -105,11 +100,7 @@ export async function buildScene(scene) {
   const doorGroup = buildDoorGroup();
   scene.add(doorGroup);
 
-  const exitDoor = buildExitDoor();
-  exitDoor.visible = false;
-  roomGroup.add(exitDoor);
-
-  return { doorGroup, exitDoor, roomGroup, frontWall, avatar, roomMixer };
+  return { doorGroup, roomGroup, frontWall, avatar, roomMixer };
 }
 
 export function installLights(scene) {
@@ -277,26 +268,6 @@ function buildHallway() {
   floor.receiveShadow = true;
   hallway.add(floor);
   return hallway;
-}
-
-// The big front wall is cut away for the overhead view, so the doorway is
-// drawn on its own: the full casing, an open panelled door leaf swung out
-// into the hallway, a sill, and a strip of hallway light on the floor.
-function buildExitDoor() {
-  const exit = new THREE.Group();
-  exit.name = "EXIT_DOOR";
-  const trimMaterial = new THREE.MeshStandardMaterial({ color: COLOR.hallwayTrim, roughness: 0.6 });
-  addDoorCasing(exit, trimMaterial, ROOM.maxZ + ROOM.wallThickness / 2);
-  addBox(exit, trimMaterial, { size: [DOOR.width + CASING_WIDTH, EXIT_SILL_HEIGHT, CASING_DEPTH], position: [0, EXIT_SILL_HEIGHT / 2, ROOM.maxZ + ROOM.wallThickness / 2] });
-  const leaf = buildDoorGroup();
-  leaf.rotation.y = EXIT_DOOR_OPEN_ANGLE;
-  exit.add(leaf);
-  const light = new THREE.Mesh(new THREE.PlaneGeometry(DOOR.width, EXIT_LIGHT_DEPTH), new THREE.MeshBasicMaterial({ color: COLOR.exitLight, transparent: true, opacity: 0.45 }));
-  light.rotation.x = -Math.PI / 2;
-  light.position.set(0, 0.012, ROOM.maxZ - EXIT_LIGHT_DEPTH / 2);
-  exit.add(light);
-  OBSTACLES.push({ minX: -DOOR.width / 2, maxX: DOOR.width / 2, minZ: ROOM.maxZ - EXIT_KEEP_OUT, maxZ: ROOM.maxZ + 1 });
-  return exit;
 }
 
 function addWallPanel(group, material, { width, height, x, y, z }) {

@@ -63,7 +63,6 @@ let joystick = null;
 let highlights = null;
 let roomGroup = null;
 let frontWall = null;
-let exitDoor = null;
 let roomMixer = null;
 let activeHotspot = null;
 let wasModalOpen = false;
@@ -74,10 +73,9 @@ async function bootstrap() {
   window.addEventListener("resize", resizeToViewport);
   resizeToViewport();
 
-  const { doorGroup, exitDoor: exit, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer } = await buildScene(scene);
+  const { doorGroup, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer } = await buildScene(scene);
   roomGroup = room;
   frontWall = wall;
-  exitDoor = exit;
   roomMixer = mixer;
   player = new Player(avatar);
   installLights(scene);
@@ -252,13 +250,11 @@ function enterRoom() {
 function cutAwayFrontWall() {
   frontWall.visible = false;
   door.pivot.visible = false;
-  exitDoor.visible = true;
 }
 
 function restoreFrontWall() {
   frontWall.visible = true;
   door.pivot.visible = true;
-  exitDoor.visible = false;
 }
 
 function showControlsToast() {
