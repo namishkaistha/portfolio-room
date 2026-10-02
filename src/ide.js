@@ -1,5 +1,5 @@
 import { PROJECTS, RESUME_URL } from "./projects.js";
-import { emitKeySpark } from "./flourish.js";
+import { playKeyClick } from "./sfx.js";
 import { closeLightbox, closeProjectCard, isLightboxOpen, isProjectCardOpen, openProjectCard, removeCard, renderProjectBoxes } from "./projectCards.js";
 
 const WELCOME_LINES = [
@@ -159,7 +159,7 @@ function onStrayKeyDown(event) {
   input.value = isPrintable ? input.value + event.key : input.value.slice(0, -1);
   state.input = input.value;
   updateInputLine();
-  if (isPrintable) sparkFromCaret(event.key);
+  playKeyClick();
 }
 
 function onPanelClick(event) {
@@ -174,14 +174,9 @@ function requireInput() {
 }
 
 function onInputChange(event) {
-  const isTyping = event.target.value.length > state.input.length;
   state.input = event.target.value;
   updateInputLine();
-  if (isTyping) sparkFromCaret(state.input.slice(-1));
-}
-
-function sparkFromCaret(character) {
-  emitKeySpark(document.querySelector(".ide-line-input .ide-caret"), character);
+  playKeyClick();
 }
 
 function onInputKeyDown(event) {

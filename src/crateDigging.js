@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { playTrackNow } from "./nowPlaying.js";
 import { approach, smoothstep } from "./motion.js";
-import { emitPuff } from "./dust.js";
+import { playRecordPull } from "./sfx.js";
 
 const TOP_TRACKS_ENDPOINT = "/api/top-tracks";
 const LOADING_MESSAGE = "Pulling records…";
@@ -131,7 +131,7 @@ function focusRecord(index) {
   if (!state.tracks?.length) return;
   const previousIndex = state.focusedIndex;
   state.focusedIndex = Math.max(0, Math.min(state.tracks.length - 1, index));
-  if (state.focusedIndex !== previousIndex) puffAtRecord(state.records[state.focusedIndex]);
+  if (state.focusedIndex !== previousIndex) playRecordPull();
   renderHud();
 }
 
@@ -141,11 +141,6 @@ function playFocusedRecord() {
   state.playingUri = track.uri;
   playTrackNow({ ...track, source: "top" });
   renderHud();
-}
-
-function puffAtRecord(record) {
-  const { x, y, z } = record.base;
-  emitPuff(x, y - SLEEVE.size / 2, z + PULL.distance, 0.8);
 }
 
 function renderHud() {
