@@ -1,0 +1,9 @@
+node_modules
+dist
+.env*
+.vercel
+.playwright-mcp
+.DS_Store
+*.log
+# iCloud conflict copies
+* [0-9].*
