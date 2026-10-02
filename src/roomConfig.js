@@ -37,7 +37,7 @@ export const HALLWAY = { halfWidth: 7, height: 4, depth: 8 };
 export const OVERHEAD_VIEW = { position: CAMERA_ROOM_ENTRY, look: CAMERA_LOOK_TARGET };
 
 const MONITOR_SCREEN = new THREE.Vector3(1.88, 1.22, 1.89);
-const PHONE_SCREEN = new THREE.Vector3(-1.59, 1.53, 1.24);
+const PHONE_SCREEN = new THREE.Vector3(-1.29, 1.53, 1.24);
 const RECORD_SHELF = new THREE.Vector3(-1.52, 0.55, -1.42);
 const PULLED_BOOK = new THREE.Vector3(-0.52, 1.33, -1.9);
 const PHOTO_COLLAGE_CENTER = new THREE.Vector3(2.0, 1.72, 0.95);
@@ -55,11 +55,11 @@ export const SPOTS = {
     closeUpView: { position: new THREE.Vector3(1.4, 1.22, 1.89), look: MONITOR_SCREEN },
   },
   tripod: {
-    position: new THREE.Vector3(-0.85, 0, 1.24),
+    position: new THREE.Vector3(-0.55, 0, 1.24),
     yaw: -Math.PI / 2,
     pose: "Sit",
-    shoulderView: { position: new THREE.Vector3(-0.2, 2.05, 1.6), look: PHONE_SCREEN },
-    closeUpView: { position: new THREE.Vector3(-1.42, 1.53, 1.24), look: PHONE_SCREEN },
+    shoulderView: { position: new THREE.Vector3(0.1, 2.05, 1.6), look: PHONE_SCREEN },
+    closeUpView: { position: new THREE.Vector3(-1.12, 1.53, 1.24), look: PHONE_SCREEN },
   },
   vinyl: {
     position: new THREE.Vector3(-0.95, 0, -1.25),
@@ -76,7 +76,7 @@ export const SPOTS = {
     closeUpView: { position: new THREE.Vector3(1.4, 1.72, 0.95), look: PHOTO_COLLAGE_CENTER },
   },
   notes: {
-    position: new THREE.Vector3(-1.5, 0, 2.15),
+    position: new THREE.Vector3(-1.5, 0, 1.85),
     yaw: -Math.PI / 2,
     pose: "Idle",
     shoulderView: { position: new THREE.Vector3(-0.5, 2.1, 0.9), look: POSTIT_WALL_CENTER },

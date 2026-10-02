@@ -3,6 +3,8 @@
 ## 2026-10-03
 
 ### Changed
+- Leaving is now deliberate: the doorway is drawn in the room (low posts and a strip of hallway light) and walking into it no longer ejects you. Stand at the door and press Space or E, tap the action button, or click the door to head out.
+- The tripod, its stool and its camera views moved about 0.3 m into the room, and the post-it wall's standing spot moved in 0.3 m, so no floor ring pokes through the front wall.
 - The post-it wall opens straight to browsing: every note is shown as an individual taped post-it with its note count, and an "Add a note" button opens a post-it composer. Escape or an outside tap closes the composer first, then the wall.
 - The Instagram icon in the about card links to @nam_yaps (TikTok is @namyaps).
 - The travel globe now matches the amber pixel "TRAVEL" title: square pixel land, blocky orange pins, pixel-font labels and a warm backdrop, instead of cold cyan.

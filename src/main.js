@@ -23,7 +23,6 @@ import {
   CAMERA_ROOM_ENTRY,
   CAMERA_START,
   ENTRY_LOOK_CONTROL,
-  DOOR,
   ENTRY_PATH_CONTROLS,
   ROOM,
   ROOM_SPAWN,
@@ -36,7 +35,6 @@ const CONTROLS_HIDE_DELAY_MS = 6400;
 const SHOULDER_SHOT_SECONDS = 1.3;
 const CLOSE_UP_SECONDS = 0.7;
 const RETURN_TO_OVERHEAD_SECONDS = 1.2;
-const DOORWAY_TRIGGER_DEPTH = 0.35;
 const WALL_RESTORE_CLEARANCE = 0.3;
 const FACING_DOOR = 0;
 const FACING_INTO_ROOM = Math.PI;
@@ -65,6 +63,7 @@ let joystick = null;
 let highlights = null;
 let roomGroup = null;
 let frontWall = null;
+let exitDoor = null;
 let roomMixer = null;
 let activeHotspot = null;
 let wasModalOpen = false;
@@ -75,9 +74,10 @@ async function bootstrap() {
   window.addEventListener("resize", resizeToViewport);
   resizeToViewport();
 
-  const { doorGroup, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer } = await buildScene(scene);
+  const { doorGroup, exitDoor: exit, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer } = await buildScene(scene);
   roomGroup = room;
   frontWall = wall;
+  exitDoor = exit;
   roomMixer = mixer;
   player = new Player(avatar);
   installLights(scene);
@@ -122,7 +122,6 @@ function step() {
     resumeMusicWhenStationCloses();
     refreshHotspotUi();
     highlights.update(elapsed);
-    if (isInDoorway(player.position)) leaveRoom();
   } else if (stage.current === "leaving") {
     advanceCameraTravel(delta);
     player.advance(delta, resolveMovement);
@@ -199,10 +198,6 @@ function restoreWallOncePastDoorway(t) {
   if (t > 0.5 && camera.position.z > ROOM.maxZ + WALL_RESTORE_CLEARANCE) restoreFrontWall();
 }
 
-function isInDoorway(position) {
-  return position.z > ROOM.maxZ - DOORWAY_TRIGGER_DEPTH && Math.abs(position.x - DOOR.centerX) < DOOR.width / 2;
-}
-
 function leaveRoom() {
   stage.current = "leaving";
   setPrompt(null);
@@ -257,11 +252,13 @@ function enterRoom() {
 function cutAwayFrontWall() {
   frontWall.visible = false;
   door.pivot.visible = false;
+  exitDoor.visible = true;
 }
 
 function restoreFrontWall() {
   frontWall.visible = true;
   door.pivot.visible = true;
+  exitDoor.visible = false;
 }
 
 function showControlsToast() {
@@ -368,6 +365,10 @@ function wireInteraction() {
 }
 
 function openHotspotView(id) {
+  if (id === "door") {
+    if (stage.current === "room") leaveRoom();
+    return;
+  }
   if (id === "laptop") {
     visitSpotAndOpen(SPOTS.laptop, (onExit) => openIDE({ onExit }));
     return;
