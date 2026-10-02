@@ -21,6 +21,7 @@ export class Player {
     this.areControlsEnabled = true;
     this.glide = null;
     this.standingSpot = null;
+    this.lying = null;
     this.syncAvatar();
   }
 
@@ -34,6 +35,21 @@ export class Player {
   async returnFromSpot() {
     await this.glideTo(this.standingSpot, this.facingYaw);
     this.isAtSpot = false;
+  }
+
+  // Lies on its back at `position`, head toward the back wall (-Z).
+  lieDown(position) {
+    this.lying = position.clone();
+    this.syncAvatar();
+  }
+
+  standUp() {
+    this.lying = null;
+    this.syncAvatar();
+  }
+
+  setVisible(isVisible) {
+    this.avatar.root.visible = isVisible;
   }
 
   attach() {
@@ -112,8 +128,13 @@ export class Player {
   }
 
   syncAvatar() {
+    if (this.lying) {
+      this.avatar.root.position.copy(this.lying);
+      this.avatar.root.rotation.set(-Math.PI / 2, 0, 0);
+      return;
+    }
     this.avatar.root.position.set(this.position.x, 0, this.position.z);
-    this.avatar.root.rotation.y = this.facingYaw;
+    this.avatar.root.rotation.set(0, this.facingYaw, 0);
   }
 
   onKeyDown = (event) => { this.keys.add(event.code); };

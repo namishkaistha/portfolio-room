@@ -6,7 +6,7 @@ const stylesheet = readFileSync(new URL("../src/style.css", import.meta.url), "u
 
 // Panels are layered over the 3D canvas by CSS alone, so a missing rule leaves
 // a station visible but unclickable. Each station's root rule must exist.
-const STATION_SELECTORS = [".ide-panel", ".ide-window", ".iframe-panel", ".iframe-window", ".crate-hud", ".book-reader", ".about-card", ".about-sheet", ".notes-panel", ".notes-sheet", ".notes-note", ".notes-composer", ".notes-paper", ".notes-add", ".travel-globe", ".travel-card"];
+const STATION_SELECTORS = [".ide-panel", ".ide-window", ".iframe-panel", ".iframe-window", ".crate-hud", ".book-reader", ".about-card", ".about-sheet", ".notes-panel", ".notes-sheet", ".notes-note", ".notes-composer", ".notes-paper", ".notes-add", ".closet-panel", ".closet-chip", ".view-overlay", ".sleep-overlay", ".travel-globe", ".travel-card"];
 
 for (const selector of STATION_SELECTORS) {
   test(`style.css defines ${selector}`, () => {

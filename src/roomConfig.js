@@ -42,6 +42,12 @@ const RECORD_SHELF = new THREE.Vector3(-1.52, 0.55, -1.42);
 const PULLED_BOOK = new THREE.Vector3(-0.52, 1.33, -1.9);
 const PHOTO_COLLAGE_CENTER = new THREE.Vector3(2.0, 1.72, 0.95);
 const POSTIT_WALL_CENTER = new THREE.Vector3(-2.04, 1.58, 1.72);
+const BED_CENTER = new THREE.Vector3(0.23, 0.8, -1.4);
+const CLOSET_CENTER = new THREE.Vector3(-1.7, 1.15, -0.5);
+export const WINDOW_CENTER = new THREE.Vector3(2.05, 1.48, -0.945);
+
+// Where the avatar lies on the mattress, feet toward the bed's foot.
+export const SLEEP_POSITION = new THREE.Vector3(0.23, 0.98, -0.6);
 
 // Each spot: where the avatar goes, which way it faces and how it poses, an
 // over-the-shoulder shot, then a close-up that fills the frame before the
@@ -74,6 +80,27 @@ export const SPOTS = {
     pose: "Idle",
     shoulderView: { position: new THREE.Vector3(0.3, 2.05, 1.5), look: PHOTO_COLLAGE_CENTER },
     closeUpView: { position: new THREE.Vector3(1.4, 1.72, 0.95), look: PHOTO_COLLAGE_CENTER },
+  },
+  bed: {
+    position: new THREE.Vector3(0.2, 0, -0.1),
+    yaw: Math.PI,
+    pose: "Idle",
+    shoulderView: { position: new THREE.Vector3(1.4, 2.2, 0.9), look: BED_CENTER },
+    closeUpView: { position: new THREE.Vector3(1.25, 2.05, -0.1), look: BED_CENTER },
+  },
+  closet: {
+    position: new THREE.Vector3(-1.3, 0, -0.5),
+    yaw: -Math.PI / 2,
+    pose: "Idle",
+    shoulderView: { position: new THREE.Vector3(0.2, 1.9, 0.7), look: CLOSET_CENTER },
+    closeUpView: { position: new THREE.Vector3(1.05, 1.55, -0.5), look: new THREE.Vector3(-1.5, 1.05, -0.5) },
+  },
+  window: {
+    position: new THREE.Vector3(1.55, 0, -0.4),
+    yaw: Math.PI / 2,
+    pose: "Idle",
+    shoulderView: { position: new THREE.Vector3(0.5, 2.0, 0.5), look: WINDOW_CENTER },
+    closeUpView: { position: new THREE.Vector3(0.1, 1.55, -0.945), look: WINDOW_CENTER },
   },
   notes: {
     position: new THREE.Vector3(-1.5, 0, 1.85),
