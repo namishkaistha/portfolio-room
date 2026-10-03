@@ -5,7 +5,7 @@ import { loadAvatar } from "./avatar.js";
 import { dressDesk } from "./deskSetup.js";
 import { buildPostItWall } from "./postItWall.js";
 import { hangCornerGallery } from "./wallArt.js";
-import { installRecordShelf } from "./crateDigging.js";
+import { installRecordShelf } from "./recordShelf.js";
 import { replaceShelfTopDecor } from "./shelfDecor.js";
 import { installBookPull } from "./bookPull.js";
 import { installClosetDoors } from "./closetDoors.js";

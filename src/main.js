@@ -8,7 +8,7 @@ import { installHighlights } from "./highlights.js";
 import { createStations, wireStations } from "./stations.js";
 import { wearSavedOutfit, wireCloset } from "./closetPanel.js";
 import { hideNowPlaying, mountNowPlaying, pausePlayback, resumePlayback, revealNowPlaying } from "./nowPlaying.js";
-import { updateRecordShelf } from "./crateDigging.js";
+import { updateRecordShelf } from "./recordShelf.js";
 import { updateBookPull } from "./bookPull.js";
 import { typeIntroMessage } from "./introText.js";
 import { isMuted, setMuted, unlockAudio, updateFootsteps } from "./sfx.js";

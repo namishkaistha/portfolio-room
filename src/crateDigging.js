@@ -1,26 +1,14 @@
-import * as THREE from "three";
 import { playTrackNow } from "./nowPlaying.js";
-import { approach, slideThenTurn } from "./motion.js";
 import { playRecordPull } from "./sfx.js";
-import { requireNode } from "./meshHelpers.js";
 import { element } from "./dom.js";
+import { RECORD_COUNT, pullOutRecord, wrapSleeves } from "./recordShelf.js";
 import { createExitSignal } from "./exitSignal.js";
 
 const TOP_TRACKS_ENDPOINT = "/api/top-tracks";
 const LOADING_MESSAGE = "Pulling records…";
 const ERROR_MESSAGE = "Couldn't reach Spotify. Try again in a bit.";
 
-// The middle of the stand's upper shelf row is cleared to hold the top 10;
-// the GLB's other sleeves stay on either side as the rest of the collection.
-const CLEARED_SLEEVE_NAMES = ["Music_Book_1_3", "Music_Book_1_4", "Music_Book_1_5"];
-const RECORD_COUNT = 10;
-const SLEEVE = { thickness: 0.021, size: 0.3, depth: 0.27, gap: 0.002 };
-const SHELF = { firstX: -1.63, bottomY: 0.37, centerZ: -1.695 };
-const PULL = { distance: 0.32, lift: 0.04, coverTurn: -1.35, slideShare: 0.6, speed: 2.6 };
-const CARDBOARD_COLOR = 0xd9cdb8;
-
 const state = {
-  records: [],
   tracks: null,
   focusedIndex: 0,
   playingUri: null,
@@ -28,40 +16,21 @@ const state = {
 };
 const exit = createExitSignal();
 
-export function installRecordShelf(roomGroup) {
-  for (const name of CLEARED_SLEEVE_NAMES) requireNode(roomGroup, name).removeFromParent();
-  const shelf = new THREE.Group();
-  shelf.name = "TOP_TEN_SHELF";
-  for (let index = 0; index < RECORD_COUNT; index += 1) {
-    const record = buildRecord(index);
-    state.records.push(record);
-    shelf.add(record.pivot);
-  }
-  roomGroup.add(shelf);
-  loadTopTracks();
-}
-
-export function updateRecordShelf(deltaSeconds) {
-  state.records.forEach((record, index) => {
-    const target = state.isOpen && index === state.focusedIndex ? 1 : 0;
-    record.pull = approach(record.pull, target, PULL.speed * deltaSeconds);
-    poseRecord(record);
-  });
-}
-
 // Resolves once the crate has closed.
 export function openCrateDigging() {
   const closed = exit.wait();
   state.isOpen = true;
+  pullOutRecord(state.focusedIndex);
   element("crateHud").classList.remove("hidden");
   window.addEventListener("keydown", onDiggingKeyDown);
-  setTimeout(() => window.addEventListener("click", onOutsideClick), 0);
+  window.addEventListener("click", onOutsideClick);
   renderHud();
   return closed;
 }
 
 export function closeCrateDigging() {
   state.isOpen = false;
+  pullOutRecord(null);
   element("crateHud").classList.add("hidden");
   window.removeEventListener("keydown", onDiggingKeyDown);
   window.removeEventListener("click", onOutsideClick);
@@ -73,33 +42,11 @@ export function isCrateDiggingOpen() {
 }
 
 export function wireCrateDigging() {
+  loadTopTracks();
   element("crateClose").addEventListener("click", closeCrateDigging);
   element("cratePrev").addEventListener("click", () => focusRecord(state.focusedIndex - 1));
   element("crateNext").addEventListener("click", () => focusRecord(state.focusedIndex + 1));
   element("cratePlay").addEventListener("click", playFocusedRecord);
-}
-
-function buildRecord(index) {
-  const cardboard = new THREE.MeshStandardMaterial({ color: CARDBOARD_COLOR, roughness: 0.85 });
-  const geometry = new THREE.BoxGeometry(SLEEVE.thickness, SLEEVE.size, SLEEVE.depth);
-  const mesh = new THREE.Mesh(geometry, Array(6).fill(cardboard));
-  mesh.castShadow = true;
-  mesh.receiveShadow = true;
-  const pivot = new THREE.Group();
-  const base = new THREE.Vector3(
-    SHELF.firstX + index * (SLEEVE.thickness + SLEEVE.gap) + SLEEVE.thickness / 2,
-    SHELF.bottomY + SLEEVE.size / 2,
-    SHELF.centerZ,
-  );
-  pivot.position.copy(base);
-  pivot.add(mesh);
-  return { pivot, mesh, base, pull: 0 };
-}
-
-function poseRecord(record) {
-  const { slide, turn } = slideThenTurn(record.pull, PULL.slideShare);
-  record.pivot.position.set(record.base.x, record.base.y + PULL.lift * slide, record.base.z + PULL.distance * slide);
-  record.pivot.rotation.y = PULL.coverTurn * turn;
 }
 
 // Any failure (offline, Spotify down) leaves an empty crate with an error
@@ -107,7 +54,7 @@ function poseRecord(record) {
 async function loadTopTracks() {
   const tracks = await fetchTopTracks().catch(() => []);
   state.tracks = tracks.slice(0, RECORD_COUNT).map((track, index) => ({ ...track, rank: index + 1 }));
-  state.tracks.forEach((track, index) => wrapSleeve(state.records[index], track));
+  wrapSleeves(state.tracks);
   renderHud();
 }
 
@@ -119,22 +66,12 @@ async function fetchTopTracks() {
   return tracks;
 }
 
-function wrapSleeve(record, track) {
-  if (!track.albumArt) return;
-  const loader = new THREE.TextureLoader();
-  loader.setCrossOrigin("anonymous");
-  const cover = loader.load(track.albumArt);
-  cover.colorSpace = THREE.SRGBColorSpace;
-  const art = new THREE.MeshStandardMaterial({ map: cover, roughness: 0.7 });
-  const [, , top, bottom, , back] = record.mesh.material;
-  record.mesh.material = [art, art, top, bottom, art, back];
-}
-
 function focusRecord(index) {
   if (!state.tracks?.length) return;
   const previousIndex = state.focusedIndex;
   state.focusedIndex = Math.max(0, Math.min(state.tracks.length - 1, index));
   if (state.focusedIndex !== previousIndex) playRecordPull();
+  pullOutRecord(state.focusedIndex);
   renderHud();
 }
 
