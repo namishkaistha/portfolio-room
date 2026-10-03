@@ -8,6 +8,7 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- The page title and link previews (iMessage, Slack and so on) now read "Namish’s Room" instead of "Room".
 - Avatar and wardrobe updated to Namish-Wearables 1.4: a leaner athletic build (face, hair, hands and animations unchanged) and all garments refitted to it, plus a black SKIMS tee for the Skims piece. The Prince vest now comes with its own white tee, so the hand-built `white-tee.glb` and its builder are removed. The built-in clothes are recolored by their slot tags, which now only matters for the light blue jeans; the unused pinstripe shader is gone. The avatar is quantized (11.1 MB → 7.4 MB) and a test checks it matches the manifest's hash and body fit. Garment photos re-rendered.
 - Bookshelf: the book text is set in the Kalam handwriting font and the "My top 5 books of all time" title in Gochi Hand.
 - Fashion: removed "It's very important to me" from the intro note.
