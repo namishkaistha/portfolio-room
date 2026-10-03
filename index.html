@@ -147,14 +147,20 @@
       <p class="view-hint">Press Space or tap to wake up</p>
     </div>
 
-    <aside id="closetPanel" class="closet-panel hidden" role="dialog" aria-label="Closet">
-      <p class="closet-kicker">Mix and match what feels like me</p>
-      <h2 id="closetTitle" class="closet-title" aria-live="polite"></h2>
-      <p id="closetStory" class="closet-story"></p>
+    <aside id="closetPanel" class="closet-panel hidden" role="dialog" aria-label="Fashion">
+      <p class="closet-kicker">My style</p>
+      <h2 id="closetTitle" class="closet-title" aria-label="Fashion"></h2>
+      <p class="closet-blurb">My style is a way for me to express myself in public. It's very important to me. Here are some of my favorite pieces, each of which has a story.</p>
+      <article id="closetPiece" class="closet-piece">
+        <button id="closetPhoto" class="closet-photo" type="button" aria-label="Enlarge the photo"><img id="closetPhotoImage" alt="" /><span id="closetPhotoEmpty" class="closet-photo-empty">No photo yet</span></button>
+        <h3 id="closetPieceName" class="closet-piece-name"></h3>
+        <p id="closetStory" class="closet-story"></p>
+      </article>
       <div class="closet-group"><p class="closet-group-label">Tops</p><div id="closetTops" class="closet-chips"></div></div>
       <div class="closet-group"><p class="closet-group-label">Bottoms</p><div id="closetBottoms" class="closet-chips"></div></div>
       <button id="closetDone" class="closet-done" type="button">Done</button>
     </aside>
+    <div id="closetLightbox" class="closet-lightbox hidden" role="dialog" aria-label="Photo"><img id="closetLightboxImage" alt="" /></div>
 
     <div id="notesPanel" class="notes-panel hidden" role="dialog" aria-modal="true" aria-label="Post-it note wall">
       <div class="notes-sheet">

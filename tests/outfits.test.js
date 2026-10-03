@@ -1,5 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { OUTFIT_PIECES, defaultOutfit, materialRole, readSavedOutfit, shadeForRole } from "../src/outfits.js";
 
 const channels = (hex) => [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255];
@@ -48,6 +49,16 @@ test("offers at least two tops and two bottoms", () => {
   assert.ok(OUTFIT_PIECES.filter((piece) => piece.garment === "bottom").length >= 2);
 });
 
+test("every piece that lists a photo has that file on disk", () => {
+  for (const piece of OUTFIT_PIECES.filter((candidate) => candidate.photo)) {
+    assert.ok(existsSync(new URL(`../public${piece.photo}`, import.meta.url)), `${piece.photo} is missing`);
+  }
+});
+
+test("no story uses an em dash", () => {
+  for (const piece of OUTFIT_PIECES) assert.equal(piece.story.includes("—"), false);
+});
+
 test("the default outfit wears one top and one bottom that exist", () => {
   const outfit = defaultOutfit();
   assert.equal(OUTFIT_PIECES.find((piece) => piece.id === outfit.top)?.garment, "top");
@@ -55,15 +66,16 @@ test("the default outfit wears one top and one bottom that exist", () => {
 });
 
 test("restores a saved outfit", () => {
-  const storage = { getItem: () => JSON.stringify({ top: "button-down", bottom: "parachute-pants" }) };
-  assert.deepEqual(readSavedOutfit(storage), { top: "button-down", bottom: "parachute-pants" });
+  const storage = { getItem: () => JSON.stringify({ top: "prince-vest", bottom: "brown-trousers" }) };
+  assert.deepEqual(readSavedOutfit(storage), { top: "prince-vest", bottom: "brown-trousers" });
 });
 
-test("falls back to the default for missing, corrupt or unknown saved outfits", () => {
+test("falls back to the default for missing, corrupt, unknown or outdated saved outfits", () => {
   assert.deepEqual(readSavedOutfit({ getItem: () => null }), defaultOutfit());
   assert.deepEqual(readSavedOutfit({ getItem: () => "{nope" }), defaultOutfit());
-  assert.deepEqual(readSavedOutfit({ getItem: () => JSON.stringify({ top: "tuxedo", bottom: "trousers" }) }), defaultOutfit());
-  assert.deepEqual(readSavedOutfit({ getItem: () => JSON.stringify({ top: "trousers", bottom: "sweater" }) }), defaultOutfit());
+  assert.deepEqual(readSavedOutfit({ getItem: () => JSON.stringify({ top: "tuxedo", bottom: "uncle-jeans" }) }), defaultOutfit());
+  assert.deepEqual(readSavedOutfit({ getItem: () => JSON.stringify({ top: "uncle-jeans", bottom: "prince-vest" }) }), defaultOutfit());
+  assert.deepEqual(readSavedOutfit({ getItem: () => JSON.stringify({ top: "sweater", bottom: "trousers" }) }), defaultOutfit());
 });
 
 test("falls back to the default when storage throws", () => {

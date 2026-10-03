@@ -2,53 +2,106 @@ const OUTFIT_KEY = "namish-room:outfit";
 const SHADOW_FACTOR = 0.68;
 const HIGHLIGHT_MIX = 0.16;
 
-// Placeholder pieces: the colors are real, the stories are filler until the
-// owner supplies what each piece means to them.
+// The wardrobe. Colors are sampled from the photos; the avatar's geometry stays
+// the same, so a piece changes the avatar by color, fabric sheen and, for the
+// striped shirt, pinstripes and a chain with a tank top showing.
 export const OUTFIT_PIECES = [
   {
-    id: "quarter-zip",
+    id: "striped-button-down",
     garment: "top",
-    name: "Quarter zip",
-    color: 0x4a4f57,
-    roughness: 0.85,
-    story: "Placeholder story. This is the piece I reach for when I want to look put together without trying too hard. Something about it feels like the start of a good day, and the real story goes here.",
-  },
-  {
-    id: "sweater",
-    garment: "top",
-    name: "Sweater",
-    color: 0xeadfc9,
-    roughness: 0.95,
-    story: "Placeholder story. A soft, familiar layer that has been with me through more seasons than I can count. It holds a few memories, and I'll write the real ones here soon.",
-  },
-  {
-    id: "button-down",
-    garment: "top",
-    name: "Button down",
-    color: 0xb7cde6,
+    name: "Striped button down",
+    color: 0xe3e8f1,
     roughness: 0.7,
-    story: "Placeholder story. The shirt for the days that matter: interviews, dinners, firsts. It always makes me stand a little taller, and the full story goes here.",
+    pinstripe: 0x8fa6c9,
+    showsAccents: true,
+    photo: "/closet/striped-button-down.jpg",
+    photoAlt: "A pale blue pinstriped Polo button-down laid flat on a bed",
+    story: "A Polo-branded button down I thrifted in Madrid for $13, and my best find to date. I usually wear it with a chain showing and a white tank top underneath.",
   },
   {
-    id: "trousers",
+    id: "nu-rose-bowl",
+    garment: "top",
+    name: "Northwestern Rose Bowl hoodie",
+    color: 0xc9c9c9,
+    roughness: 0.95,
+    photo: "/closet/nu-rose-bowl.jpg",
+    photoAlt: "A heather gray Northwestern Rose Bowl sweatshirt with a purple helmet and a rose",
+    story: "The quintessential Northwestern alumni hoodie. We'll never forget the Rose Bowl.",
+  },
+  {
+    id: "prince-vest",
+    garment: "top",
+    name: "Prince sweater vest",
+    color: 0x1f3b63,
+    roughness: 0.95,
+    photo: "/closet/prince-vest.jpg",
+    photoAlt: "A navy cable-knit Prince sweater vest with a white and tan V-neck and a P patch",
+    story: "Sweater vests unlock my indie side.",
+  },
+  {
+    id: "urban-indian",
+    garment: "top",
+    name: "The Urban Indian hoodie",
+    color: 0x5b302b,
+    roughness: 0.95,
+    photo: "/closet/urban-indian.jpg",
+    photoAlt: "A faded maroon hoodie printed with The Urban Indian and the word love in several Indian scripts down one side",
+    story: "Bought in an exclusive drop, in the middle of dance practice, with one of my best friends from college. It's engraved with The Urban Indian and the word love in several languages, and it's representative of my Indian roots.",
+  },
+  {
+    id: "skims-tee",
+    garment: "top",
+    name: "Skims black tee",
+    color: 0x151515,
+    roughness: 0.8,
+    photo: null,
+    photoAlt: "",
+    story: "A gift from my friends, and my go-to black tee for when I'm out and about.",
+  },
+  {
+    id: "brown-corduroy",
     garment: "bottom",
-    name: "Trousers",
-    color: 0x17263f,
+    name: "Brown corduroy pants",
+    color: 0xa27c55,
+    roughness: 0.95,
+    photo: "/closet/brown-corduroy.jpg",
+    photoAlt: "Tan-brown corduroy pants laid flat on a bed",
+    story: "Brown corduroy pants I thrifted in New York City when I was 19.",
+  },
+  {
+    id: "uncle-jeans",
+    garment: "bottom",
+    name: "Levi's straight-leg jeans",
+    color: 0x1a2236,
+    roughness: 0.85,
+    photo: "/closet/uncle-jeans.jpg",
+    photoAlt: "Dark indigo straight-leg baggy Levi's jeans laid flat on a bed",
+    story: "Straight-leg, baggy-ish denim, a gift from my uncle in India. It's my first pair of Levi's ever.",
+  },
+  {
+    id: "blue-jeans",
+    garment: "bottom",
+    name: "Light blue jeans",
+    color: 0x86a9d1,
+    roughness: 0.85,
+    photo: null,
+    photoAlt: "",
+    story: "You can never go wrong with a nice pair of blue jeans.",
+  },
+  {
+    id: "brown-trousers",
+    garment: "bottom",
+    name: "Brown trousers",
+    color: 0x35261f,
     roughness: 0.9,
-    story: "Placeholder story. A dependable pair that goes with almost everything and asks for nothing in return. What they mean to me will be written here.",
-  },
-  {
-    id: "parachute-pants",
-    garment: "bottom",
-    name: "Parachute pants",
-    color: 0x4f5a3a,
-    roughness: 0.35,
-    story: "Placeholder story. Loud, loose and a little ridiculous, which is exactly why I love them. The real story, and probably a laugh, goes here.",
+    photo: "/closet/brown-trousers.jpg",
+    photoAlt: "Dark brown dress trousers laid flat on a bed",
+    story: "It's important to have elevated style sometimes.",
   },
 ];
 
 export function defaultOutfit() {
-  return { top: "sweater", bottom: "trousers" };
+  return { top: "nu-rose-bowl", bottom: "uncle-jeans" };
 }
 
 export function readSavedOutfit(storage) {
@@ -105,6 +158,39 @@ export function applyOutfit(avatarRoot, outfit) {
       if (!piece) continue;
       material.color.setHex(shadeForRole(piece.color, match.role));
       material.roughness = piece.roughness;
+      if (match.garment === "top") setPinstripe(material, piece.pinstripe);
     }
   });
+  const accents = avatarRoot.getObjectByName(ACCENTS_NAME);
+  if (accents) accents.visible = Boolean(pieces.top?.showsAccents);
+}
+
+export const ACCENTS_NAME = "OUTFIT_ACCENTS";
+const STRIPE_SPACING = 85;
+const STRIPE_WIDTH = 0.36;
+
+// The avatar has no texture coordinates, so pinstripes are drawn in the fabric
+// shader from the surface's position instead. The uniform is switched per piece.
+function setPinstripe(material, stripeHex) {
+  const stripe = material.userData.pinstripe ?? patchForPinstripes(material);
+  stripe.amount.value = stripeHex ? 1 : 0;
+  if (stripeHex) stripe.color.value = [(stripeHex >> 16) / 255, ((stripeHex >> 8) & 255) / 255, (stripeHex & 255) / 255];
+}
+
+function patchForPinstripes(material) {
+  const stripe = { amount: { value: 0 }, color: { value: [0, 0, 0] } };
+  material.userData.pinstripe = stripe;
+  material.customProgramCacheKey = () => "pinstripe";
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uPinstripe = stripe.amount;
+    shader.uniforms.uStripeColor = stripe.color;
+    shader.vertexShader = shader.vertexShader
+      .replace("#include <common>", "#include <common>\nvarying vec3 vOutfitPosition;")
+      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvOutfitPosition = position;");
+    shader.fragmentShader = shader.fragmentShader
+      .replace("#include <common>", `#include <common>\nuniform float uPinstripe;\nuniform vec3 uStripeColor;\nvarying vec3 vOutfitPosition;`)
+      .replace("#include <color_fragment>", `#include <color_fragment>\nfloat stripe = step(${(1 - STRIPE_WIDTH).toFixed(2)}, fract(vOutfitPosition.x * ${STRIPE_SPACING.toFixed(1)}));\ndiffuseColor.rgb = mix(diffuseColor.rgb, uStripeColor, stripe * uPinstripe);`);
+  };
+  material.needsUpdate = true;
+  return stripe;
 }
