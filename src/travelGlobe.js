@@ -8,6 +8,7 @@ import { createSeededRandom } from "./seededRandom.js";
 import { GLOBE_STYLE as STYLE } from "./globeStyle.js";
 import { element, pointerToDevice, replayAnimation } from "./dom.js";
 import { easeOutCubic } from "./motion.js";
+import { createExitSignal } from "./exitSignal.js";
 
 const RADIUS = 1;
 const DEG = Math.PI / 180;
@@ -49,9 +50,12 @@ const state = {
   introTimer: 0,
   clock: new THREE.Clock(false),
   raycaster: new THREE.Raycaster(),
-};
+};const exit = createExitSignal();
 
+
+// Resolves once the globe has faded out.
 export function openTravelGlobe() {
+  const closed = exit.wait();
   if (!state.isReady) setUpGlobe();
   element("travelGlobe").classList.remove("hidden", "is-closing");
   state.isOpen = true;
@@ -61,6 +65,7 @@ export function openTravelGlobe() {
   state.clock.start();
   state.renderer.setAnimationLoop(tick);
   playIntro();
+  return closed;
 }
 
 function playIntro() {
@@ -85,6 +90,7 @@ export function closeTravelGlobe() {
     overlay.classList.add("hidden");
     state.renderer.setAnimationLoop(null);
     state.clock.stop();
+    exit.fire();
   }, CLOSE_FADE_MS);
 }
 

@@ -5,17 +5,11 @@ import { Player } from "./player.js";
 import { Joystick } from "./joystick.js";
 import { HOTSPOTS, findActiveHotspot } from "./hotspots.js";
 import { installHighlights } from "./highlights.js";
-import { dismissTravelLayer, isTravelGlobeOpen, openTravelGlobe, wireTravelGlobe } from "./travelGlobe.js";
-import { closeIDE, dismissIDELayer, isIDEOpen, openIDE } from "./ide.js";
-import { closeIframePanel, isIframePanelOpen, openIframePanel } from "./iframePanel.js";
-import { closeAboutCard, isAboutCardOpen, openAboutCard } from "./aboutCard.js";
-import { createViewOverlay } from "./viewOverlay.js";
-import { dismissClosetLayer, isClosetOpen, openCloset, wearSavedOutfit, wireCloset } from "./closetPanel.js";
-import { dismissNotesLayer, isNotesPanelOpen, openNotesPanel, preloadNotes, wireNotesPanel } from "./notesPanel.js";
+import { createStations, wireStations } from "./stations.js";
+import { wearSavedOutfit, wireCloset } from "./closetPanel.js";
 import { hideNowPlaying, mountNowPlaying, pausePlayback, resumePlayback, revealNowPlaying } from "./nowPlaying.js";
-import { closeCrateDigging, isCrateDiggingOpen, openCrateDigging, updateRecordShelf, wireCrateDigging } from "./crateDigging.js";
-import { closeBookReader, isBookReaderOpen, openBookReader, wireBookReader } from "./bookReader.js";
-import { pullBookOut, pushBookBack, updateBookPull } from "./bookPull.js";
+import { updateRecordShelf } from "./crateDigging.js";
+import { updateBookPull } from "./bookPull.js";
 import { typeIntroMessage } from "./introText.js";
 import { isMuted, setMuted, unlockAudio, updateFootsteps } from "./sfx.js";
 import { CameraDirector } from "./cameraDirector.js";
@@ -30,8 +24,6 @@ import {
   ENTRY_PATH_CONTROLS,
   ROOM,
   ROOM_SPAWN,
-  SLEEP_POSE,
-  SPOTS,
 } from "./roomConfig.js";
 
 const CAMERA_TRAVEL_SECONDS = 3.4;
@@ -45,13 +37,8 @@ const FACING_DOOR = 0;
 const FACING_INTO_ROOM = Math.PI;
 const SEE_OFF_WALK_SECONDS = 1.3;
 const SEE_OFF_TURN_SECONDS = 0.5;
-const FACING_RIGHT_WALL = Math.PI / 2;
-const DRESSING_TURN_SECONDS = 0.5;
 // Widest aspect ratio at which the whole room still fits the overhead shot.
 const OVERHEAD_FIT_ASPECT = 0.68;
-const STATION_POLL_MS = 120;
-const STATION_CLOSE_ATTEMPTS = 8;
-const STATION_SETTLE_TIMEOUT_MS = 8000;
 
 const stage = { current: "loading" };
 const cameraTravel = { elapsed: 0, path: null, lookPath: null, onFrame: null, onArrive: null };
@@ -72,9 +59,10 @@ let roomGroup = null;
 let frontWall = null;
 let roomMixer = null;
 let activeHotspot = null;
-let wasModalOpen = false;
 let closetDoors = null;
-const sleepOverlay = createViewOverlay("sleepOverlay", ["Space", "Enter"]);
+let stations = null;
+// The station being visited: { station, isCancelled, finished }.
+let visit = null;
 
 bootstrap();
 
@@ -88,6 +76,7 @@ async function bootstrap() {
   closetDoors = doors;
   roomMixer = mixer;
   player = new Player(avatar);
+  stations = createStations({ player, closetDoors });
   wearSavedOutfit(avatar.root);
   wireCloset(avatar.root);
   installLights(scene);
@@ -103,11 +92,7 @@ async function bootstrap() {
   wireMenu();
   wireSoundEffects();
   wireMobile();
-  wirePanelDismissal();
-  wireTravelGlobe();
-  wireCrateDigging();
-  wireBookReader();
-  wireNotesPanel();
+  wireStations();
 
   mountNowPlaying();
   finishLoading();
@@ -129,7 +114,6 @@ function step() {
     player.advance(delta, resolveMovement);
     updateFootsteps(player.position);
     syncMobileControls();
-    resumeMusicWhenStationCloses();
     refreshHotspotUi();
     highlights.update(elapsed);
   } else if (stage.current === "leaving") {
@@ -139,7 +123,6 @@ function step() {
     player.advance(delta, resolveMovement);
     updateFootsteps(player.position);
     syncMobileControls();
-    resumeMusicWhenStationCloses();
     director.update(delta);
   }
 
@@ -148,7 +131,7 @@ function step() {
   updateRecordShelf(delta);
   updateBookPull(delta);
   // The globe overlay is opaque, so skip drawing the room underneath it.
-  if (!isTravelGlobeOpen()) renderer.render(scene, camera);
+  if (!stations.travel.isOpen()) renderer.render(scene, camera);
 }
 
 function hideRoomForIntro() {
@@ -278,39 +261,15 @@ function showControlsToast() {
   window.setTimeout(() => controls.classList.add("hidden"), CONTROLS_HIDE_DELAY_MS);
 }
 
-function resumeMusicWhenStationCloses() {
-  const isOpen = isModalOpen();
-  if (wasModalOpen && !isOpen) resumePlayback();
-  wasModalOpen = isOpen;
-}
-
 function refreshHotspotUi() {
-  if (isModalOpen()) {
-    setPrompt(null);
-    highlights.setActive(null);
-    activeHotspot = null;
-    return;
-  }
   const next = findActiveHotspot(player.position);
   activeHotspot = next;
   setPrompt(next);
   highlights.setActive(next?.id ?? null);
 }
 
-function closeOpenModal() {
-  if (isTravelGlobeOpen()) dismissTravelLayer();
-  else if (isIDEOpen()) dismissIDELayer();
-  else if (isIframePanelOpen()) closeIframePanel();
-  else if (isCrateDiggingOpen()) closeCrateDigging();
-  else if (isBookReaderOpen()) closeBookReader();
-  else if (isAboutCardOpen()) closeAboutCard();
-  else if (isNotesPanelOpen()) dismissNotesLayer();
-  else if (isClosetOpen()) dismissClosetLayer();
-  else if (sleepOverlay.isOpen()) sleepOverlay.close();
-}
-
-function isModalOpen() {
-  return isTravelGlobeOpen() || isIDEOpen() || isIframePanelOpen() || isCrateDiggingOpen() || isBookReaderOpen() || isAboutCardOpen() || isNotesPanelOpen() || isClosetOpen() || sleepOverlay.isOpen();
+function dismissOpenStation() {
+  if (visit?.station.isOpen()) visit.station.dismiss();
 }
 
 function setPrompt(hotspot) {
@@ -339,14 +298,14 @@ function wireObjectClicks() {
     return highlights.pick(raycaster);
   };
   canvas.addEventListener("pointermove", (event) => {
-    if (stage.current !== "room" || isModalOpen()) return;
+    if (stage.current !== "room") return;
     const id = pickObject(event);
     highlights.setHovered(id);
     canvas.style.cursor = id ? "pointer" : "";
   });
   canvas.addEventListener("pointerleave", () => highlights.setHovered(null));
   canvas.addEventListener("click", (event) => {
-    if (stage.current !== "room" || isModalOpen()) return;
+    if (stage.current !== "room") return;
     const id = pickObject(event);
     if (!id) return;
     canvas.style.cursor = "";
@@ -359,115 +318,65 @@ function wireInteraction() {
   wireObjectClicks();
   window.addEventListener("keydown", (event) => {
     if (event.code === "Escape") {
-      closeOpenModal();
+      dismissOpenStation();
       return;
     }
     if (stage.current !== "room") return;
-    if ((event.code === "Space" || event.code === "KeyE") && activeHotspot && !isModalOpen()) {
+    if ((event.code === "Space" || event.code === "KeyE") && activeHotspot) {
       event.preventDefault();
       openHotspotView(activeHotspot.id);
     }
   });
   document.getElementById("prompt")?.addEventListener("click", () => {
-    if (activeHotspot && !isModalOpen()) openHotspotView(activeHotspot.id);
+    if (stage.current === "room" && activeHotspot) openHotspotView(activeHotspot.id);
   });
 }
 
 function openHotspotView(id) {
+  if (stage.current !== "room") return;
   if (id === "door") {
-    if (stage.current === "room") leaveRoom();
+    leaveRoom();
     return;
   }
-  if (id === "laptop") {
-    visitSpotAndOpen(SPOTS.laptop, (onExit) => openIDE({ onExit }));
-    return;
-  }
-  if (id === "about") {
-    visitSpotAndOpen(SPOTS.about, (onExit) => openAboutCard({ onExit }));
-    return;
-  }
-  if (id === "bed") {
-    visitSpotAndOpen(SPOTS.bed, startSleeping);
-    return;
-  }
-  if (id === "closet") {
-    visitSpotAndOpen(SPOTS.closet, startDressing);
-    return;
-  }
-  if (id === "notes") {
-    preloadNotes();
-    visitSpotAndOpen(SPOTS.notes, (onExit) => openNotesPanel({ onExit }));
-    return;
-  }
-  if (id === "tripod") {
-    visitSpotAndOpen(SPOTS.tripod, (onExit) => openIframePanel("tripod", { onExit }));
-    return;
-  }
-  if (id === "vinyl") {
-    visitSpotAndOpen(SPOTS.vinyl, (onExit) => openCrateDigging({ onExit }));
-    return;
-  }
-  if (id === "library") {
-    visitSpotAndOpen(SPOTS.library, openReadingList);
-    return;
-  }
-  if (id === "travel") openTravelGlobe();
+  const current = { station: stations[id], isCancelled: false };
+  current.finished = visitStation(current);
+  visit = current;
 }
 
-async function visitSpotAndOpen(spot, openPanelView) {
-  if (stage.current !== "room") return;
+// Walks up to the station, opens it, and once the visitor closes it, steps
+// back out to the overhead view. Music the station paused picks back up.
+async function visitStation(current) {
+  const { station } = current;
   stage.current = "seated";
   setPrompt(null);
   highlights.clearGlow();
+  station.approach?.();
+  if (station.spot) await approachSpot(station.spot);
+  if (!current.isCancelled) await station.open();
+  resumePlayback();
+  if (station.spot) await leaveSpot();
+  stage.current = "room";
+  visit = null;
+}
+
+async function approachSpot(spot) {
   await Promise.all([player.moveToSpot(spot), director.flyTo(spot.shoulderView, SHOULDER_SHOT_SECONDS)]);
   await director.flyTo(spot.closeUpView, CLOSE_UP_SECONDS);
-  openPanelView(leaveSpot);
-}
-
-function startSleeping(onExit) {
-  player.lieDown(SLEEP_POSE);
-  sleepOverlay.open({ onExit: () => { player.standUp(); onExit(); } });
-}
-
-async function startDressing(onExit) {
-  closetDoors?.open();
-  await player.glideTo(SPOTS.closet.position, FACING_RIGHT_WALL, DRESSING_TURN_SECONDS);
-  openCloset({ onExit: () => { closetDoors?.close(); onExit(); } });
-}
-
-async function openReadingList(onExit) {
-  await pullBookOut();
-  openBookReader({
-    onExit: () => {
-      pushBookBack();
-      onExit();
-    },
-  });
 }
 
 async function leaveSpot() {
   await Promise.all([player.returnFromSpot(), director.flyTo(overheadView(), RETURN_TO_OVERHEAD_SECONDS)]);
-  stage.current = "room";
 }
 
-// Picking a station while another is open closes the open one, lets the camera
-// settle back in the room, then opens the new one.
+// Picking a station while visiting another closes that one, waits for the
+// camera to come back, then opens the new one.
 async function openStationFromMenu(target) {
-  if (isModalOpen()) await closeOpenStations();
-  if (stage.current === "room") openHotspotView(target);
-}
-
-async function closeOpenStations() {
-  for (let attempt = 0; attempt < STATION_CLOSE_ATTEMPTS && isModalOpen(); attempt += 1) {
-    closeOpenModal();
-    await pause(STATION_POLL_MS * 4);
+  if (visit) {
+    visit.isCancelled = true;
+    visit.station.close();
+    await visit.finished;
   }
-  const deadline = performance.now() + STATION_SETTLE_TIMEOUT_MS;
-  while (stage.current !== "room" && performance.now() < deadline) await pause(STATION_POLL_MS);
-}
-
-function pause(milliseconds) {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  openHotspotView(target);
 }
 
 function wireMenu() {
@@ -510,25 +419,7 @@ function wireMobile() {
   }
   document.getElementById("actionBtn")?.addEventListener("touchend", (event) => {
     event.preventDefault();
-    if (stage.current !== "room") return;
-    if (activeHotspot && !isModalOpen()) openHotspotView(activeHotspot.id);
-  });
-}
-
-function wirePanelDismissal() {
-  document.getElementById("ideClose")?.addEventListener("click", closeIDE);
-  document.getElementById("iframeClose")?.addEventListener("click", closeIframePanel);
-  closeOnBackdropClick("idePanel", dismissIDELayer);
-  closeOnBackdropClick("iframePanel", closeIframePanel);
-  closeOnBackdropClick("bookReader", closeBookReader);
-  closeOnBackdropClick("notesPanel", dismissNotesLayer);
-}
-
-// Tapping the dimmed area around a station's window steps back out of it.
-function closeOnBackdropClick(id, close) {
-  const backdrop = document.getElementById(id);
-  backdrop?.addEventListener("click", (event) => {
-    if (event.target === backdrop) close();
+    if (activeHotspot) openHotspotView(activeHotspot.id);
   });
 }
 
@@ -567,7 +458,7 @@ function overheadView() {
 
 function syncMobileControls() {
   if (!hasTouch) return;
-  document.getElementById("mobileControls")?.classList.toggle("hidden", stage.current === "seated" || isModalOpen());
+  document.getElementById("mobileControls")?.classList.toggle("hidden", stage.current === "seated");
 }
 
 function applyIntroCameraPullback() {
