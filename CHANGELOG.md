@@ -16,7 +16,6 @@
 - Kangra: the first photo is now the pink sunrise over the peaks, and the street-with-power-lines photo is removed.
 
 ### Fixed
-- Music: a failed network call while choosing the next song no longer freezes the player, and if the player says it is playing but the position stops moving for 7 seconds the track is reloaded (twice at most). Covered by `tests/playbackStall.test.js`.
 - Fashion section on phones: the outfit buttons are now 44 px tall (they were 38 px) and Done is wider, so they are easier to tap.
 
 ### Changed
