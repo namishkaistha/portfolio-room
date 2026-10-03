@@ -167,6 +167,7 @@ export const TRAVEL_PLACES = [
       { src: "/travel/amritsar-1.jpg", alt: "The illuminated Golden Temple reflected in still water beneath a crescent moon" },
       { src: "/travel/amritsar-2.jpg", alt: "A steel plate of stuffed flatbread with chickpea curry, curd and chutney at Brothers Dhaba" },
       { src: "/travel/amritsar-3.jpg", alt: "A steel thali with a stack of flatbread, several curries, chickpeas in curd and an onion salad" },
+      { src: "/travel/amritsar-4.jpg", alt: "A customer in a grey waistcoat and flat cap waits at a jalebi stall with a red and yellow striped awning" },
     ],
   },
   {
