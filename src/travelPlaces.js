@@ -191,7 +191,7 @@ export const TRAVEL_PLACES = [
     ],
     photos: [
       { src: "/travel/chicago-1.jpg", alt: "The Chicago skyline at dusk across Lake Michigan, the Navy Pier wheel lit in colour" },
-      { src: "/travel/chicago-3.jpg", alt: "Namish and two friends on the Evanston lakefront, painted rocks behind them and the Chicago skyline far across the water" },
+      { src: "/travel/chicago-3.jpg", isWide: true, alt: "Namish and two friends on the Evanston lakefront, painted rocks behind them and the Chicago skyline far across the water" },
       { src: "/travel/chicago-4.jpg", alt: "Namish in a purple Northwestern graduation robe and black stole, leaning against a stone pillar and smiling" },
       { src: "/travel/chicago-5.jpg", alt: "Six friends in purple graduation robes posing in front of a lecture hall chalkboard that reads Econ 310-1" },
       { src: "/travel/chicago-2.jpg", alt: "Glass towers on the Chicago lakefront lit up at dusk, seen from a boat on the water" },
@@ -209,7 +209,7 @@ export const TRAVEL_PLACES = [
     paragraphs: [
       "Seattle was a spring break trip that two friends from Northwestern and I took. It was not well planned at all, but somehow we stumbled upon cherry blossom season right when we were there. It's a city that lends itself to letting whatever happens happen.",
       "The scenery around the city was incredible. It was the first mountain hike I'd ever been on (Poo Poo Point is actually a difficult hike), and it's where I got close to two friends who I still consider very close from my college days.",
-      "The tech and indie scenes seem to meld together in a way you wouldn't think is possible, but somehow they do. And the cherry blossoms are truly the cherry on top. (Corny, I know.)",
+      "The tech and indie scenes seem to meld together in a way you wouldn't think is possible. And the cherry blossoms are truly the cherry on top. (Corny, I know.)",
     ],
     photos: [
       { src: "/travel/seattle-1.jpg", alt: "Namish and two friends with their arms around each other beneath a street of blooming cherry trees" },

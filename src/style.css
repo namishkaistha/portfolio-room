@@ -1250,6 +1250,7 @@ body {
   object-fit: cover;
   background: #d9d1c3;
 }
+.travel-photo.is-wide img { aspect-ratio: 4 / 3; }
 .travel-photo figcaption {
   margin-top: 8px;
   color: var(--ink-soft);
