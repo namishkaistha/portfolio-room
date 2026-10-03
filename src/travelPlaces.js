@@ -160,7 +160,7 @@ export const TRAVEL_PLACES = [
     lat: 31.62,
     lon: 74.8765,
     paragraphs: [
-      "My first solo trip in India after graduating. Three days of eating and praying, bhajans playing all day, and a serenity at the Golden Temple that's hard to describe.",
+      "My first solo trip in India after graduating. Three days of eating and praying, kirtan playing all day, and a serenity at the Golden Temple that's hard to describe.",
       "Inside the temple, I found a seat by a window overlooking the English translation of the Punjabi kirtan. I don't fully understand Punjabi, so it felt like a spot saved just for me.",
     ],
     photos: [
