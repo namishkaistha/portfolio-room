@@ -1,9 +1,11 @@
+import { hasTrackEnded } from "./trackEnd.js";
+
 const LISTENING_ENDPOINT = "/api/now-playing";
 const EMBED_API_SRC = "https://open.spotify.com/embed/iframe-api/v1";
 const EMBED_HEIGHT = 80;
 const PLAY_ICON = "▶";
 const PAUSE_ICON = "❚❚";
-const TRACK_END_TOLERANCE_MS = 750;
+const TRACK_END_TOLERANCE_MS = 1800;
 const SITE_PLAYS_KEY = "namish-room:recent-site-plays";
 const SITE_PLAYS_LIMIT = 30;
 const IDLE_EYEBROW = "Press play for music";
@@ -21,6 +23,7 @@ const state = {
   isAdvancing: false,
   shouldPlayWhenLoaded: false,
   isPaused: true,
+  lastUpdate: null,
   hasPlayed: false,
   userPaused: false,
   resumeAttempts: 0,
@@ -224,10 +227,12 @@ function loadAndPlay(track) {
 }
 
 function onPlaybackUpdate(playback) {
+  const previous = state.lastUpdate;
+  state.lastUpdate = playback;
   state.isPaused = playback.isPaused;
   if (!playback.isPaused) markFirstPlay();
   renderToggle(playback.isPaused);
-  if (hasCurrentTrackEnded(playback)) playNextTrack();
+  if (!state.isAdvancing && hasTrackEnded(previous, playback, state.current?.uri, TRACK_END_TOLERANCE_MS)) playNextTrack();
   else if (playback.isPaused) resumeIfPausedUnintentionally();
   else state.resumeAttempts = 0;
 }
@@ -243,11 +248,6 @@ function resumeIfPausedUnintentionally() {
     state.resumeAttempts += 1;
     resumePlayback();
   }, RESUME_DELAY_MS);
-}
-
-function hasCurrentTrackEnded(playback) {
-  if (state.isAdvancing || playback.playingURI !== state.current?.uri) return false;
-  return playback.duration > 0 && playback.position >= playback.duration - TRACK_END_TOLERANCE_MS;
 }
 
 async function playNextTrack() {

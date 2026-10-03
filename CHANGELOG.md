@@ -6,6 +6,7 @@
 - The About card photo is now the same picture as the creative portfolio's (black shirt, Chicago skyline at dusk), cropped the way that site frames it.
 
 ### Fixed
+- Music: the next song now always starts. Spotify reports progress about once a second, so the last update of a clip could land more than 0.75 s before its end and the music went quiet until play was pressed. A track now also counts as finished when it rewinds to the start, and the end window is 1.8 s. Covered by `tests/trackEnd.test.js`.
 - Amritsar: "bhajans playing all day" now reads "kirtan playing all day".
 - Post-it wall: the panel used to open empty and the notes popped in about a second later. The notes now start loading as soon as you head to the wall and are on the board when the panel appears, settling in with a staggered fade. On a very slow connection the panel shows "Loading the wall…" and fills in when the notes arrive.
 

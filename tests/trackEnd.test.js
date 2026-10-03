@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { hasTrackEnded } from "./trackEnd.js";
+import { hasTrackEnded } from "../src/trackEnd.js";
 
 const URI = "spotify:track:a";
 const TOLERANCE_MS = 1800;
