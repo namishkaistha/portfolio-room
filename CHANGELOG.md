@@ -3,10 +3,13 @@
 ## 2026-10-03
 
 ### Added
+- Amsterdam: two new photos, Van Gogh's Almond Blossom and an arched-door townhouse with bikes.
 - Amritsar: a fourth photo, the jalebi stall.
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- Madrid: photos reordered so streets, buildings, the café and the park class alternate.
+- Amsterdam: the last photo is now the student band playing at the bar, replacing the wall of instant photos.
 - Kangra: the first photo is now the pink sunrise over the peaks, and the street-with-power-lines photo is removed.
 
 ### Fixed
