@@ -1,0 +1,114 @@
+.now-playing {
+  position: fixed;
+  top: calc(12px + var(--safe-top));
+  right: 66px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(320px, calc(100vw - 88px));
+  padding: 10px 12px 10px 10px;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  animation: iframeIn 220ms ease-out;
+}
+.now-playing-art {
+  width: 52px; height: 52px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  object-fit: cover;
+  background: rgba(245, 241, 232, 0.08);
+}
+.now-playing-text { flex: 1; min-width: 0; }
+.now-playing-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.now-playing-title,
+.now-playing-artist {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.now-playing-title {
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  text-decoration: none;
+}
+.now-playing-title:hover { text-decoration: underline; }
+.now-playing-artist { font-size: 12px; color: var(--ink-dim); }
+.now-playing-status {
+  margin-top: 4px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+  color: var(--ink-dim);
+}
+.now-playing-status.is-live {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #1ed760;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.now-playing-playlist { white-space: nowrap; }
+.now-playing-status.is-live::before {
+  content: "";
+  width: 7px; height: 7px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #1ed760;
+  animation: livePulse 1.6s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(30, 215, 96, 0.55); }
+  50% { box-shadow: 0 0 0 5px rgba(30, 215, 96, 0); }
+}
+.now-playing-toggle {
+  width: 34px; height: 34px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--ink);
+  font-size: 12px;
+  cursor: pointer;
+}
+.now-playing-toggle:hover { background: rgba(245, 241, 232, 0.08); }
+/* Must stay inside the viewport: Spotify's embed is lazy-loaded and never
+   loads (or plays) while it is positioned off-screen. */
+.spotify-player {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  height: 80px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+.now-playing.is-idle { border-color: rgba(255, 197, 107, 0.55); }
+.now-playing.is-idle .now-playing-toggle {
+  width: 42px;
+  height: 42px;
+  border-color: #ffc56b;
+  background: #ffc56b;
+  color: #2b1409;
+  font-size: 15px;
+  animation: playPulse 2s ease-out infinite;
+}
+@keyframes playPulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 197, 107, 0.65); }
+  70%, 100% { box-shadow: 0 0 0 14px rgba(255, 197, 107, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .now-playing.is-idle .now-playing-toggle { animation: none; box-shadow: 0 0 0 4px rgba(255, 197, 107, 0.4); }
+}
