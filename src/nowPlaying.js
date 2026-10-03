@@ -1,4 +1,5 @@
 import { hasTrackEnded } from "./trackEnd.js";
+import { readStoredJson, writeStoredJson } from "./storage.js";
 
 const LISTENING_ENDPOINT = "/api/now-playing";
 const EMBED_API_SRC = "https://open.spotify.com/embed/iframe-api/v1";
@@ -147,20 +148,11 @@ function genuineLive(live) {
 }
 
 function rememberSitePlay(uri) {
-  const plays = [uri, ...readSitePlays().filter((played) => played !== uri)].slice(0, SITE_PLAYS_LIMIT);
-  try {
-    localStorage.setItem(SITE_PLAYS_KEY, JSON.stringify(plays));
-  } catch {
-    // Storage can be unavailable (private mode); the echo check just won't persist.
-  }
+  writeStoredJson(SITE_PLAYS_KEY, [uri, ...readSitePlays().filter((played) => played !== uri)].slice(0, SITE_PLAYS_LIMIT));
 }
 
 function readSitePlays() {
-  try {
-    return JSON.parse(localStorage.getItem(SITE_PLAYS_KEY)) ?? [];
-  } catch {
-    return [];
-  }
+  return readStoredJson(SITE_PLAYS_KEY, []);
 }
 
 function renderCard(track) {

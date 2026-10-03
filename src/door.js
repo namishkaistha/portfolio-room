@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { easeOutCubic } from "./motion.js";
+import { pointerToDevice } from "./dom.js";
 
 const OPEN_ANGLE = -Math.PI / 2 + 0.05;
 const OPEN_DURATION = 1.15;
@@ -14,8 +16,6 @@ export class DoorController {
     this.progress = 0;
     this.onStart = null;
     this.onClosed = null;
-    this.slab = pivot.getObjectByName("doorSlab");
-    this.knob = pivot.getObjectByName("doorKnob");
     this.hitTargets = [];
     pivot.traverse((child) => {
       if (child.isMesh) this.hitTargets.push(child);
@@ -84,10 +84,9 @@ export class DoorController {
   };
 
   updatePointer(event) {
-    const rect = this.canvas.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return false;
-    this.pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-    this.pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    if (this.canvas.clientWidth === 0 || this.canvas.clientHeight === 0) return false;
+    const { x, y } = pointerToDevice(event, this.canvas);
+    this.pointer.set(x, y);
     return true;
   }
 
@@ -96,8 +95,4 @@ export class DoorController {
     const hits = this.raycaster.intersectObjects(this.hitTargets, false);
     return hits.length > 0;
   }
-}
-
-function easeOutCubic(t) {
-  return 1 - Math.pow(1 - t, 3);
 }

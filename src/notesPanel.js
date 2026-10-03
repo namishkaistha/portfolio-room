@@ -1,4 +1,4 @@
-import { create } from "./dom.js";
+import { create, element } from "./dom.js";
 
 const NOTES_ENDPOINT = "/api/notes";
 const MAX_MESSAGE_LENGTH = 140;
@@ -185,8 +185,4 @@ function describeCount(count) {
 
 function showCount(text) {
   element("notesCount").textContent = text;
-}
-
-function element(id) {
-  return document.getElementById(id);
 }

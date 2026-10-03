@@ -34,8 +34,6 @@ export const ENTRY_LOOK_CONTROL = new THREE.Vector3(0, 1.1, -2.0);
 
 export const HALLWAY = { halfWidth: 7, height: 4, depth: 8 };
 
-export const OVERHEAD_VIEW = { position: CAMERA_ROOM_ENTRY, look: CAMERA_LOOK_TARGET };
-
 const MONITOR_SCREEN = new THREE.Vector3(1.88, 1.22, 1.89);
 const PHONE_SCREEN = new THREE.Vector3(-1.29, 1.53, 1.24);
 const RECORD_SHELF = new THREE.Vector3(-1.52, 0.55, -1.42);

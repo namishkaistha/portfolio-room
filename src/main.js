@@ -18,7 +18,9 @@ import { closeBookReader, isBookReaderOpen, openBookReader, wireBookReader } fro
 import { pullBookOut, pushBookBack, updateBookPull } from "./bookPull.js";
 import { typeIntroMessage } from "./introText.js";
 import { isMuted, setMuted, unlockAudio, updateFootsteps } from "./sfx.js";
-import { CameraDirector, easeInOutCubic } from "./cameraDirector.js";
+import { CameraDirector } from "./cameraDirector.js";
+import { easeInOutCubic } from "./motion.js";
+import { isTouchDevice, pointerToDevice } from "./dom.js";
 import {
   CAMERA_INTRO_LOOK,
   CAMERA_LOOK_TARGET,
@@ -252,7 +254,7 @@ function enterRoom() {
   revealNowPlaying();
   showControlsToast();
 
-  if (isTouchDevice()) {
+  if (hasTouch) {
     document.getElementById("mobileControls")?.classList.remove("hidden");
   }
 }
@@ -332,9 +334,8 @@ function wireObjectClicks() {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   const pickObject = (event) => {
-    const rect = canvas.getBoundingClientRect();
-    pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
-    raycaster.setFromCamera(pointer, camera);
+    const { x, y } = pointerToDevice(event, canvas);
+    raycaster.setFromCamera(pointer.set(x, y), camera);
     return highlights.pick(raycaster);
   };
   canvas.addEventListener("pointermove", (event) => {
@@ -500,7 +501,7 @@ function wireSoundEffects() {
 }
 
 function wireMobile() {
-  if (!isTouchDevice()) return;
+  if (!hasTouch) return;
   const base = document.getElementById("joystick");
   const knob = document.getElementById("joyKnob");
   if (base && knob) {
@@ -594,8 +595,4 @@ function createRenderer(target) {
   instance.shadowMap.enabled = true;
   instance.shadowMap.type = THREE.PCFSoftShadowMap;
   return instance;
-}
-
-function isTouchDevice() {
-  return matchMedia("(hover: none)").matches || "ontouchstart" in window;
 }

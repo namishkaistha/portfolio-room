@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OUTFIT_PIECES } from "./outfits.js";
+import { approach, smoothstep } from "./motion.js";
 
 const DOOR_PIECES = [
   /^Closed_Closet_Door_1$|^Closet_Inset_Panel_1_|^Closet_Panel_(Stile|Rail)_0_|^Closet_Flush_Pull_1$/,
@@ -20,9 +21,8 @@ export function installClosetDoors(roomGroup) {
     close() { state.target = 0; },
     update(deltaSeconds) {
       if (state.progress === state.target) return;
-      const step = SLIDE_SPEED * deltaSeconds;
-      state.progress = state.target > state.progress ? Math.min(state.target, state.progress + step) : Math.max(state.target, state.progress - step);
-      const eased = state.progress * state.progress * (3 - 2 * state.progress);
+      state.progress = approach(state.progress, state.target, SLIDE_SPEED * deltaSeconds);
+      const eased = smoothstep(state.progress);
       doors[0].position.set(SLIDE.x * eased, 0, SLIDE.z * eased);
     },
   };

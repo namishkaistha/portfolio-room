@@ -1,6 +1,7 @@
 import { READING_INTRO, RECOMMENDED_BOOKS } from "./readingList.js";
 import { buildRevealWords } from "./wordReveal.js";
 import { playPageTurn } from "./sfx.js";
+import { create, element } from "./dom.js";
 
 const PAGE_TURN_MS = 750;
 const PAGE_TURN_EASING = "cubic-bezier(0.45, 0.05, 0.25, 1)";
@@ -162,15 +163,4 @@ function onReaderKeyDown(event) {
   else if (event.key === "ArrowLeft") turnPage(-1);
   else return;
   event.preventDefault();
-}
-
-function create(tag, className, text) {
-  const node = document.createElement(tag);
-  node.className = className;
-  if (text) node.textContent = text;
-  return node;
-}
-
-function element(id) {
-  return document.getElementById(id);
 }

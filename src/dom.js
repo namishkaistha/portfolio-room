@@ -19,3 +19,18 @@ export function replayAnimation(node, className) {
   void node.offsetWidth;
   node.classList.add(className);
 }
+
+export function element(id) {
+  return document.getElementById(id);
+}
+
+export function isTouchDevice() {
+  return matchMedia("(hover: none)").matches || "ontouchstart" in window;
+}
+
+// Pointer position over `target` as normalized device coordinates (-1 to 1),
+// the form a raycaster expects.
+export function pointerToDevice(event, target) {
+  const rect = target.getBoundingClientRect();
+  return { x: ((event.clientX - rect.left) / rect.width) * 2 - 1, y: -((event.clientY - rect.top) / rect.height) * 2 + 1 };
+}
