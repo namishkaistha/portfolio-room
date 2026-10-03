@@ -1,3 +1,5 @@
+import { createExitSignal } from "./exitSignal.js";
+
 const EMBEDS = {
   tripod: {
     url: "https://creative.namishkaistha.com",
@@ -5,24 +7,23 @@ const EMBEDS = {
   },
 };
 
-let onClose = null;
+const exit = createExitSignal();
 
-export function openIframePanel(id, { onExit } = {}) {
+// Resolves once the panel has closed.
+export function openIframePanel(id) {
   const embed = EMBEDS[id];
-  if (!embed) return;
-  onClose = onExit ?? null;
+  const closed = exit.wait();
   document.getElementById("iframeTitle").textContent = embed.title;
   document.getElementById("iframeOpen").href = embed.url;
   document.getElementById("iframeFrame").src = embed.url;
   document.getElementById("iframePanel").classList.remove("hidden");
+  return closed;
 }
 
 export function closeIframePanel() {
   document.getElementById("iframePanel").classList.add("hidden");
   document.getElementById("iframeFrame").src = "about:blank";
-  const callback = onClose;
-  onClose = null;
-  callback?.();
+  exit.fire();
 }
 
 export function isIframePanelOpen() {

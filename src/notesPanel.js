@@ -1,4 +1,5 @@
 import { create, element } from "./dom.js";
+import { createExitSignal } from "./exitSignal.js";
 
 const NOTES_ENDPOINT = "/api/notes";
 const MAX_MESSAGE_LENGTH = 140;
@@ -12,7 +13,8 @@ const LOAD_WAIT_MS = 1500;
 const LOADING_MESSAGE = "Loading the wall…";
 const STAGGER_LIMIT = 14;
 
-const state = { isOpen: false, isComposing: false, onExit: null, isSending: false, noteCount: 0, thanksTimer: null, pending: null };
+const state = { isOpen: false, isComposing: false, isSending: false, noteCount: 0, thanksTimer: null, pending: null };
+const exit = createExitSignal();
 
 // Starts fetching the wall while the camera is still on its way, so the notes
 // are already in hand when the panel appears.
@@ -21,27 +23,27 @@ export function preloadNotes() {
   state.pending.catch(() => {});
 }
 
-export async function openNotesPanel({ onExit } = {}) {
-  state.onExit = onExit ?? null;
+// Resolves once the wall has closed.
+export async function openNotesPanel() {
+  const closed = exit.wait();
   state.isOpen = true;
   if (!state.pending) preloadNotes();
   const pending = state.pending;
   state.pending = null;
   const notes = await settleWithin(pending, LOAD_WAIT_MS);
-  if (!state.isOpen) return;
+  if (!state.isOpen) return closed;
   renderLoaded(notes, pending);
   hideComposer();
   element("notesPanel").classList.remove("hidden");
   element("notesClose").focus({ preventScroll: true });
+  return closed;
 }
 
 export function closeNotesPanel() {
   state.isOpen = false;
   hideComposer();
   element("notesPanel").classList.add("hidden");
-  const callback = state.onExit;
-  state.onExit = null;
-  callback?.();
+  exit.fire();
 }
 
 // Escape and outside taps close the composer first, then the wall.

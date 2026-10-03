@@ -2,6 +2,7 @@ import { create } from "./dom.js";
 import { createIcon } from "./aboutIcons.js";
 import { buildPanels } from "./aboutPanels.js";
 import { CONTACT_LEAD, CONTACT_LINKS, HEADING, PORTRAIT, RESUME_URL, TABS, TAGLINE } from "./aboutContent.js";
+import { createExitSignal } from "./exitSignal.js";
 
 const REVEAL_MS = 720;
 const HIDE_MS = 360;
@@ -11,11 +12,13 @@ const SHEET_START_LIFT_PX = 28;
 const PORTRAIT_START_SCALE = 1.18;
 const PORTRAIT_SETTLE_FACTOR = 1.4;
 
-const state = { card: null, onExit: null };
+const state = { card: null };
+const exit = createExitSignal();
 
-export function openAboutCard({ onExit } = {}) {
+// Resolves once the card has closed.
+export function openAboutCard() {
+  const closed = exit.wait();
   removeCard();
-  state.onExit = onExit ?? null;
   const card = buildCard();
   document.body.append(card);
   state.card = card;
@@ -24,6 +27,7 @@ export function openAboutCard({ onExit } = {}) {
   playReveal(card);
   requestAnimationFrame(() => card.classList.add("is-open"));
   card.querySelector(".about-close").focus({ preventScroll: true });
+  return closed;
 }
 
 export async function closeAboutCard() {
@@ -33,9 +37,7 @@ export async function closeAboutCard() {
   card.classList.remove("is-open");
   await card.animate([{ opacity: 1 }, { opacity: 0 }], { duration: HIDE_MS, easing: EASING, fill: "forwards" }).finished;
   card.remove();
-  const callback = state.onExit;
-  state.onExit = null;
-  callback?.();
+  exit.fire();
 }
 
 export function isAboutCardOpen() {

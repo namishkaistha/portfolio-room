@@ -4,6 +4,7 @@ import { scrambleText } from "./textScramble.js";
 import { installOutfitAccents } from "./outfitAccents.js";
 import { createAvatarDresser } from "./avatarWardrobe.js";
 import { OUTFIT_PIECES, applyOutfit, findPiece, garmentModelUrl, garmentPhotoUrl, readSavedOutfit, saveOutfit, showcaseGarment } from "./outfits.js";
+import { createExitSignal } from "./exitSignal.js";
 
 const HEADING = "FASHION";
 const HEADING_SCRAMBLE_MS = 800;
@@ -13,7 +14,8 @@ const GARMENTS = [
   { id: "closetBottoms", garment: "bottom" },
 ];
 
-const state = { isOpen: false, onExit: null, outfit: null, avatar: null, finishHeading: null, finishName: null, selected: null, viewer: null, dress: null };
+const state = { isOpen: false, outfit: null, avatar: null, finishHeading: null, finishName: null, selected: null, viewer: null, dress: null };
+const exit = createExitSignal();
 
 export function wearSavedOutfit(avatarRoot) {
   state.outfit = readSavedOutfit();
@@ -39,8 +41,9 @@ export function wireCloset(avatarRoot) {
   }
 }
 
-export function openCloset({ onExit } = {}) {
-  state.onExit = onExit ?? null;
+// Resolves once the closet has closed.
+export function openCloset() {
+  const closed = exit.wait();
   state.isOpen = true;
   document.getElementById("closetPanel").classList.remove("hidden");
   state.finishHeading?.();
@@ -48,6 +51,7 @@ export function openCloset({ onExit } = {}) {
   showPiece(findPiece(state.outfit.top));
   syncChips();
   document.getElementById("closetDone").focus({ preventScroll: true });
+  return closed;
 }
 
 export function closeCloset() {
@@ -57,9 +61,7 @@ export function closeCloset() {
   state.finishHeading?.();
   state.finishName?.();
   document.getElementById("closetPanel").classList.add("hidden");
-  const callback = state.onExit;
-  state.onExit = null;
-  callback?.();
+  exit.fire();
 }
 
 // Escape closes the enlarged 3D view first, then the closet itself.

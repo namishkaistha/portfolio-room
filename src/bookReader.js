@@ -2,6 +2,7 @@ import { READING_INTRO, RECOMMENDED_BOOKS } from "./readingList.js";
 import { buildRevealWords } from "./wordReveal.js";
 import { playPageTurn } from "./sfx.js";
 import { create, element } from "./dom.js";
+import { createExitSignal } from "./exitSignal.js";
 
 const PAGE_TURN_MS = 750;
 const PAGE_TURN_EASING = "cubic-bezier(0.45, 0.05, 0.25, 1)";
@@ -17,25 +18,26 @@ const SPREADS = [
   })),
 ];
 
-const state = { spreadIndex: 0, isTurning: false, onExit: null, isOpen: false };
+const state = { spreadIndex: 0, isTurning: false, isOpen: false };
+const exit = createExitSignal();
 
-export async function openBookReader({ onExit } = {}) {
-  state.onExit = onExit ?? null;
+// Resolves once the book has closed.
+export async function openBookReader() {
+  const closed = exit.wait();
   state.isOpen = true;
   state.spreadIndex = 0;
   element("bookReader").classList.remove("hidden");
   window.addEventListener("keydown", onReaderKeyDown);
   preloadCovers();
   await openCover();
+  return closed;
 }
 
 export function closeBookReader() {
   state.isOpen = false;
   element("bookReader").classList.add("hidden");
   window.removeEventListener("keydown", onReaderKeyDown);
-  const callback = state.onExit;
-  state.onExit = null;
-  callback?.();
+  exit.fire();
 }
 
 export function isBookReaderOpen() {

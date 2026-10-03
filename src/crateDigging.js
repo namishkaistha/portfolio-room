@@ -4,6 +4,7 @@ import { approach, slideThenTurn } from "./motion.js";
 import { playRecordPull } from "./sfx.js";
 import { requireNode } from "./meshHelpers.js";
 import { element } from "./dom.js";
+import { createExitSignal } from "./exitSignal.js";
 
 const TOP_TRACKS_ENDPOINT = "/api/top-tracks";
 const LOADING_MESSAGE = "Pulling records…";
@@ -24,8 +25,8 @@ const state = {
   focusedIndex: 0,
   playingUri: null,
   isOpen: false,
-  onExit: null,
 };
+const exit = createExitSignal();
 
 export function installRecordShelf(roomGroup) {
   for (const name of CLEARED_SLEEVE_NAMES) requireNode(roomGroup, name).removeFromParent();
@@ -48,13 +49,15 @@ export function updateRecordShelf(deltaSeconds) {
   });
 }
 
-export function openCrateDigging({ onExit } = {}) {
-  state.onExit = onExit ?? null;
+// Resolves once the crate has closed.
+export function openCrateDigging() {
+  const closed = exit.wait();
   state.isOpen = true;
   element("crateHud").classList.remove("hidden");
   window.addEventListener("keydown", onDiggingKeyDown);
   setTimeout(() => window.addEventListener("click", onOutsideClick), 0);
   renderHud();
+  return closed;
 }
 
 export function closeCrateDigging() {
@@ -62,9 +65,7 @@ export function closeCrateDigging() {
   element("crateHud").classList.add("hidden");
   window.removeEventListener("keydown", onDiggingKeyDown);
   window.removeEventListener("click", onOutsideClick);
-  const callback = state.onExit;
-  state.onExit = null;
-  callback?.();
+  exit.fire();
 }
 
 export function isCrateDiggingOpen() {

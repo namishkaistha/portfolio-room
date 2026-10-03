@@ -2,6 +2,7 @@ import { PROJECTS, RESUME_URL } from "./projects.js";
 import { playKeyClick } from "./sfx.js";
 import { isTouchDevice } from "./dom.js";
 import { closeLightbox, closeProjectCard, isLightboxOpen, isProjectCardOpen, openProjectCard, removeCard, renderProjectBoxes } from "./projectCards.js";
+import { createExitSignal } from "./exitSignal.js";
 
 const WELCOME_LINES = [
   "welcome to my personal projects.",
@@ -37,21 +38,23 @@ const state = {
   cwd: "~",
   history: [],
   input: "",
-  onExit: null,
   isTypingWelcome: false,
   welcomeTimer: null,
 };
+const exit = createExitSignal();
 
-export function openIDE(options = {}) {
+// Resolves once the laptop has closed.
+export function openIDE() {
+  const closed = exit.wait();
   state.cwd = "~";
   state.history = [];
   state.input = "";
   removeCard();
-  state.onExit = options.onExit ?? null;
   requirePanel().classList.remove("hidden");
   attachKeyboardInsetListener();
   render();
   typeWelcome(onWelcomeTyped);
+  return closed;
 }
 
 export function closeIDE() {
@@ -61,9 +64,7 @@ export function closeIDE() {
   detachInput();
   detachKeyboardInsetListener();
   resetKeyboardInset();
-  const callback = state.onExit;
-  state.onExit = null;
-  callback?.();
+  exit.fire();
 }
 
 // Escape closes a full-screen image, then an open project card, then the laptop.

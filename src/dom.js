@@ -34,3 +34,10 @@ export function pointerToDevice(event, target) {
   const rect = target.getBoundingClientRect();
   return { x: ((event.clientX - rect.left) / rect.width) * 2 - 1, y: -((event.clientY - rect.top) / rect.height) * 2 + 1 };
 }
+
+// Tapping the dimmed area around a window (not the window itself) steps back out.
+export function closeOnBackdropClick(backdrop, close) {
+  backdrop.addEventListener("click", (event) => {
+    if (event.target === backdrop) close();
+  });
+}
