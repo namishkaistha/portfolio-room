@@ -90,7 +90,8 @@
   color: #ffc56b;
   font-family: var(--font-pixel);
   font-weight: 700;
-  font-size: clamp(17px, 1.9vw, 22px);
+  /* Capped so the longest word ("NORTHWESTERN") fits the name column on one line. */
+  font-size: clamp(17px, 1.9vw, 20px);
   line-height: 1.2;
   letter-spacing: 0.05em;
   overflow-wrap: break-word;

@@ -8,6 +8,8 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- Fashion: the striped button down no longer adds a gold chain and white tank top to the avatar.
+- Fashion: clicking the room around the panel closes it, like the other stations.
 - `style.css` (2,016 lines) is split into one file per station under `src/styles/`, imported in cascade order. Verified with a computed-style comparison of every element across 22 states (door, room and each station, desktop and phone): no differences.
 - Fashion internals: putting on an outfit is one `dress(outfit)` call (`avatarWardrobe.js`) covering rigged garments, the recolored built-in clothes (now `baseClothes.js`) and the chain and tank top; `outfits.js` is pure outfit data again, and the closet installs with one `installCloset` call.
 - Music card internals: seven interacting flags are replaced by two explicit states, what the visitor wants (idle, playing, paused) and what the embed is doing (starting, loading a track, choosing the next, ready). The resume and play-on-load decisions live in `playbackPolicy.js` with unit tests. Checked against the real Spotify embed: play, pause (stays paused), playing from the crate, and leaving the crate.
@@ -29,6 +31,7 @@
 - Kangra: the first photo is now the pink sunrise over the peaks, and the street-with-power-lines photo is removed.
 
 ### Fixed
+- Fashion: long piece names no longer break mid-word ("NORTHWESTERN" split across two lines on desktop); the name tops out at 20 px so the longest word fits its column.
 - Music card: a record picked from the crate before the Spotify player had finished loading showed on the card but the player loaded the original song; the player now switches to the picked song once it is ready.
 - The record crate no longer sits on "Pulling records…" forever when the network request fails outright; it shows the Spotify error line. The music card likewise copes with the listening request failing instead of throwing.
 - Missing room-model parts now stop the build loudly (`requireNode`) instead of being skipped silently; every part the code looks up was checked to exist in `room.glb`.
