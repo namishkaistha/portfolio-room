@@ -146,10 +146,11 @@ export const TRAVEL_PLACES = [
       "Small-town life has a serenity to it. Everything shuts at 8 p.m., and the town's latest craze is a gym that just opened. It still amazes me that my dad grew up here while I grew up in the States, a reminder of what could have been and of what I have to be grateful for. People here are endlessly kind, always smiling, and ready to befriend anyone, an attitude I hope to carry through life. One day I'd love to retire here.",
     ],
     photos: [
-      { src: "/travel/kangra-valley-1.jpg", alt: "Snow-covered Himalayan peaks rising behind town rooftops in warm evening light" },
-      { src: "/travel/kangra-valley-2.jpg", alt: "Power lines and pylons over a Kangra street with snowy mountains in the distance and a scooter in the foreground" },
+      { src: "/travel/kangra-valley-1.jpg", alt: "Snow-covered Himalayan peaks glowing pink at sunrise above town rooftops and palm trees, seen from a terrace" },
       { src: "/travel/kangra-valley-3.jpg", alt: "A small local gym with a large Hanuman mural, a supplement shelf and a wooden floor" },
       { src: "/travel/kangra-valley-4.jpg", alt: "A sunlit courtyard with potted flowers, a small tiled shrine and a palm tree, with mountains faintly behind the rooftops" },
+      { src: "/travel/kangra-valley-5.jpg", alt: "A golden seated Buddha framed by an ornate jewelled gilt arch inside a temple, a draped yellow cloth in the foreground" },
+      { src: "/travel/kangra-valley-6.jpg", alt: "A row of brass prayer wheels engraved with mantras beneath a ledge of potted plants in a sunlit courtyard" },
     ],
   },
   {

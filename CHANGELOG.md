@@ -4,6 +4,10 @@
 
 ### Added
 - Amritsar: a fourth photo, the jalebi stall.
+- Kangra: new photos of the temple Buddha and the prayer wheels.
+
+### Changed
+- Kangra: the first photo is now the pink sunrise over the peaks, and the street-with-power-lines photo is removed.
 
 ### Fixed
 - Fashion section on phones: the outfit buttons are now 44 px tall (they were 38 px) and Done is wider, so they are easier to tap.
