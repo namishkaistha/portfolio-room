@@ -1,4 +1,5 @@
 import { hasTrackEnded } from "./trackEnd.js";
+import { hasPlaybackStalled, hasProgressed } from "./playbackStall.js";
 
 const LISTENING_ENDPOINT = "/api/now-playing";
 const EMBED_API_SRC = "https://open.spotify.com/embed/iframe-api/v1";
@@ -11,6 +12,9 @@ const SITE_PLAYS_LIMIT = 30;
 const IDLE_EYEBROW = "Press play for music";
 const RESUME_DELAY_MS = 600;
 const MAX_RESUME_ATTEMPTS = 3;
+const STALL_CHECK_MS = 2000;
+const STALL_LIMIT_MS = 7000;
+const MAX_RELOAD_ATTEMPTS = 2;
 
 const state = {
   controller: null,
@@ -28,6 +32,8 @@ const state = {
   userPaused: false,
   resumeAttempts: 0,
   resumeTimer: null,
+  lastProgressAt: 0,
+  reloadAttempts: 0,
 };
 
 export async function mountNowPlaying() {
@@ -83,7 +89,8 @@ function togglePlayback() {
 }
 
 async function fetchListening() {
-  const response = await fetch(LISTENING_ENDPOINT);
+  const response = await fetch(LISTENING_ENDPOINT).catch(() => null);
+  if (!response) return null;
   const isJson = response.headers.get("content-type")?.includes("application/json");
   if (!response.ok || !isJson) return null;
   return response.json();
@@ -199,6 +206,7 @@ function onControllerReady(controller) {
   state.controller = controller;
   loadEmbedImmediately();
   controller.addListener("ready", onEmbedReady);
+  setInterval(reloadIfStalled, STALL_CHECK_MS);
   controller.addListener("playback_update", ({ data }) => onPlaybackUpdate(data));
   if (state.wantsVisible) showCard();
 }
@@ -222,6 +230,7 @@ function onEmbedReady() {
 function loadAndPlay(track) {
   showTrack(track);
   state.shouldPlayWhenLoaded = true;
+  state.lastProgressAt = Date.now();
   state.controller.loadUri(track.uri);
   state.controller.play();
 }
@@ -230,6 +239,10 @@ function onPlaybackUpdate(playback) {
   const previous = state.lastUpdate;
   state.lastUpdate = playback;
   state.isPaused = playback.isPaused;
+  if (hasProgressed(previous, playback)) {
+    state.lastProgressAt = Date.now();
+    state.reloadAttempts = 0;
+  }
   if (!playback.isPaused) markFirstPlay();
   renderToggle(playback.isPaused);
   if (!state.isAdvancing && hasTrackEnded(previous, playback, state.current?.uri, TRACK_END_TOLERANCE_MS)) playNextTrack();
@@ -252,8 +265,22 @@ function resumeIfPausedUnintentionally() {
 
 async function playNextTrack() {
   state.isAdvancing = true;
-  loadAndPlay(await chooseNextTrack());
-  state.isAdvancing = false;
+  try {
+    loadAndPlay(await chooseNextTrack());
+  } finally {
+    state.isAdvancing = false;
+  }
+}
+
+// The embed sometimes reports "playing" without producing audio after a track
+// change. If the position stops moving while music is wanted, load it again.
+function reloadIfStalled() {
+  const isWanted = state.wantsPlayback && !state.userPaused && state.hasPlayed;
+  const stalled = hasPlaybackStalled(Date.now() - state.lastProgressAt, STALL_LIMIT_MS);
+  const isBusy = state.isAdvancing || state.isPaused;
+  if (!isWanted || !stalled || isBusy || state.reloadAttempts >= MAX_RELOAD_ATTEMPTS) return;
+  state.reloadAttempts += 1;
+  loadAndPlay(state.current);
 }
 
 // A new live song takes priority; otherwise (including when Namish stops
