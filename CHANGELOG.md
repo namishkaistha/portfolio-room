@@ -2,6 +2,9 @@
 
 ## 2026-10-03
 
+### Fixed
+- Post-it wall: the panel used to open empty and the notes popped in about a second later. The notes now start loading as soon as you head to the wall and are on the board when the panel appears, settling in with a staggered fade. On a very slow connection the panel shows "Loading the wall…" and fills in when the notes arrive.
+
 ### Removed
 - The window-of-goals station (sky and drifting goal clouds) is removed for now. It is in git history (commit ee5009d) if it comes back.
 

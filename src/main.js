@@ -11,7 +11,7 @@ import { closeIframePanel, isIframePanelOpen, openIframePanel } from "./iframePa
 import { closeAboutCard, isAboutCardOpen, openAboutCard } from "./aboutCard.js";
 import { createViewOverlay } from "./viewOverlay.js";
 import { closeCloset, isClosetOpen, openCloset, wearSavedOutfit, wireCloset } from "./closetPanel.js";
-import { dismissNotesLayer, isNotesPanelOpen, openNotesPanel, wireNotesPanel } from "./notesPanel.js";
+import { dismissNotesLayer, isNotesPanelOpen, openNotesPanel, preloadNotes, wireNotesPanel } from "./notesPanel.js";
 import { hideNowPlaying, mountNowPlaying, pausePlayback, resumePlayback, revealNowPlaying } from "./nowPlaying.js";
 import { closeCrateDigging, isCrateDiggingOpen, openCrateDigging, updateRecordShelf, wireCrateDigging } from "./crateDigging.js";
 import { closeBookReader, isBookReaderOpen, openBookReader, wireBookReader } from "./bookReader.js";
@@ -394,6 +394,7 @@ function openHotspotView(id) {
     return;
   }
   if (id === "notes") {
+    preloadNotes();
     visitSpotAndOpen(SPOTS.notes, (onExit) => openNotesPanel({ onExit }));
     return;
   }

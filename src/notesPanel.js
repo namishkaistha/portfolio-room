@@ -8,15 +8,30 @@ const LOAD_ERROR = "Couldn't load the wall. Try again in a bit.";
 const SEND_ERROR = "Couldn't post that. Try again in a bit.";
 const THANKS_MESSAGE = "Stuck it up. Thanks!";
 const THANKS_VISIBLE_MS = 3000;
+const LOAD_WAIT_MS = 1500;
+const LOADING_MESSAGE = "Loading the wall…";
+const STAGGER_LIMIT = 14;
 
-const state = { isOpen: false, isComposing: false, onExit: null, isSending: false, noteCount: 0, thanksTimer: null };
+const state = { isOpen: false, isComposing: false, onExit: null, isSending: false, noteCount: 0, thanksTimer: null, pending: null };
 
-export function openNotesPanel({ onExit } = {}) {
+// Starts fetching the wall while the camera is still on its way, so the notes
+// are already in hand when the panel appears.
+export function preloadNotes() {
+  state.pending = fetchNotes();
+  state.pending.catch(() => {});
+}
+
+export async function openNotesPanel({ onExit } = {}) {
   state.onExit = onExit ?? null;
   state.isOpen = true;
-  element("notesPanel").classList.remove("hidden");
+  if (!state.pending) preloadNotes();
+  const pending = state.pending;
+  state.pending = null;
+  const notes = await settleWithin(pending, LOAD_WAIT_MS);
+  if (!state.isOpen) return;
+  renderLoaded(notes, pending);
   hideComposer();
-  loadNotes();
+  element("notesPanel").classList.remove("hidden");
   element("notesClose").focus({ preventScroll: true });
 }
 
@@ -48,17 +63,36 @@ export function wireNotesPanel() {
   element("notesMessage").addEventListener("input", updateCharacterCount);
 }
 
-async function loadNotes() {
+async function fetchNotes() {
+  const response = await fetch(NOTES_ENDPOINT);
+  if (!response.ok) throw new Error(`status ${response.status}`);
+  const { notes } = await response.json();
+  return notes;
+}
+
+// Resolves with the notes if they arrive in time, otherwise with null so the
+// panel can open on a loading line and fill in when they land.
+function settleWithin(promise, milliseconds) {
+  const timeout = new Promise((resolve) => setTimeout(() => resolve(null), milliseconds));
+  return Promise.race([promise.catch(() => undefined), timeout]);
+}
+
+async function renderLoaded(notes, pending) {
   const board = element("notesBoard");
+  if (notes === undefined) return showLoadError(board);
+  if (notes !== null) return renderBoard(board, notes);
+  board.replaceChildren(create("p", "notes-empty", LOADING_MESSAGE));
+  showCount("");
   try {
-    const response = await fetch(NOTES_ENDPOINT);
-    if (!response.ok) throw new Error(`status ${response.status}`);
-    const { notes } = await response.json();
-    renderBoard(board, notes);
+    renderBoard(board, await pending);
   } catch {
-    board.replaceChildren(create("p", "notes-empty", LOAD_ERROR));
-    showCount("");
+    showLoadError(board);
   }
+}
+
+function showLoadError(board) {
+  board.replaceChildren(create("p", "notes-empty", LOAD_ERROR));
+  showCount("");
 }
 
 function renderBoard(board, notes) {
@@ -68,11 +102,12 @@ function renderBoard(board, notes) {
     board.replaceChildren(create("p", "notes-empty", EMPTY_MESSAGE));
     return;
   }
-  board.replaceChildren(...notes.map((note) => buildNote(note)));
+  board.replaceChildren(...notes.map((note, index) => buildNote(note, index)));
 }
 
-function buildNote({ id, message, author, tint }) {
-  const note = create("figure", `notes-note tint-${tint}`);
+function buildNote({ id, message, author, tint }, index = 0) {
+  const note = create("figure", `notes-note tint-${tint} is-entering`);
+  note.style.setProperty("--n", Math.min(index, STAGGER_LIMIT));
   note.style.setProperty("--tilt", `${tiltFor(id)}deg`);
   note.append(create("blockquote", "notes-note-text", message));
   if (author) note.append(create("figcaption", "notes-note-author", `· ${author}`));
@@ -105,6 +140,7 @@ function stickUpNewNote(note) {
   const board = element("notesBoard");
   board.querySelector(".notes-empty")?.remove();
   const fresh = buildNote(note);
+  fresh.classList.remove("is-entering");
   fresh.classList.add("is-new");
   board.prepend(fresh);
   board.scrollIntoView({ block: "start" });
