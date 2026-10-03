@@ -8,6 +8,7 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- Bookshelf: the book text is set in the Kalam handwriting font and the "My top 5 books of all time" title in Gochi Hand.
 - Fashion: removed "It's very important to me" from the intro note.
 - Seattle: removed "but somehow they do".
 - Chicago: the Evanston lakefront selfie shows in full (4:3) instead of being cropped to a portrait box that cut off a friend; photos can opt in with `isWide`.

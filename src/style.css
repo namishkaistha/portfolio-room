@@ -11,6 +11,8 @@
   --font-display: "Fraunces", "Cormorant Garamond", ui-serif, Georgia, serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   --font-pixel: "Silkscreen", "Press Start 2P", ui-monospace, monospace;
+  --font-hand: "Kalam", "Caveat", "Comic Sans MS", cursive;
+  --font-hand-title: "Gochi Hand", "Kalam", cursive;
   --font-typewriter: "Special Elite", "Courier New", ui-monospace, monospace;
   --pixel-face: #f6e7c8;
   --pixel-accent: #f2b544;
@@ -718,9 +720,9 @@ body {
 .book-intro-title + .book-photo-image { max-width: 96%; max-height: 72%; }
 .book-text {
   margin: 0;
-  font-family: var(--font-display);
-  font-size: clamp(14px, 1.45vw, 18.5px);
-  line-height: 1.65;
+  font-family: var(--font-hand);
+  font-size: clamp(14px, 1.4vw, 18px);
+  line-height: 1.7;
 }
 .book-photo {
   display: flex;
@@ -2005,3 +2007,4 @@ body {
   .closet-photo { height: clamp(130px, 20vh, 190px); }
   .closet-piece { grid-template-columns: 34% minmax(0, 1fr); }
 }
+.book-intro-title { font-family: var(--font-hand-title); font-weight: 400; letter-spacing: 0.01em; }
