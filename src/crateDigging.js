@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { playTrackNow } from "./nowPlaying.js";
 import { approach, smoothstep } from "./motion.js";
 import { playRecordPull } from "./sfx.js";
+import { requireNode } from "./meshHelpers.js";
 
 const TOP_TRACKS_ENDPOINT = "/api/top-tracks";
 const LOADING_MESSAGE = "Pulling records…";
@@ -26,7 +27,7 @@ const state = {
 };
 
 export function installRecordShelf(roomGroup) {
-  for (const name of CLEARED_SLEEVE_NAMES) roomGroup.getObjectByName(name)?.removeFromParent();
+  for (const name of CLEARED_SLEEVE_NAMES) requireNode(roomGroup, name).removeFromParent();
   const shelf = new THREE.Group();
   shelf.name = "TOP_TEN_SHELF";
   for (let index = 0; index < RECORD_COUNT; index += 1) {
@@ -102,18 +103,21 @@ function poseRecord(record) {
   record.pivot.rotation.y = PULL.coverTurn * turn;
 }
 
+// Any failure (offline, Spotify down) leaves an empty crate with an error
+// line rather than a crate stuck on "Pulling records…".
 async function loadTopTracks() {
-  const response = await fetch(TOP_TRACKS_ENDPOINT);
-  const isJson = response.headers.get("content-type")?.includes("application/json");
-  if (!response.ok || !isJson) {
-    state.tracks = [];
-    renderHud();
-    return;
-  }
-  const { tracks } = await response.json();
+  const tracks = await fetchTopTracks().catch(() => []);
   state.tracks = tracks.slice(0, RECORD_COUNT).map((track, index) => ({ ...track, rank: index + 1 }));
   state.tracks.forEach((track, index) => wrapSleeve(state.records[index], track));
   renderHud();
+}
+
+async function fetchTopTracks() {
+  const response = await fetch(TOP_TRACKS_ENDPOINT);
+  const isJson = response.headers.get("content-type")?.includes("application/json");
+  if (!response.ok || !isJson) throw new Error(`top tracks unavailable: ${response.status}`);
+  const { tracks } = await response.json();
+  return tracks;
 }
 
 function wrapSleeve(record, track) {

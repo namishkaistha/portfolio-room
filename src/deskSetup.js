@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { SPOTS } from "./roomConfig.js";
-import { addBox, addCylinder, glowing, solid } from "./meshHelpers.js";
+import { addBox, addCylinder, glowing, requireNode, solid } from "./meshHelpers.js";
 import { createSeededRandom } from "./seededRandom.js";
 
 const REPLACED_NODE_NAMES = [
@@ -65,16 +65,12 @@ const LAMP_LIGHT = { color: 0xffb066, intensity: 1.4, distance: 3.2, decay: 2 };
 
 export function dressDesk(roomGroup) {
   removeReplacedNodes(roomGroup);
-  recolor(roomGroup.getObjectByName("Desk_Top"), solid(COLOR.deskTop, 0.6));
+  requireNode(roomGroup, "Desk_Top").material = solid(COLOR.deskTop, 0.6);
   roomGroup.add(buildDeskProps(), buildPhotoWall(), buildAboutHitAreas(), buildDeskChair());
 }
 
 function removeReplacedNodes(roomGroup) {
-  for (const name of REPLACED_NODE_NAMES) roomGroup.getObjectByName(name)?.removeFromParent();
-}
-
-function recolor(mesh, material) {
-  if (mesh) mesh.material = material;
+  for (const name of REPLACED_NODE_NAMES) requireNode(roomGroup, name).removeFromParent();
 }
 
 function buildDeskProps() {

@@ -23,6 +23,8 @@
 - Kangra: the first photo is now the pink sunrise over the peaks, and the street-with-power-lines photo is removed.
 
 ### Fixed
+- The record crate no longer sits on "Pulling records…" forever when the network request fails outright; it shows the Spotify error line. The music card likewise copes with the listening request failing instead of throwing.
+- Missing room-model parts now stop the build loudly (`requireNode`) instead of being skipped silently; every part the code looks up was checked to exist in `room.glb`.
 - Fashion section on phones: the outfit buttons are now 44 px tall (they were 38 px) and Done is wider, so they are easier to tap.
 
 ### Changed

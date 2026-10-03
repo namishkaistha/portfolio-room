@@ -21,6 +21,14 @@ export function addCylinder(group, material, { radius, height, position }) {
   return cylinder;
 }
 
+// Room-model parts are fixed by the GLB, so a missing one is a broken build:
+// fail loudly instead of quietly skipping the part.
+export function requireNode(root, name) {
+  const node = root.getObjectByName(name);
+  if (!node) throw new Error(`The room model is missing ${name}`);
+  return node;
+}
+
 export function solid(color, roughness = 0.7) {
   return new THREE.MeshStandardMaterial({ color, roughness });
 }

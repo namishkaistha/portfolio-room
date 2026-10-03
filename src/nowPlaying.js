@@ -82,11 +82,16 @@ function togglePlayback() {
   state.controller?.togglePlay();
 }
 
+// Null when the listening data can't be had (offline, Spotify down); callers
+// then skip the card or keep shuffling.
 async function fetchListening() {
-  const response = await fetch(LISTENING_ENDPOINT);
-  const isJson = response.headers.get("content-type")?.includes("application/json");
-  if (!response.ok || !isJson) return null;
-  return response.json();
+  try {
+    const response = await fetch(LISTENING_ENDPOINT);
+    const isJson = response.headers.get("content-type")?.includes("application/json");
+    return response.ok && isJson ? await response.json() : null;
+  } catch {
+    return null;
+  }
 }
 
 function asLive(track) {

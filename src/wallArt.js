@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { addBox, solid } from "./meshHelpers.js";
+import { addBox, requireNode, solid } from "./meshHelpers.js";
 import { createSeededRandom } from "./seededRandom.js";
 
 // The GLB's flat-color prints sat behind the bookshelf; the corner gallery
@@ -29,7 +29,7 @@ const ARTWORKS = [
 ];
 
 export function hangCornerGallery(roomGroup) {
-  for (const name of REPLACED_PRINT_NAMES) roomGroup.getObjectByName(name)?.removeFromParent();
+  for (const name of REPLACED_PRINT_NAMES) requireNode(roomGroup, name).removeFromParent();
   const gallery = new THREE.Group();
   gallery.name = "CORNER_GALLERY";
   for (const artwork of ARTWORKS) gallery.add(buildArtwork(artwork));
