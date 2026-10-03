@@ -8,6 +8,7 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- Fashion: removed "It's very important to me" from the intro note.
 - Seattle: removed "but somehow they do".
 - Chicago: the Evanston lakefront selfie shows in full (4:3) instead of being cropped to a portrait box that cut off a friend; photos can opt in with `isWide`.
 - Amritsar: "The serenity I felt at the Golden Temple was irreplaceable" (was "immaculate").
