@@ -10,7 +10,7 @@ import { closeIDE, dismissIDELayer, isIDEOpen, openIDE } from "./ide.js";
 import { closeIframePanel, isIframePanelOpen, openIframePanel } from "./iframePanel.js";
 import { closeAboutCard, isAboutCardOpen, openAboutCard } from "./aboutCard.js";
 import { createViewOverlay } from "./viewOverlay.js";
-import { closeCloset, isClosetOpen, openCloset, wearSavedOutfit, wireCloset } from "./closetPanel.js";
+import { dismissClosetLayer, isClosetOpen, openCloset, wearSavedOutfit, wireCloset } from "./closetPanel.js";
 import { dismissNotesLayer, isNotesPanelOpen, openNotesPanel, preloadNotes, wireNotesPanel } from "./notesPanel.js";
 import { hideNowPlaying, mountNowPlaying, pausePlayback, resumePlayback, revealNowPlaying } from "./nowPlaying.js";
 import { closeCrateDigging, isCrateDiggingOpen, openCrateDigging, updateRecordShelf, wireCrateDigging } from "./crateDigging.js";
@@ -303,7 +303,7 @@ function closeOpenModal() {
   else if (isBookReaderOpen()) closeBookReader();
   else if (isAboutCardOpen()) closeAboutCard();
   else if (isNotesPanelOpen()) dismissNotesLayer();
-  else if (isClosetOpen()) closeCloset();
+  else if (isClosetOpen()) dismissClosetLayer();
   else if (sleepOverlay.isOpen()) sleepOverlay.close();
 }
 
