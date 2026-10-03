@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { OUTFIT_PIECES, defaultOutfit, materialRole, readSavedOutfit, shadeForRole } from "../src/outfits.js";
+import { OUTFIT_PIECES, defaultOutfit, materialRole, readSavedOutfit, shadeForRole, showcaseModelUrl, wearablesFor } from "../src/outfits.js";
+import manifest from "../src/wardrobeManifest.json" with { type: "json" };
 
 const channels = (hex) => [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255];
 
@@ -49,10 +50,38 @@ test("offers at least two tops and two bottoms", () => {
   assert.ok(OUTFIT_PIECES.filter((piece) => piece.garment === "bottom").length >= 2);
 });
 
-test("every piece that lists a 3D model has that file on disk", () => {
-  for (const piece of OUTFIT_PIECES.filter((candidate) => candidate.model)) {
-    assert.ok(existsSync(new URL(`../public${piece.model}`, import.meta.url)), `${piece.model} is missing`);
+test("every wearable a piece lists exists in the wardrobe in the right slot", () => {
+  for (const piece of OUTFIT_PIECES) {
+    for (const [slot, id] of Object.entries(piece.wearables)) {
+      assert.equal(manifest.garments.find((garment) => garment.id === id)?.slot, slot, `${piece.id} → ${id}`);
+    }
   }
+});
+
+test("every wearable file is on disk", () => {
+  for (const garment of manifest.garments) {
+    assert.ok(existsSync(new URL(`../public/wardrobe/${garment.file}`, import.meta.url)), `${garment.file} is missing`);
+  }
+});
+
+test("an outfit dresses each slot from its top and bottom", () => {
+  assert.deepEqual(wearablesFor({ top: "nu-rose-bowl", bottom: "uncle-jeans" }), { top: "northwestern-rose-bowl-sweatshirt", bottom: "indigo-straight-jeans", layer: null });
+});
+
+test("the vest is worn over the striped shirt", () => {
+  assert.deepEqual(wearablesFor({ top: "prince-vest", bottom: "brown-trousers" }), { top: "blue-striped-shirt", bottom: "charcoal-pleated-trousers", layer: "prince-cable-knit-vest" });
+});
+
+test("pieces without garments leave their slots empty", () => {
+  assert.deepEqual(wearablesFor({ top: "skims-tee", bottom: "blue-jeans" }), { top: null, bottom: null, layer: null });
+});
+
+test("the panel shows the vest itself, not the shirt beneath it", () => {
+  assert.equal(showcaseModelUrl(OUTFIT_PIECES.find((piece) => piece.id === "prince-vest")), "/wardrobe/wearables/prince-cable-knit-vest.glb");
+});
+
+test("a piece without garments has no showcase model", () => {
+  assert.equal(showcaseModelUrl(OUTFIT_PIECES.find((piece) => piece.id === "skims-tee")), null);
 });
 
 test("no story uses an em dash", () => {

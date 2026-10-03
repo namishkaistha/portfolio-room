@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 
 // A small turntable that shows one closet piece as a 3D model. It owns its own
 // renderer so it can move between the Fashion panel and the enlarged view.
@@ -96,11 +97,14 @@ export function createGarmentViewer() {
   };
 }
 
-// Models are cached and cloned so switching back to a piece is instant.
+// Models are cached and cloned so switching back to a piece is instant. The
+// garments are skinned, so they are measured through their bones and cloned
+// with SkeletonUtils, which rebinds each copy to its own skeleton.
 function loadModel(url) {
   if (!modelCache.has(url)) {
     modelCache.set(url, loader.loadAsync(url).then(({ scene }) => {
-      const box = new THREE.Box3().setFromObject(scene);
+      scene.updateMatrixWorld(true);
+      const box = new THREE.Box3().setFromObject(scene, true);
       scene.position.sub(box.getCenter(new THREE.Vector3()));
       const holder = new THREE.Group().add(scene);
       holder.userData.size = box.getSize(new THREE.Vector3());
@@ -111,7 +115,7 @@ function loadModel(url) {
     }));
   }
   return modelCache.get(url).then((holder) => {
-    const copy = holder.clone();
+    const copy = cloneSkinned(holder);
     copy.userData.size = holder.userData.size;
     return copy;
   });
