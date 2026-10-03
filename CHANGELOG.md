@@ -8,6 +8,7 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- Code cleanup (no visible change): shared helpers replace copies spread across modules — element lookup, touch detection, pointer-to-3D conversion and animation restart in `dom.js`; all easing and the slide-out-then-turn pose in `motion.js`; safe `localStorage` reads and writes in a new `storage.js`. Removed unused exports and fields (`OVERHEAD_VIEW`, `GITHUB_URL`, `PORTFOLIO_URL`, `Player.setVisible`, the door's `slab` and `knob`).
 - The page title and link previews (iMessage, Slack and so on) now read "Namish’s Room" instead of "Room".
 - Avatar and wardrobe updated to Namish-Wearables 1.4: a leaner athletic build (face, hair, hands and animations unchanged) and all garments refitted to it, plus a black SKIMS tee for the Skims piece. The Prince vest now comes with its own white tee, so the hand-built `white-tee.glb` and its builder are removed. The built-in clothes are recolored by their slot tags, which now only matters for the light blue jeans; the unused pinstripe shader is gone. The avatar is quantized (11.1 MB → 7.4 MB) and a test checks it matches the manifest's hash and body fit. Garment photos re-rendered.
 - Bookshelf: the book text is set in the Kalam handwriting font and the "My top 5 books of all time" title in Gochi Hand.

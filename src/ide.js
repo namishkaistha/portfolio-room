@@ -1,5 +1,6 @@
 import { PROJECTS, RESUME_URL } from "./projects.js";
 import { playKeyClick } from "./sfx.js";
+import { isTouchDevice } from "./dom.js";
 import { closeLightbox, closeProjectCard, isLightboxOpen, isProjectCardOpen, openProjectCard, removeCard, renderProjectBoxes } from "./projectCards.js";
 
 const WELCOME_LINES = [
@@ -361,10 +362,6 @@ function focusInput() {
 function focusInputForDevice() {
   if (isTouchDevice()) return;
   focusInput();
-}
-
-function isTouchDevice() {
-  return matchMedia("(hover: none)").matches || "ontouchstart" in window;
 }
 
 function attachKeyboardInsetListener() {

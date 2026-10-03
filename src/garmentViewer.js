@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
+import { easeOutCubic } from "./motion.js";
 
 // A small turntable that shows one closet piece as a 3D model. It owns its own
 // renderer so it can move between the Fashion panel and the enlarged view.
@@ -62,7 +63,7 @@ export function createGarmentViewer() {
       if (isResting) view.tilt += (SPIN.restTilt - view.tilt) * (1 - Math.exp(-2 * delta));
     }
     view.entrance = Math.min(1, view.entrance + delta / ENTRANCE_SECONDS);
-    const eased = 1 - (1 - view.entrance) ** 3;
+    const eased = easeOutCubic(view.entrance);
     turntable.rotation.set(view.tilt, view.yaw - (1 - eased) * 1.2, 0);
     turntable.scale.setScalar(0.85 + 0.15 * eased);
     renderer.render(scene, camera);

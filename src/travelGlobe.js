@@ -6,6 +6,8 @@ import { closeTravelCard, isTravelCardOpen, openTravelCard } from "./travelCard.
 import { scrambleText } from "./textScramble.js";
 import { createSeededRandom } from "./seededRandom.js";
 import { GLOBE_STYLE as STYLE } from "./globeStyle.js";
+import { element, pointerToDevice, replayAnimation } from "./dom.js";
+import { easeOutCubic } from "./motion.js";
 
 const RADIUS = 1;
 const DEG = Math.PI / 180;
@@ -67,9 +69,7 @@ function playIntro() {
   clearTimeout(state.introTimer);
   state.finishIntro?.();
   title.textContent = "";
-  hud.classList.remove("is-playing");
-  void hud.offsetWidth;
-  hud.classList.add("is-playing");
+  replayAnimation(hud, "is-playing");
   state.introTimer = setTimeout(() => {
     state.finishIntro = scrambleText(title, INTRO.title, INTRO.scrambleMs);
   }, INTRO.delayMs);
@@ -216,8 +216,8 @@ function onPointerUp(event) {
 }
 
 function pickPin(event) {
-  const ndc = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window.innerHeight) * 2 + 1);
-  state.raycaster.setFromCamera(ndc, state.camera);
+  const { x, y } = pointerToDevice(event, element("travelCanvas"));
+  state.raycaster.setFromCamera(new THREE.Vector2(x, y), state.camera);
   const hits = state.raycaster.intersectObjects(state.pins.map((pin) => pin.hit), false);
   const hit = hits.find((candidate) => isFacingCamera(candidate.object.userData.pin));
   return hit?.object.userData.pin ?? null;
@@ -541,12 +541,4 @@ function latLonToVector(lat, lon, radius) {
 function easeOutBack(t) {
   const overshoot = 1.4;
   return 1 + (overshoot + 1) * (t - 1) ** 3 + overshoot * (t - 1) ** 2;
-}
-
-function easeOutCubic(t) {
-  return 1 - (1 - t) ** 3;
-}
-
-function element(id) {
-  return document.getElementById(id);
 }

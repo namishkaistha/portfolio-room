@@ -1,8 +1,9 @@
 import * as THREE from "three";
 import { playTrackNow } from "./nowPlaying.js";
-import { approach, smoothstep } from "./motion.js";
+import { approach, slideThenTurn } from "./motion.js";
 import { playRecordPull } from "./sfx.js";
 import { requireNode } from "./meshHelpers.js";
+import { element } from "./dom.js";
 
 const TOP_TRACKS_ENDPOINT = "/api/top-tracks";
 const LOADING_MESSAGE = "Pulling records…";
@@ -94,11 +95,8 @@ function buildRecord(index) {
   return { pivot, mesh, base, pull: 0 };
 }
 
-// Pull is 0 (shelved) to 1 (out and turned toward the viewer): the record
-// slides straight out first, then turns, so it never cuts through its neighbours.
 function poseRecord(record) {
-  const slide = smoothstep(Math.min(record.pull / PULL.slideShare, 1));
-  const turn = smoothstep(Math.max((record.pull - PULL.slideShare) / (1 - PULL.slideShare), 0));
+  const { slide, turn } = slideThenTurn(record.pull, PULL.slideShare);
   record.pivot.position.set(record.base.x, record.base.y + PULL.lift * slide, record.base.z + PULL.distance * slide);
   record.pivot.rotation.y = PULL.coverTurn * turn;
 }
@@ -183,8 +181,4 @@ function onOutsideClick(event) {
 
 function setStatus(message) {
   element("crateStatus").textContent = message;
-}
-
-function element(id) {
-  return document.getElementById(id);
 }

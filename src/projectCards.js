@@ -1,3 +1,5 @@
+import { create } from "./dom.js";
+
 const EXPAND_MS = 460;
 const COLLAPSE_MS = 340;
 const EASING = "cubic-bezier(0.2, 0.8, 0.2, 1)";
@@ -186,11 +188,4 @@ function createCloseHint(className, tag = "span") {
   const hint = create(tag, className);
   hint.append(create("span", "key-hint", "[esc] "), "close");
   return hint;
-}
-
-function create(tag, className, text) {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text) node.textContent = text;
-  return node;
 }

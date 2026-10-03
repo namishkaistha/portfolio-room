@@ -1,3 +1,5 @@
+import { readStoredJson, writeStoredJson } from "./storage.js";
+
 const OUTFIT_KEY = "namish-room:outfit";
 const SHADOW_FACTOR = 0.68;
 const CLOTH_MATERIALS = ["heather_cloth", "denim_cloth"];
@@ -105,21 +107,13 @@ export function defaultOutfit() {
 }
 
 export function readSavedOutfit(storage) {
-  try {
-    const saved = JSON.parse(storage.getItem(OUTFIT_KEY));
-    const isValid = findPiece(saved?.top)?.garment === "top" && findPiece(saved?.bottom)?.garment === "bottom";
-    return isValid ? { top: saved.top, bottom: saved.bottom } : defaultOutfit();
-  } catch {
-    return defaultOutfit();
-  }
+  const saved = readStoredJson(OUTFIT_KEY, null, storage);
+  const isValid = findPiece(saved?.top)?.garment === "top" && findPiece(saved?.bottom)?.garment === "bottom";
+  return isValid ? { top: saved.top, bottom: saved.bottom } : defaultOutfit();
 }
 
-export function saveOutfit(storage, outfit) {
-  try {
-    storage.setItem(OUTFIT_KEY, JSON.stringify(outfit));
-  } catch {
-    // Storage can be unavailable (private mode); the outfit just won't persist.
-  }
+export function saveOutfit(outfit, storage) {
+  writeStoredJson(OUTFIT_KEY, outfit, storage);
 }
 
 const SLOTS = ["top", "bottom"];

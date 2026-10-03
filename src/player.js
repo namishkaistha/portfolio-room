@@ -50,10 +50,6 @@ export class Player {
     this.syncAvatar();
   }
 
-  setVisible(isVisible) {
-    this.avatar.root.visible = isVisible;
-  }
-
   attach() {
     if (this.attached) return;
     this.attached = true;

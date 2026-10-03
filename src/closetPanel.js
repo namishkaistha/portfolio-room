@@ -1,4 +1,4 @@
-import { create } from "./dom.js";
+import { create, replayAnimation } from "./dom.js";
 import { createGarmentViewer } from "./garmentViewer.js";
 import { scrambleText } from "./textScramble.js";
 import { installOutfitAccents } from "./outfitAccents.js";
@@ -16,7 +16,7 @@ const GARMENTS = [
 const state = { isOpen: false, onExit: null, outfit: null, avatar: null, finishHeading: null, finishName: null, selected: null, viewer: null, dress: null };
 
 export function wearSavedOutfit(avatarRoot) {
-  state.outfit = readSavedOutfit(localStorage);
+  state.outfit = readSavedOutfit();
   installOutfitAccents(avatarRoot);
   state.dress = createAvatarDresser(avatarRoot);
   dressAvatar(avatarRoot);
@@ -24,7 +24,7 @@ export function wearSavedOutfit(avatarRoot) {
 
 export function wireCloset(avatarRoot) {
   state.avatar = avatarRoot;
-  state.outfit ??= readSavedOutfit(localStorage);
+  state.outfit ??= readSavedOutfit();
   document.getElementById("closetDone").addEventListener("click", closeCloset);
   state.viewer = createGarmentViewer();
   document.getElementById("closetLightboxStage").append(state.viewer.canvas);
@@ -83,7 +83,7 @@ function buildChip(piece) {
 function wear(piece) {
   state.outfit = { ...state.outfit, [piece.garment]: piece.id };
   dressAvatar(state.avatar);
-  saveOutfit(localStorage, state.outfit);
+  saveOutfit(state.outfit);
   showPiece(piece);
   syncChips();
 }
@@ -97,9 +97,7 @@ function dressAvatar(avatarRoot) {
 function showPiece(piece) {
   state.selected = piece;
   const article = document.getElementById("closetPiece");
-  article.classList.remove("is-playing");
-  void article.offsetWidth;
-  article.classList.add("is-playing");
+  replayAnimation(article, "is-playing");
   showPhoto(piece);
   state.finishName?.();
   state.finishName = scrambleText(document.getElementById("closetPieceName"), piece.name.toUpperCase(), NAME_SCRAMBLE_MS);

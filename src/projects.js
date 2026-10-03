@@ -1,6 +1,4 @@
 export const RESUME_URL = "/Kaistha_Namish_Resume.pdf";
-export const GITHUB_URL = "https://github.com/namishkaistha";
-export const PORTFOLIO_URL = "https://namishkaistha.com";
 
 // Featured projects in display order. `href` is set only when the code is
 // public; `phone` marks portrait mobile screenshots.

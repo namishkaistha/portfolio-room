@@ -1,4 +1,4 @@
-import { approach, smoothstep } from "./motion.js";
+import { approach, slideThenTurn } from "./motion.js";
 import { requireNode } from "./meshHelpers.js";
 
 const PULLED_BOOK_NAME = "Book_005";
@@ -36,10 +36,8 @@ function moveBookTo(target) {
   });
 }
 
-// Slides straight out of the shelf first, then turns the cover toward the viewer.
 function poseBook() {
-  const slide = smoothstep(Math.min(state.pull / PULL.slideShare, 1));
-  const turn = smoothstep(Math.max((state.pull - PULL.slideShare) / (1 - PULL.slideShare), 0));
+  const { slide, turn } = slideThenTurn(state.pull, PULL.slideShare);
   state.book.position.set(
     state.basePosition.x,
     state.basePosition.y + PULL.lift * slide,

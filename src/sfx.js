@@ -1,5 +1,6 @@
 import { createStepCounter } from "./stepCounter.js";
 import { createVariantPicker } from "./variantPicker.js";
+import { readStoredJson, writeStoredJson } from "./storage.js";
 
 const MUTED_KEY = "namish-room:sfx-muted";
 const MASTER_GAIN = 0.7;
@@ -15,7 +16,7 @@ const SOUNDS = {
   record: { files: ["record-1", "record-2"], gain: 1.1, pitch: [0.97, 1.03] },
 };
 
-const state = { context: null, master: null, buffers: new Map(), pickers: {}, isMuted: readMuted() };
+const state = { context: null, master: null, buffers: new Map(), pickers: {}, isMuted: Boolean(readStoredJson(MUTED_KEY, false)) };
 const advanceFootsteps = createStepCounter(STRIDE_METERS);
 
 for (const [kind, { files }] of Object.entries(SOUNDS)) state.pickers[kind] = createVariantPicker(files, Math.random);
@@ -34,7 +35,7 @@ export function isMuted() {
 export function setMuted(isMuted) {
   state.isMuted = isMuted;
   if (state.master) state.master.gain.value = isMuted ? 0 : MASTER_GAIN;
-  writeMuted(isMuted);
+  writeStoredJson(MUTED_KEY, isMuted);
 }
 
 export function updateFootsteps(position) {
@@ -96,20 +97,4 @@ async function loadClip(name) {
 
 function canPlay() {
   return state.context !== null && state.context.state === "running" && !state.isMuted;
-}
-
-function readMuted() {
-  try {
-    return localStorage.getItem(MUTED_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function writeMuted(isMuted) {
-  try {
-    localStorage.setItem(MUTED_KEY, isMuted ? "1" : "0");
-  } catch {
-    // Storage can be unavailable (private mode); the choice just won't persist.
-  }
 }

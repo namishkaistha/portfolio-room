@@ -1,3 +1,5 @@
+import { create } from "./dom.js";
+
 const REVEAL_MS = 620;
 const HIDE_MS = 380;
 const EASING = "cubic-bezier(0.65, 0, 0.35, 1)";
@@ -152,11 +154,4 @@ function coveringRadius(origin) {
 
 function pad(number) {
   return String(number).padStart(2, "0");
-}
-
-function create(tag, className, text) {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text) node.textContent = text;
-  return node;
 }
