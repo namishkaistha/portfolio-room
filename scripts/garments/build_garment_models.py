@@ -2,7 +2,7 @@
 
 The garment's outline becomes a cloth "pillow": thin at the seams, fuller in the
 middle, with soft folds read from the photo's shading. The front wears the photo;
-the back wears the same fabric with large prints smoothed away.
+the back wears the same fabric with any printed graphics painted out.
 
 Usage: python build_garment_models.py <photo dir> <mask dir> <output dir>
 Needs: pip install pillow numpy scipy opencv-python-headless
@@ -27,15 +27,20 @@ EDGE_SOFTNESS = 2.5
 SILHOUETTE_LEVEL = 0.5
 SNAP_STEPS = 12
 SNAP_RATE = 0.7
+SNAP_MAX_STRIDE = 0.25
 PUFF_RADIUS = 0.07
-PUFF_HEIGHT = 0.045
-FOLD_BLUR = 7
-FOLD_DEPTH = 0.012
+PUFF_HEIGHT = 0.038
+FOLD_PRINT_BLUR = 31
+FOLD_BLUR = 9
+FOLD_DEPTH = 0.007
 FOLD_CLAMP = 2.5
 BACK_DEPTH_RATIO = 0.75
-BACK_PRINT_BLUR = 61
+BACK_PRINT_DISTANCE = 55
+BACK_PRINT_GROW = 5
+BACK_INPAINT_RADIUS = 9
+BACK_INPAINT_SCALE = 4
 BACK_GRAIN_BLUR = 2
-BACK_GRAIN_LIMIT = 14
+BACK_GRAIN_LIMIT = 6
 BACK_SHADE = 0.86
 JPEG_QUALITY = 84
 
@@ -46,7 +51,8 @@ def main(photo_dir, mask_dir, out_dir):
         photo, mask = load_cutout(piece, photo_dir, mask_dir)
         photo, mask = fit_to_texture(photo, mask)
         mesh = build_mesh(photo, mask, piece.height_metres)
-        write_glb(out_dir / f"{piece.id}.glb", piece.id, mesh, encode_jpeg(texture_atlas(photo, mask)))
+        atlas = texture_atlas(piece, photo, mask)
+        write_glb(out_dir / f"{piece.id}.glb", piece.id, mesh, encode_jpeg(atlas))
         print(f"{piece.id}: {len(mesh['positions'])} vertices")
 
 
@@ -75,23 +81,6 @@ def fit_to_texture(photo, mask):
     photo = cv2.resize(photo, (width, TEXTURE_HEIGHT), interpolation=cv2.INTER_AREA)
     mask = cv2.resize(mask.astype(np.uint8) * 255, (width, TEXTURE_HEIGHT), interpolation=cv2.INTER_LINEAR) > 127
     return photo, mask
-
-
-def texture_atlas(photo, mask):
-    front = bleed_into_background(photo, mask)
-    return np.concatenate([front, back_of(front)], axis=1)
-
-
-# Edge texels take the nearest garment colour so the bed never shows at the seams.
-def bleed_into_background(photo, mask):
-    _, (rows, columns) = ndimage.distance_transform_edt(~mask, return_indices=True)
-    return photo[rows, columns]
-
-
-def back_of(front):
-    fabric = cv2.medianBlur(front, BACK_PRINT_BLUR).astype(float)
-    grain = front.astype(float) - cv2.GaussianBlur(front, (0, 0), BACK_GRAIN_BLUR).astype(float)
-    return np.clip(fabric * BACK_SHADE + np.clip(grain, -BACK_GRAIN_LIMIT, BACK_GRAIN_LIMIT), 0, 255).astype(np.uint8)
 
 
 def build_mesh(photo, mask, height_metres):
@@ -126,7 +115,7 @@ def surface_grid(silhouette):
     for rows, columns in [(slice(None, -1), slice(None, -1)), (slice(1, None), slice(None, -1)), (slice(None, -1), slice(1, None)), (slice(1, None), slice(1, None))]:
         used[rows, columns] |= cells
     outline = used & ~inside
-    x, y = snap_to_silhouette(silhouette, x, y, outline)
+    x, y = snap_to_silhouette(silhouette, (x, y), outline)
     index = -np.ones(inside.shape, int)
     index[used] = np.arange(used.sum())
     return {"x": x, "y": y, "used": used, "outline": outline, "cells": cells, "index": index}
@@ -134,15 +123,20 @@ def surface_grid(silhouette):
 
 # Newton steps slide the outer ring of grid points onto the smooth outline, so
 # the edge follows the garment instead of stair-stepping along the grid.
-def snap_to_silhouette(silhouette, x, y, outline):
-    slope_y, slope_x = np.gradient(silhouette)
+# Each step is capped below a grid cell: where the blurred outline is flat, a raw
+# Newton step would fling the point far outside and leave a spike.
+def snap_to_silhouette(silhouette, points, outline):
+    x, y = points
     height, width = silhouette.shape
+    max_stride = SNAP_MAX_STRIDE * height / GRID_ROWS
+    slope_y, slope_x = np.gradient(silhouette)
     for _ in range(SNAP_STEPS):
         offset = sample(silhouette, x, y) - SILHOUETTE_LEVEL
         gx, gy = sample(slope_x, x, y), sample(slope_y, x, y)
         stride = offset / (gx ** 2 + gy ** 2 + 1e-6) * SNAP_RATE
-        x = np.clip(np.where(outline, x - stride * gx, x), 0, width - 1)
-        y = np.clip(np.where(outline, y - stride * gy, y), 0, height - 1)
+        dx, dy = np.clip(stride * gx, -max_stride, max_stride), np.clip(stride * gy, -max_stride, max_stride)
+        x = np.clip(np.where(outline, x - dx, x), 0, width - 1)
+        y = np.clip(np.where(outline, y - dy, y), 0, height - 1)
     return x, y
 
 
@@ -150,7 +144,9 @@ def surface_depth(photo, mask):
     size = min(mask.shape)
     reach = np.clip(ndimage.distance_transform_edt(mask) / (PUFF_RADIUS * size), 0, 1)
     puff = PUFF_HEIGHT * size * np.sqrt(reach * (2 - reach))
-    shading = cv2.GaussianBlur(cv2.cvtColor(photo, cv2.COLOR_RGB2GRAY).astype(np.float32), (0, 0), FOLD_BLUR)
+    # The median blur erases printed graphics so only real folds raise the cloth.
+    unprinted = cv2.medianBlur(cv2.cvtColor(photo, cv2.COLOR_RGB2GRAY), FOLD_PRINT_BLUR)
+    shading = cv2.GaussianBlur(unprinted.astype(np.float32), (0, 0), FOLD_BLUR)
     folds = np.clip((shading - shading[mask].mean()) / (shading[mask].std() + 1e-6), -FOLD_CLAMP, FOLD_CLAMP)
     return puff + folds * FOLD_DEPTH * size * reach
 
@@ -178,6 +174,37 @@ def sample(image, x, y):
     rows = np.clip(np.round(y).astype(int), 0, image.shape[0] - 1)
     columns = np.clip(np.round(x).astype(int), 0, image.shape[1] - 1)
     return image[rows, columns]
+
+
+def texture_atlas(piece, photo, mask):
+    front = bleed_into_background(photo, mask)
+    fabric = paint_out_prints(front, mask) if piece.has_front_print else front
+    return np.concatenate([front, back_of(front, fabric)], axis=1)
+
+
+# Edge texels take the nearest garment colour so the bed never shows at the seams.
+def bleed_into_background(photo, mask):
+    _, (rows, columns) = ndimage.distance_transform_edt(~mask, return_indices=True)
+    return photo[rows, columns]
+
+
+def back_of(front, fabric):
+    grain = front.astype(float) - cv2.GaussianBlur(front, (0, 0), BACK_GRAIN_BLUR).astype(float)
+    return np.clip(fabric.astype(float) * BACK_SHADE + np.clip(grain, -BACK_GRAIN_LIMIT, BACK_GRAIN_LIMIT), 0, 255).astype(np.uint8)
+
+
+# Anything far from the garment's usual colour is a print, so it is painted over
+# from the cloth around it.
+def paint_out_prints(front, mask):
+    usual_colour = np.median(front[mask], axis=0)
+    prints = np.linalg.norm(front.astype(float) - usual_colour, axis=2) > BACK_PRINT_DISTANCE
+    prints = ndimage.binary_dilation(prints & mask, iterations=BACK_PRINT_GROW).astype(np.uint8) * 255
+    height, width = mask.shape
+    small_size = (width // BACK_INPAINT_SCALE, height // BACK_INPAINT_SCALE)
+    small = cv2.inpaint(cv2.resize(front, small_size, interpolation=cv2.INTER_AREA),
+                        cv2.resize(prints, small_size, interpolation=cv2.INTER_NEAREST), BACK_INPAINT_RADIUS, cv2.INPAINT_TELEA)
+    patched = cv2.resize(small, (width, height), interpolation=cv2.INTER_CUBIC)
+    return np.where(prints[..., None] > 0, patched, front)
 
 
 def encode_jpeg(pixels):

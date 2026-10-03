@@ -8,6 +8,7 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- Fashion: each piece now shows a 3D model you can drag to turn (with an enlarge button for a full-screen view) instead of its photo. The models are built from the photos by `scripts/garments/` (Segment Anything cut-out, then a puffy double-sided cloth mesh with folds read from the photo's shading and printed graphics painted off the back). The Prince vest's shoulder, hidden under a hoodie in the photo, is rebuilt from its other side. The original photos are removed.
 - Madrid: photos reordered so streets, buildings, the café and the park class alternate.
 - Amsterdam: the last photo is now the student band playing at the bar, replacing the wall of instant photos.
 - Kangra: the first photo is now the pink sunrise over the peaks, and the street-with-power-lines photo is removed.
