@@ -1,13 +1,12 @@
-// The music card's decisions, kept pure so they can be tested without Spotify.
+// The record player's decisions, kept pure so they can be tested without Spotify.
 //
 // intent: what the visitor wants
-//   "idle"     hasn't asked for music yet, or left the room
+//   "idle"     hasn't asked for music yet, stopped it, or left the room
 //   "playing"  wants music
 //   "paused"   pressed pause
 // phase: what the embed is doing
 //   "starting"      the embed hasn't loaded its first track yet
 //   "loadingTrack"  a new track was requested and hasn't loaded
-//   "choosingNext"  a track ended and the next one is being picked
 //   "ready"         settled on a track
 
 // The play/pause button flips whatever the embed is actually doing.

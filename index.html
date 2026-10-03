@@ -51,23 +51,27 @@
       <span class="prompt-label">to view</span>
     </div>
 
-    <div id="nowPlaying" class="now-playing hidden" aria-label="Now playing">
-      <img id="nowPlayingArt" class="now-playing-art" alt="" />
-      <div class="now-playing-text">
-        <div class="now-playing-eyebrow">Namish is listening to…</div>
-        <a id="nowPlayingTitle" class="now-playing-title" target="_blank" rel="noopener"></a>
-        <div id="nowPlayingArtist" class="now-playing-artist"></div>
-        <div id="nowPlayingStatus" class="now-playing-status"></div>
+    <div class="music-corner">
+      <div id="nowPlaying" class="now-playing hidden" role="status" aria-live="polite">
+        <img id="nowPlayingArt" class="now-playing-art" alt="" hidden />
+        <div class="now-playing-text">
+          <div id="nowPlayingEyebrow" class="now-playing-eyebrow"></div>
+          <div id="nowPlayingTitle" class="now-playing-title"></div>
+          <div id="nowPlayingArtist" class="now-playing-artist"></div>
+        </div>
       </div>
-      <button id="nowPlayingToggle" class="now-playing-toggle" aria-label="Play">▶</button>
-    </div>
-    <div id="spotifyPlayer" class="spotify-player">
-      <div class="spotify-hint">
-        <span id="spotifyHintText" class="spotify-hint-text"></span>
-        <button id="spotifyHintClose" class="spotify-hint-close" type="button" aria-label="Dismiss">✕</button>
+      <div id="recordPlayer" class="record-player hidden" role="region" aria-label="Record player">
+        <img id="recordPlayerArt" class="record-player-art" alt="" hidden />
+        <div class="record-player-text">
+          <div id="recordPlayerRank" class="record-player-eyebrow"></div>
+          <div id="recordPlayerTitle" class="record-player-title"></div>
+          <div id="recordPlayerArtist" class="record-player-artist"></div>
+        </div>
+        <button id="recordPlayerToggle" class="record-player-toggle" type="button" aria-label="Play">▶</button>
+        <button id="recordPlayerClose" class="record-player-close" type="button" aria-label="Stop and close">✕</button>
       </div>
-      <div id="nowPlayingEmbed"></div>
     </div>
+    <div class="spotify-player"><div id="recordPlayerEmbed"></div></div>
 
     <div id="hud" class="hud hidden">
       <button id="menuBtn" class="hud-btn" aria-label="Menu">☰</button>
