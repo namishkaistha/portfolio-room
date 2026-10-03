@@ -38,6 +38,7 @@ export function openCloset() {
   const closed = exit.wait();
   state.isOpen = true;
   document.getElementById("closetPanel").classList.remove("hidden");
+  window.addEventListener("click", onOutsideClick);
   state.finishHeading?.();
   state.finishHeading = scrambleText(document.getElementById("closetTitle"), HEADING, HEADING_SCRAMBLE_MS);
   showPiece(findPiece(state.outfit.top));
@@ -49,6 +50,7 @@ export function openCloset() {
 export function closeCloset() {
   if (!state.isOpen) return;
   state.isOpen = false;
+  window.removeEventListener("click", onOutsideClick);
   closeLightbox();
   state.finishHeading?.();
   state.finishName?.();
@@ -128,6 +130,11 @@ function closeLightbox() {
 
 function isLightboxOpen() {
   return !document.getElementById("closetLightbox").classList.contains("hidden");
+}
+
+// Clicking the room around the panel steps back out, as at every other station.
+function onOutsideClick(event) {
+  if (!event.target.closest("#closetPanel, #closetLightbox, #hud, #menu")) closeCloset();
 }
 
 function syncChips() {

@@ -12,7 +12,6 @@ export const OUTFIT_PIECES = [
     name: "Striped button down",
     color: 0xe3e8f1,
     roughness: 0.7,
-    showsAccents: true,
     wearables: { top: "blue-striped-shirt" },
     modelAlt: "A pale blue pinstriped Polo button-down",
     story: "A Polo-branded button down I thrifted in Madrid for $13, and my best find to date. I usually wear it with a chain showing and a white tank top underneath.",
