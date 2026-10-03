@@ -15,11 +15,11 @@ export const TRAVEL_PLACES = [
     ],
     photos: [
       { src: "/travel/madrid-1.jpg", alt: "Evening at a Madrid street corner, a green pharmacy cross glowing above the sidewalk" },
-      { src: "/travel/madrid-2.jpg", alt: "A narrow Madrid street lined with coral and cream buildings under a blue sky" },
       { src: "/travel/madrid-3.jpg", alt: "A laptop and two cups of tea on a marble café table beside an ironwork window" },
       { src: "/travel/madrid-4.jpg", alt: "An ornate domed Madrid building catching sunset light behind a leafy park" },
-      { src: "/travel/madrid-5.jpg", alt: "The Real Basilica de San Francisco el Grande glowing under an orange evening sky" },
       { src: "/travel/madrid-6.jpg", alt: "A class sitting on picnic blankets in a Madrid park while an instructor presents" },
+      { src: "/travel/madrid-2.jpg", alt: "A narrow Madrid street lined with coral and cream buildings under a blue sky" },
+      { src: "/travel/madrid-5.jpg", alt: "The Real Basilica de San Francisco el Grande glowing under an orange evening sky" },
     ],
   },
   {
@@ -56,7 +56,9 @@ export const TRAVEL_PLACES = [
     photos: [
       { src: "/travel/amsterdam-1.jpg", alt: "An Amsterdam canal lined with autumn trees and narrow brick houses under heavy clouds" },
       { src: "/travel/amsterdam-2.jpg", alt: "Namish smiling at a wooden table in a dim café with a tall glass of dark beer" },
-      { src: "/travel/amsterdam-3.jpg", alt: "A bar's back wall of lit bottle shelves covered in small instant photos" },
+      { src: "/travel/amsterdam-3.jpg", alt: "Students playing a live set at a bar: a keyboardist, a guitarist in a fur hat and a singer-guitarist on a small stage under a Hey Student chalkboard" },
+      { src: "/travel/amsterdam-4.jpg", alt: "Van Gogh's Almond Blossom in a gilt frame on a pale museum wall" },
+      { src: "/travel/amsterdam-5.jpg", alt: "A brick Amsterdam townhouse with an arched black double door, wisteria overhead and bicycles parked out front" },
     ],
   },
   {
