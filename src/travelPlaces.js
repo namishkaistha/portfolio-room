@@ -168,7 +168,7 @@ export const TRAVEL_PLACES = [
     lat: 31.62,
     lon: 74.8765,
     paragraphs: [
-      "Amritsar was my first solo trip in India after graduating. I spent three days here and did nothing except eat and pray. The serenity I felt at the Golden Temple was immaculate, and I listened to kirtan all day.",
+      "Amritsar was my first solo trip in India after graduating. I spent three days here and did nothing except eat and pray. The serenity I felt at the Golden Temple was irreplaceable, and I listened to kirtan all day.",
       "I was able to get inside the Golden Temple and find a seat right by a window overlooking the English translation of the Punjabi kirtan. I don't fully understand Punjabi, so it felt like a spot that had been reserved just for me.",
     ],
     photos: [
