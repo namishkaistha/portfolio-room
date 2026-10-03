@@ -1,8 +1,9 @@
 import { test } from "node:test";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import assert from "node:assert/strict";
 
-const stylesheet = readFileSync(new URL("../src/style.css", import.meta.url), "utf8");
+const STYLES_DIR = new URL("../src/styles/", import.meta.url);
+const stylesheet = readdirSync(STYLES_DIR).map((file) => readFileSync(new URL(file, STYLES_DIR), "utf8")).join("\n");
 
 // Panels are layered over the 3D canvas by CSS alone, so a missing rule leaves
 // a station visible but unclickable. Each station's root rule must exist.
