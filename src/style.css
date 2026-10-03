@@ -1970,6 +1970,8 @@ body {
 }
 .closet-lightbox img { max-width: calc(100vw - 36px); max-height: calc(100dvh - 36px); object-fit: contain; }
 @media (max-width: 760px) {
+  .closet-chip { min-height: 44px; font-size: 10px; }
+  .closet-done { min-width: 120px; }
   .closet-photo { height: clamp(130px, 20vh, 190px); }
   .closet-piece { grid-template-columns: 34% minmax(0, 1fr); }
 }

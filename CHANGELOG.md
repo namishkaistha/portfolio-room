@@ -2,6 +2,9 @@
 
 ## 2026-10-03
 
+### Fixed
+- Fashion section on phones: the outfit buttons are now 44 px tall (they were 38 px) and Done is wider, so they are easier to tap.
+
 ### Changed
 - The closet is now a "Fashion" section: a pixel FASHION header scrambles in with a short note on why style matters, then eight pieces, each with its own story and, where available, a photo you can tap to enlarge: striped Polo button down (with a visible chain and white tank top, pinstripes on the avatar), Northwestern Rose Bowl hoodie, Prince sweater vest, The Urban Indian hoodie, Skims black tee, brown corduroy pants, Levi's straight-leg jeans, light blue jeans and brown trousers. The Skims tee and light blue jeans have no photo yet and show a color swatch. The earlier placeholder pieces are gone, and an outfit saved from them falls back to the default.
 - The bookshelf's text, labels and buttons use the Fraunces serif from the About card heading.
