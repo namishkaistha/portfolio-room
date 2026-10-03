@@ -1819,16 +1819,6 @@ body {
   20% { opacity: 1; }
   100% { opacity: 0; transform: translate(60px, -90px) rotate(10deg); }
 }
-.window-overlay { justify-content: space-between; padding-top: calc(28px + var(--safe-top)); }
-.window-caption {
-  margin: 0;
-  color: #fff;
-  font-family: var(--font-pixel);
-  font-size: clamp(16px, 2.4vw, 24px);
-  letter-spacing: 0.06em;
-  text-shadow: 0 2px 14px rgba(20, 40, 80, 0.7);
-}
-
 .closet-panel {
   position: fixed;
   top: 0;
@@ -1927,7 +1917,4 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .now-playing.is-idle .now-playing-toggle { animation: none; box-shadow: 0 0 0 4px rgba(255, 197, 107, 0.4); }
-}
-@media (max-width: 760px) {
-  .window-overlay { padding-top: calc(112px + var(--safe-top)); }
 }

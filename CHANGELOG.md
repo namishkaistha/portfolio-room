@@ -2,10 +2,12 @@
 
 ## 2026-10-03
 
+### Removed
+- The window-of-goals station (sky and drifting goal clouds) is removed for now. It is in git history (commit ee5009d) if it comes back.
+
 ### Added
 - Bed: stand at the foot of the bed, press Space (or tap the bed, or use the menu) to lie down and nap under a dimmed screen with floating Zs. Space, Enter, Escape or a tap wakes you.
 - Closet: stand at the closet to slide the door open and see the clothes hanging inside. A panel lets you mix and match tops (quarter zip, sweater, button down) and bottoms (trousers, parachute pants). Your avatar changes live and the choice is remembered. The selected piece's name scrambles in as a big pixel header, like the TRAVEL globe, with placeholder story text beneath it. Pieces currently differ by color and fabric sheen only; their real stories and looks are still to come.
-- Window: stand at the window (or use the menu) to raise the blinds and look out at a sky with three drifting clouds, one per goal from the About card (10% body fat, build a personal brand, learn to play piano).
 - `scripts/check-walkable.mjs` and a test that every station's standing spot is reachable from the spawn point using the real room model.
 
 ### Fixed
