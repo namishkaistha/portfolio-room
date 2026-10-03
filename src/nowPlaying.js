@@ -1,5 +1,6 @@
 import { hasTrackEnded } from "./trackEnd.js";
 import { readStoredJson, writeStoredJson } from "./storage.js";
+import { intentAfterToggle, shouldPlayWhenReady, shouldResume } from "./playbackPolicy.js";
 
 const LISTENING_ENDPOINT = "/api/now-playing";
 const EMBED_API_SRC = "https://open.spotify.com/embed/iframe-api/v1";
@@ -13,20 +14,20 @@ const IDLE_EYEBROW = "Press play for music";
 const RESUME_DELAY_MS = 600;
 const MAX_RESUME_ATTEMPTS = 3;
 
+// `intent` and `phase` are described in playbackPolicy.js. `current` is the
+// track on the card; `loadedUri` is the one the embed actually has.
 const state = {
   controller: null,
-  isReady: false,
-  wantsPlayback: false,
-  wantsVisible: false,
+  intent: "idle",
+  phase: "starting",
+  isEmbedPaused: true,
   current: null,
+  loadedUri: null,
+  lastUpdate: null,
   shufflePool: [],
   shuffleQueue: [],
-  isAdvancing: false,
-  shouldPlayWhenLoaded: false,
-  isPaused: true,
-  lastUpdate: null,
   hasPlayed: false,
-  userPaused: false,
+  wantsVisible: false,
   resumeAttempts: 0,
   resumeTimer: null,
 };
@@ -39,6 +40,7 @@ export async function mountNowPlaying() {
   const firstTrack = live ? asLive(live) : nextShuffledTrack();
   if (!firstTrack) return;
   showTrack(firstTrack);
+  state.loadedUri = firstTrack.uri;
   document.getElementById("nowPlayingToggle").addEventListener("click", togglePlayback);
   const iframeApi = await loadEmbedApi();
   iframeApi.createController(
@@ -54,7 +56,7 @@ export function revealNowPlaying() {
 }
 
 export function pausePlayback() {
-  state.wantsPlayback = false;
+  state.intent = "idle";
   state.controller?.pause();
 }
 
@@ -63,23 +65,22 @@ export function hideNowPlaying() {
   document.getElementById("nowPlaying").classList.add("hidden");
 }
 
+// Before the embed has loaded, the card switches now and the embed catches up
+// once it is ready (see onEmbedReady).
 export function playTrackNow(track) {
-  state.wantsPlayback = true;
-  state.userPaused = false;
-  if (state.isReady) loadAndPlay(track);
-  else showTrack(track);
+  state.intent = "playing";
+  if (state.phase === "starting") showTrack(track);
+  else loadAndPlay(track);
 }
 
 // Called when a station closes: the browser or Spotify may have paused the
 // embed while another panel (or a video inside it) held the audio.
 export function resumePlayback() {
-  if (!state.wantsPlayback || state.userPaused || !state.isReady || !state.isPaused) return;
-  state.controller.play();
+  if (shouldResume(state)) state.controller.play();
 }
 
 function togglePlayback() {
-  state.userPaused = !state.isPaused;
-  if (!state.userPaused) state.wantsPlayback = true;
+  state.intent = intentAfterToggle(state.isEmbedPaused);
   state.controller?.togglePlay();
 }
 
@@ -204,21 +205,19 @@ function loadEmbedImmediately() {
   document.querySelector(".spotify-player iframe")?.setAttribute("loading", "eager");
 }
 
-// "ready" fires on the first load and again after every loadUri. Play only
-// once per load; calling play before a new track has loaded gets dropped.
 function onEmbedReady() {
-  const isFirstLoad = !state.isReady;
-  state.isReady = true;
-  if (!state.shouldPlayWhenLoaded && !(isFirstLoad && state.wantsPlayback)) return;
-  state.shouldPlayWhenLoaded = false;
-  state.controller.play();
+  const shouldPlay = shouldPlayWhenReady(state);
+  state.phase = "ready";
+  if (state.current.uri !== state.loadedUri) loadAndPlay(state.current);
+  else if (shouldPlay) state.controller.play();
 }
 
 // Phones only allow audio to start inside the tap that asked for it, so play
 // is requested right away as well as again once the new track has loaded.
 function loadAndPlay(track) {
   showTrack(track);
-  state.shouldPlayWhenLoaded = true;
+  state.phase = "loadingTrack";
+  state.loadedUri = track.uri;
   state.controller.loadUri(track.uri);
   state.controller.play();
 }
@@ -226,10 +225,10 @@ function loadAndPlay(track) {
 function onPlaybackUpdate(playback) {
   const previous = state.lastUpdate;
   state.lastUpdate = playback;
-  state.isPaused = playback.isPaused;
+  state.isEmbedPaused = playback.isPaused;
   if (!playback.isPaused) markFirstPlay();
   renderToggle(playback.isPaused);
-  if (!state.isAdvancing && hasTrackEnded(previous, playback, state.current?.uri, TRACK_END_TOLERANCE_MS)) playNextTrack();
+  if (state.phase !== "choosingNext" && hasTrackEnded(previous, playback, state.current?.uri, TRACK_END_TOLERANCE_MS)) playNextTrack();
   else if (playback.isPaused) resumeIfPausedUnintentionally();
   else state.resumeAttempts = 0;
 }
@@ -237,9 +236,7 @@ function onPlaybackUpdate(playback) {
 // The embed's own controls are hidden, so a pause the visitor didn't ask for
 // (audio focus stolen, tab throttling) is undone a moment later.
 function resumeIfPausedUnintentionally() {
-  const isIntentional = !state.wantsPlayback || state.userPaused;
-  const isBusy = state.isAdvancing || state.shouldPlayWhenLoaded;
-  if (isIntentional || isBusy || state.resumeTimer || state.resumeAttempts >= MAX_RESUME_ATTEMPTS) return;
+  if (!shouldResume(state) || state.resumeTimer || state.resumeAttempts >= MAX_RESUME_ATTEMPTS) return;
   state.resumeTimer = setTimeout(() => {
     state.resumeTimer = null;
     state.resumeAttempts += 1;
@@ -248,9 +245,8 @@ function resumeIfPausedUnintentionally() {
 }
 
 async function playNextTrack() {
-  state.isAdvancing = true;
+  state.phase = "choosingNext";
   loadAndPlay(await chooseNextTrack());
-  state.isAdvancing = false;
 }
 
 // A new live song takes priority; otherwise (including when Namish stops
