@@ -1,37 +1,35 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { OUTFIT_PIECES, defaultOutfit, materialRole, readSavedOutfit, shadeForRole, garmentPhotoUrl, showcaseGarment, wearablesFor } from "../src/outfits.js";
+import { OUTFIT_PIECES, defaultOutfit, fabricRole, readSavedOutfit, shadeForRole, garmentPhotoUrl, showcaseGarment, wearablesFor } from "../src/outfits.js";
 import manifest from "../src/wardrobeManifest.json" with { type: "json" };
 
 const channels = (hex) => [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255];
 
-test("recognises the avatar's sweater and jeans materials", () => {
-  assert.deepEqual(materialRole("Sweater • cream cotton knit"), { garment: "top", role: "base" });
-  assert.deepEqual(materialRole("Sweater • ribbed cuffs and hem"), { garment: "top", role: "shadow" });
-  assert.deepEqual(materialRole("Sweater • knit highlights"), { garment: "top", role: "highlight" });
-  assert.deepEqual(materialRole("Jeans • deep navy denim"), { garment: "bottom", role: "base" });
-  assert.deepEqual(materialRole("Jeans • seams and folds"), { garment: "bottom", role: "shadow" });
-  assert.deepEqual(materialRole("Jeans • pale stitching"), { garment: "bottom", role: "highlight" });
+test("the built-in clothes' cloth takes the piece color", () => {
+  assert.equal(fabricRole("heather_cloth"), "base");
+  assert.equal(fabricRole("denim_cloth"), "base");
 });
 
-test("leaves skin, hair and shoes alone", () => {
-  assert.equal(materialRole("Skin • warm medium brown"), null);
-  assert.equal(materialRole("Loafers • polished black leather"), null);
+test("ribbed trim takes a darker shade", () => {
+  assert.equal(fabricRole("Ribbed_trim"), "shadow");
+});
+
+test("leaves skin, stitching and buttons alone", () => {
+  for (const name of ["Skin • warm medium brown", "Stitching", "Buttons"]) assert.equal(fabricRole(name), null);
 });
 
 test("the base shade is the piece color itself", () => {
   assert.equal(shadeForRole(0x4a4f57, "base"), 0x4a4f57);
 });
 
-test("shadows are darker and highlights lighter in every channel", () => {
+test("shadows are darker in every channel", () => {
   const base = channels(0x808080);
   channels(shadeForRole(0x808080, "shadow")).forEach((value, index) => assert.ok(value < base[index]));
-  channels(shadeForRole(0x808080, "highlight")).forEach((value, index) => assert.ok(value > base[index]));
 });
 
 test("shades stay inside the valid color range", () => {
-  for (const role of ["base", "shadow", "highlight"]) {
+  for (const role of ["base", "shadow"]) {
     for (const color of [0x000000, 0xffffff]) assert.ok(shadeForRole(color, role) >= 0 && shadeForRole(color, role) <= 0xffffff);
   }
 });
@@ -65,23 +63,23 @@ test("every wearable file is on disk", () => {
 });
 
 test("an outfit dresses each slot from its top and bottom", () => {
-  assert.deepEqual(wearablesFor({ top: "nu-rose-bowl", bottom: "uncle-jeans" }), { top: "northwestern-rose-bowl-sweatshirt", bottom: "indigo-straight-jeans", layer: null });
+  assert.deepEqual(wearablesFor({ top: "nu-rose-bowl", bottom: "uncle-jeans" }), { top: "northwestern-rose-bowl-sweatshirt", bottom: "indigo-straight-jeans" });
 });
 
-test("the vest is worn over a white tee", () => {
-  assert.deepEqual(wearablesFor({ top: "prince-vest", bottom: "brown-trousers" }), { top: "white-tee", bottom: "charcoal-pleated-trousers", layer: "prince-cable-knit-vest" });
+test("the vest is one top with its tee built in", () => {
+  assert.deepEqual(wearablesFor({ top: "prince-vest", bottom: "brown-trousers" }), { top: "prince-cable-knit-vest", bottom: "charcoal-pleated-trousers" });
 });
 
-test("pieces without garments leave their slots empty", () => {
-  assert.deepEqual(wearablesFor({ top: "skims-tee", bottom: "blue-jeans" }), { top: null, bottom: null, layer: null });
+test("a piece without a garment leaves its slot empty", () => {
+  assert.deepEqual(wearablesFor({ top: "skims-tee", bottom: "blue-jeans" }), { top: "black-skims-tshirt", bottom: null });
 });
 
-test("the panel shows the vest itself, not the tee beneath it", () => {
-  assert.equal(showcaseGarment(OUTFIT_PIECES.find((piece) => piece.id === "prince-vest")), "prince-cable-knit-vest");
+test("the panel shows a piece's garment", () => {
+  assert.equal(showcaseGarment(OUTFIT_PIECES.find((piece) => piece.id === "skims-tee")), "black-skims-tshirt");
 });
 
-test("a piece without garments has nothing to show", () => {
-  assert.equal(showcaseGarment(OUTFIT_PIECES.find((piece) => piece.id === "skims-tee")), null);
+test("a piece without a garment has nothing to show", () => {
+  assert.equal(showcaseGarment(OUTFIT_PIECES.find((piece) => piece.id === "blue-jeans")), null);
 });
 
 test("every piece's showcase garment has a rendered photo on disk", () => {

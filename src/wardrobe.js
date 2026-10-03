@@ -7,6 +7,9 @@ import { Group, Matrix4, Skeleton } from "three";
 export class Wardrobe {
   constructor({ avatar, loader, manifest, baseUrl }) {
     this.avatar = avatar.getObjectByName(manifest.avatar.rootNode) ?? avatar;
+    if (manifest.avatar.bodyFit && this.avatar.userData.bodyFit !== manifest.avatar.bodyFit) {
+      throw new Error("Use the matching updated Namish_Avatar.glb for this clothing fit");
+    }
     this.loader = loader;
     this.manifest = manifest;
     this.baseUrl = baseUrl;
@@ -15,8 +18,9 @@ export class Wardrobe {
     this.originalVisibility = new Map();
     this.isDisposed = false;
     for (const [slot, names] of Object.entries(manifest.hideBaseMeshes)) {
+      // Base clothes can sit beside the rig rather than inside it, so search the whole avatar.
       this.originalVisibility.set(slot, names.map((name) => {
-        const mesh = this.avatar.getObjectByName(name);
+        const mesh = avatar.getObjectByName(name);
         if (!mesh) throw new Error(`The avatar is missing ${name}`);
         return { mesh, visible: mesh.visible };
       }));
