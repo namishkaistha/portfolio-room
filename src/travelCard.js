@@ -124,7 +124,7 @@ function textBlock(paragraphs, className) {
 }
 
 function buildPhoto(photo, index, place) {
-  const figure = create("figure", "travel-photo");
+  const figure = create("figure", photo.isWide ? "travel-photo is-wide" : "travel-photo");
   figure.style.setProperty("--delay", `${120 + index * 110}ms`);
   const image = create("img", "");
   image.src = photo.src;
