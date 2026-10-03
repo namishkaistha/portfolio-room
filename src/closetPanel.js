@@ -3,7 +3,7 @@ import { createGarmentViewer } from "./garmentViewer.js";
 import { scrambleText } from "./textScramble.js";
 import { installOutfitAccents } from "./outfitAccents.js";
 import { createAvatarDresser } from "./avatarWardrobe.js";
-import { OUTFIT_PIECES, applyOutfit, findPiece, readSavedOutfit, saveOutfit, showcaseModelUrl } from "./outfits.js";
+import { OUTFIT_PIECES, applyOutfit, findPiece, garmentModelUrl, garmentPhotoUrl, readSavedOutfit, saveOutfit, showcaseGarment } from "./outfits.js";
 
 const HEADING = "FASHION";
 const HEADING_SCRAMBLE_MS = 800;
@@ -27,8 +27,8 @@ export function wireCloset(avatarRoot) {
   state.outfit ??= readSavedOutfit(localStorage);
   document.getElementById("closetDone").addEventListener("click", closeCloset);
   state.viewer = createGarmentViewer();
-  document.getElementById("closetModelStage").append(state.viewer.canvas);
-  document.getElementById("closetEnlarge").addEventListener("click", openLightbox);
+  document.getElementById("closetLightboxStage").append(state.viewer.canvas);
+  document.getElementById("closetPhoto").addEventListener("click", openLightbox);
   document.getElementById("closetLightboxClose").addEventListener("click", closeLightbox);
   document.getElementById("closetLightbox").addEventListener("click", (event) => {
     if (event.target === event.currentTarget) closeLightbox();
@@ -45,7 +45,6 @@ export function openCloset({ onExit } = {}) {
   document.getElementById("closetPanel").classList.remove("hidden");
   state.finishHeading?.();
   state.finishHeading = scrambleText(document.getElementById("closetTitle"), HEADING, HEADING_SCRAMBLE_MS);
-  state.viewer.start();
   showPiece(findPiece(state.outfit.top));
   syncChips();
   document.getElementById("closetDone").focus({ preventScroll: true });
@@ -55,7 +54,6 @@ export function closeCloset() {
   if (!state.isOpen) return;
   state.isOpen = false;
   closeLightbox();
-  state.viewer.stop();
   state.finishHeading?.();
   state.finishName?.();
   document.getElementById("closetPanel").classList.add("hidden");
@@ -95,55 +93,50 @@ function dressAvatar(avatarRoot) {
   state.dress(state.outfit);
 }
 
-// The piece's name scrambles in, then its 3D model and story fade up beneath it.
+// The piece's name scrambles in, then its photo and story fade up beneath it.
 function showPiece(piece) {
   state.selected = piece;
   const article = document.getElementById("closetPiece");
   article.classList.remove("is-playing");
   void article.offsetWidth;
   article.classList.add("is-playing");
-  showModel(piece);
+  showPhoto(piece);
   state.finishName?.();
   state.finishName = scrambleText(document.getElementById("closetPieceName"), piece.name.toUpperCase(), NAME_SCRAMBLE_MS);
   document.getElementById("closetStory").textContent = piece.story;
 }
 
-function showModel(piece) {
-  const stage = document.getElementById("closetModelFrame");
-  const modelUrl = showcaseModelUrl(piece);
-  const hasModel = Boolean(modelUrl);
-  stage.classList.toggle("is-empty", !hasModel);
-  stage.classList.toggle("is-loading", hasModel);
-  stage.style.setProperty("--swatch", `#${piece.color.toString(16).padStart(6, "0")}`);
-  document.getElementById("closetEnlarge").disabled = !hasModel;
-  state.viewer.canvas.setAttribute("aria-label", hasModel ? `3D model: ${piece.modelAlt}. Drag to turn it.` : "");
-  if (!hasModel) {
-    state.viewer.clear();
-    return;
-  }
-  state.viewer.show(modelUrl).then((isCurrent) => {
-    if (isCurrent) stage.classList.remove("is-loading");
-  }).catch(() => {
-    if (state.selected !== piece) return;
-    stage.classList.remove("is-loading");
-    stage.classList.add("is-empty");
-  });
+// The photo is a still of the piece's 3D model; tapping it opens the model itself.
+function showPhoto(piece) {
+  const button = document.getElementById("closetPhoto");
+  const image = document.getElementById("closetPhotoImage");
+  const garmentId = showcaseGarment(piece);
+  button.classList.toggle("is-empty", !garmentId);
+  button.disabled = !garmentId;
+  button.style.setProperty("--swatch", `#${piece.color.toString(16).padStart(6, "0")}`);
+  image.src = garmentId ? garmentPhotoUrl(garmentId) : "";
+  image.alt = garmentId ? `${piece.modelAlt}, as a 3D model` : "";
 }
 
-// The enlarged view borrows the same canvas, so the model keeps its angle.
 function openLightbox() {
-  if (!showcaseModelUrl(state.selected)) return;
-  document.getElementById("closetLightboxStage").append(state.viewer.canvas);
-  document.getElementById("closetLightbox").classList.remove("hidden");
-  state.viewer.fit();
+  const garmentId = showcaseGarment(state.selected);
+  if (!garmentId) return;
+  const lightbox = document.getElementById("closetLightbox");
+  lightbox.classList.remove("hidden");
+  lightbox.classList.add("is-loading");
+  state.viewer.canvas.setAttribute("aria-label", `${state.selected.modelAlt}, as a 3D model. Drag to turn it.`);
+  state.viewer.start();
+  state.viewer.show(garmentModelUrl(garmentId))
+    .catch((error) => console.warn(`3D model ${garmentId} unavailable:`, error.message))
+    .finally(() => lightbox.classList.remove("is-loading"));
   document.getElementById("closetLightboxClose").focus({ preventScroll: true });
 }
 
 function closeLightbox() {
   if (!isLightboxOpen()) return;
   document.getElementById("closetLightbox").classList.add("hidden");
-  document.getElementById("closetModelStage").append(state.viewer.canvas);
-  state.viewer.fit();
+  state.viewer.stop();
+  state.viewer.clear();
 }
 
 function isLightboxOpen() {

@@ -34,14 +34,17 @@ export function createGarmentViewer() {
   resizeObserver.observe(canvas);
   wireDrag(canvas, view);
 
+  // While it spins, the widest the piece gets on screen is its width-depth diagonal.
   function fit() {
+    frameCamera(Math.hypot(view.size.x, view.size.z) / 2);
+  }
+
+  function frameCamera(halfWidth) {
     const { clientWidth: width, clientHeight: height } = canvas;
     if (!width || !height) return;
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
-    // While it spins, the widest the piece gets on screen is its width-depth diagonal.
     const halfTan = Math.tan(THREE.MathUtils.degToRad(FIELD_OF_VIEW / 2));
-    const halfWidth = Math.hypot(view.size.x, view.size.z) / 2;
     const fitHeight = view.size.y / 2 / halfTan;
     const fitWidth = halfWidth / (halfTan * camera.aspect);
     camera.position.set(0, 0, (Math.max(fitHeight, fitWidth) + halfWidth) * FRAME_MARGIN);
@@ -94,6 +97,15 @@ export function createGarmentViewer() {
       renderer.setAnimationLoop(null);
     },
     fit,
+    // A still of the shown model at one angle, framed tight; used to render
+    // the Fashion panel's photos (scripts/wardrobe/).
+    capture({ yaw, tilt, mimeType }) {
+      frameCamera(Math.max(view.size.x, view.size.z) / 2);
+      turntable.rotation.set(tilt, yaw, 0);
+      turntable.scale.setScalar(1);
+      renderer.render(scene, camera);
+      return canvas.toDataURL(mimeType);
+    },
   };
 }
 

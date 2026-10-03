@@ -3,7 +3,7 @@ const SHADOW_FACTOR = 0.68;
 const HIGHLIGHT_MIX = 0.16;
 
 // The wardrobe. A piece lists the rigged garments it puts on the avatar, by
-// slot (the vest is a layer over the striped shirt). Pieces without garments
+// slot (the vest is a layer over a white tee). Pieces without garments
 // recolor the avatar's built-in sweater or jeans instead.
 export const OUTFIT_PIECES = [
   {
@@ -34,7 +34,7 @@ export const OUTFIT_PIECES = [
     name: "Prince sweater vest",
     color: 0x1f3b63,
     roughness: 0.95,
-    wearables: { top: "blue-striped-shirt", layer: "prince-cable-knit-vest" },
+    wearables: { top: "white-tee", layer: "prince-cable-knit-vest" },
     modelAlt: "A navy cable-knit Prince sweater vest with a white and tan V-neck and a P patch",
     story: "Sweater vests unlock my indie side.",
   },
@@ -123,17 +123,25 @@ export function saveOutfit(storage, outfit) {
 }
 
 const SLOTS = ["top", "bottom", "layer"];
-const WEARABLES_URL = "/wardrobe/wearables";
+const WARDROBE_URL = "/wardrobe";
 
 export function wearablesFor(outfit) {
   const chosen = { ...findPiece(outfit.bottom)?.wearables, ...findPiece(outfit.top)?.wearables };
   return Object.fromEntries(SLOTS.map((slot) => [slot, chosen[slot] ?? null]));
 }
 
-// The Fashion panel shows the outermost garment, so the vest rather than the shirt under it.
-export function showcaseModelUrl(piece) {
-  const outermost = piece.wearables.layer ?? piece.wearables.top ?? piece.wearables.bottom;
-  return outermost ? `${WEARABLES_URL}/${outermost}.glb` : null;
+// The Fashion panel shows the outermost garment, so the vest rather than the tee under it.
+export function showcaseGarment(piece) {
+  return piece.wearables.layer ?? piece.wearables.top ?? piece.wearables.bottom ?? null;
+}
+
+export function garmentModelUrl(garmentId) {
+  return `${WARDROBE_URL}/wearables/${garmentId}.glb`;
+}
+
+// Stills rendered from the 3D models by scripts/wardrobe/.
+export function garmentPhotoUrl(garmentId) {
+  return `${WARDROBE_URL}/photos/${garmentId}.webp`;
 }
 
 export function findPiece(id) {
