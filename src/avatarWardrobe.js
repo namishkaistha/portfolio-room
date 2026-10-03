@@ -1,11 +1,15 @@
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { Wardrobe } from "./wardrobe.js";
 import manifest from "./wardrobeManifest.json";
-import { wearablesFor } from "./outfits.js";
+import { findPiece, wearablesFor } from "./outfits.js";
+import { recolorBaseClothes } from "./baseClothes.js";
+import { installOutfitAccents } from "./outfitAccents.js";
 
 const WARDROBE_PATH = "/wardrobe/";
 
-// Returns dress(outfit), which swaps the avatar's rigged garments to match.
+// Returns dress(outfit), which puts an outfit on the avatar: rigged garments
+// where a piece has them, recolored built-in clothes where it doesn't, and the
+// chain and tank top for the pieces that show them.
 export function createAvatarDresser(avatarRoot) {
   const wardrobe = new Wardrobe({
     avatar: avatarRoot,
@@ -13,7 +17,10 @@ export function createAvatarDresser(avatarRoot) {
     manifest,
     baseUrl: new URL(WARDROBE_PATH, window.location.origin),
   });
+  const accents = installOutfitAccents(avatarRoot);
   return function dress(outfit) {
+    recolorBaseClothes(avatarRoot, outfit);
+    accents.visible = Boolean(findPiece(outfit.top).showsAccents);
     for (const [slot, garmentId] of Object.entries(wearablesFor(outfit))) {
       if (garmentId) wardrobe.equip(garmentId).catch((error) => reportMissingGarment(garmentId, error));
       else wardrobe.clear(slot);
