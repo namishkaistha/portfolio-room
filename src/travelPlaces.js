@@ -69,8 +69,9 @@ export const TRAVEL_PLACES = [
     lat: 55.6761,
     lon: 12.5683,
     paragraphs: [
-      "Copenhagen was the city I missed while studying abroad and always wanted to see. I'd heard so much about Denmark's quality of life and its social democracy, and I wanted to feel it for myself. It became my first solo trip: six days on my own, right after graduation.",
-      "I made great friends at my hostel, learned a lot from hearing their stories, and took a pastry-making class that produced the best pastries I've ever eaten. It's a slow city, the kind you just want to exist in without ticking off tourist stops. It's the trip that taught me the importance of sitting with your thoughts.",
+      "Copenhagen was a city I missed out on while studying abroad, but one I always wanted to visit. I had heard so much about the quality of life and the social democracy Denmark is known for, and I knew I wanted to experience it. It was also my first solo trip, right after graduation.",
+      "I went for six days all by myself. I made incredible friends at my hostel, learned a lot from other people's experiences, and even took a pastry-making class, which produced the best pastries I've ever had in my entire life.",
+      "It's a slow city, one of those places you just want to exist in without doing a lot of touristy things. It's the trip that taught me the importance of sitting with your thoughts.",
     ],
     photos: [
       { src: "/travel/copenhagen-1.jpg", alt: "Colourful townhouses along the Nyhavn canal on a bright blue afternoon" },
@@ -87,8 +88,9 @@ export const TRAVEL_PLACES = [
     lat: 18.6633,
     lon: 98.6554,
     paragraphs: [
-      "After my master's, two friends and I set out to explore Thailand and Vietnam. Chiang Mai was on the list, but we didn't know much about it, and it ended up being our favorite stop of the whole trip.",
-      "We climbed to a temple at sunrise and watched monks tidy up and begin their morning meditation. We took cooking classes, met elephants, and spent plenty of nights at local jazz bars. Days of khao soi, nights of jazz, and a meditation at a mountaintop temple to round it out. It felt like real balance, and I won't forget it.",
+      "After I graduated with my master's, two friends and I set out to explore Thailand and Vietnam together. Chiang Mai was on our list, but we didn't really know much about it, and it ended up being our favorite spot of the entire trip.",
+      "We hiked up to a temple at sunrise and watched monks clean up their workspaces and begin their daily meditations. We took cooking classes, met elephants, and had plenty of nights of liquid mischief at local jazz bars.",
+      "Chiang Mai embodied true balance in every part of my life. We spent our days eating khao soi and our nights at the jazz bar, and topped it off by meditating at a Buddhist temple on top of a mountain. Those are memories I will never forget.",
     ],
     photos: [
       { src: "/travel/chiang-mai-1.jpg", alt: "A small Thai temple with tiered roofs and red doors lit by late sun beneath tall trees" },
@@ -107,8 +109,9 @@ export const TRAVEL_PLACES = [
     lat: 23.1,
     lon: 105.2,
     paragraphs: [
-      "I almost canceled this trip three days before it started because I wasn't sure it was safe. Thank God I didn't. I stayed at Cheers Hostel, met people from all over the United States and the world, and had local guides take us through their homes, their villages and the mountains.",
-      "I spent eight hours a day on the back of a motorbike talking with my guide, and my nights with friends old and new, trading thoughts on chasing dreams, heartbreak and moving forward, and on where each of us comes from and what matters to us. It's a piece of my post-grad life I never want to take for granted.",
+      "I almost canceled this trip three days before it was meant to start because I wasn't sure it was safe, and thank God I went. I stayed at Cheers Hostel and met a ton of new people from all over the United States and the world.",
+      "Local tour guides took us through their homes, their villages and the mountain scenery. I spent eight hours a day on the back of a motorcycle talking to my guide, and my nights talking with old and new friends about chasing your dreams, doing what you want, heartbreak, and moving forward. We shared what we'd learned about the countries we came from and what's important to each of us.",
+      "These are all parts of a post-grad experience I never want to take for granted, and experiences I'll never forget.",
     ],
     photos: [
       { src: "/travel/ha-giang-1.jpg", alt: "Namish on a wooden lookout beside a Vietnamese flag above a winding mountain road" },
@@ -124,8 +127,9 @@ export const TRAVEL_PLACES = [
     lat: 9.5,
     lon: 76.6,
     paragraphs: [
-      "A week-long solo trip through South India: hostels in Varkala and Kochi, tea plantations in Munnar, and a lucky stumble into the Biennale in Old Kochi.",
-      "South Indian culture is different from my own North Indian background, and it showed me that India is a continent squeezed into a country, and each state brings its own food, culture and mentality with it. The art and the nature stopped me in my tracks, and so did how eager people were to show off God's Own Country with their hospitality.",
+      "Kerala was a week-long solo trip in India. I stayed in hostels the whole time, wandered around Varkala Beach, explored tea plantations in Munnar, and stumbled upon the Biennale festival in Old Kochi.",
+      "I learned a lot about South Indian culture, which is different from my own North Indian one. India is as diverse as a continent smushed into a country, and each state brings its own food, culture and mentality with it. The artwork took me away, and so did how beautiful and well maintained the nature is.",
+      "What I'll never forget is how eager people were to show off their beautiful country, God's Own Country, as they call it, with their hospitality.",
     ],
     photos: [
       { src: "/travel/kerala-1.jpg", alt: "Rolling Munnar tea plantations beneath a rocky mountain and cloudy sky" },
@@ -144,8 +148,9 @@ export const TRAVEL_PLACES = [
     lat: 32.1054,
     lon: 76.384,
     paragraphs: [
-      "Kangra is my ancestral home. I grew up visiting, and the mountains still take my breath away. It's right next to the Dalai Lama's home, and I've been back many times.",
-      "Small-town life has a serenity to it. Everything shuts at 8 p.m., and the town's latest craze is a gym that just opened. It still amazes me that my dad grew up here while I grew up in the States, a reminder of what could have been and of what I have to be grateful for. People here are endlessly kind, always smiling, and ready to befriend anyone, an attitude I hope to carry through life. One day I'd love to retire here.",
+      "Kangra is my ancestral home. I've grown up going here, and the mountains still never fail to take my breath away. It sits right next to the home of the Dalai Lama.",
+      "There's a serenity in small-town life. It's a village where everything closes at 8 p.m. and the new craze of the town is the local gym that just opened. It's astounding to me that this is where my dad grew up while I got to grow up in the United States. It's both a reminder of what could have been and of what I have to be grateful for.",
+      "The people here are incessantly kind and always have a smile on their face. They're willing to be friends with anyone, and I hope I carry that attitude throughout my life. One day I'd love to retire here.",
     ],
     photos: [
       { src: "/travel/kangra-valley-1.jpg", alt: "Snow-covered Himalayan peaks glowing pink at sunrise above town rooftops and palm trees, seen from a terrace" },
@@ -163,8 +168,8 @@ export const TRAVEL_PLACES = [
     lat: 31.62,
     lon: 74.8765,
     paragraphs: [
-      "My first solo trip in India after graduating. Three days of eating and praying, kirtan playing all day, and a serenity at the Golden Temple that's hard to describe.",
-      "Inside the temple, I found a seat by a window overlooking the English translation of the Punjabi kirtan. I don't fully understand Punjabi, so it felt like a spot saved just for me.",
+      "Amritsar was my first solo trip in India after graduating. I spent three days here and did nothing except eat and pray. The serenity I felt at the Golden Temple was immaculate, and I listened to kirtan all day.",
+      "I was able to get inside the Golden Temple and find a seat right by a window overlooking the English translation of the Punjabi kirtan. I don't fully understand Punjabi, so it felt like a spot that had been reserved just for me.",
     ],
     photos: [
       { src: "/travel/amritsar-1.jpg", alt: "The illuminated Golden Temple reflected in still water beneath a crescent moon" },
