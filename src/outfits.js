@@ -2,9 +2,9 @@ const OUTFIT_KEY = "namish-room:outfit";
 const SHADOW_FACTOR = 0.68;
 const HIGHLIGHT_MIX = 0.16;
 
-// The wardrobe. Colors are sampled from the photos; the avatar's geometry stays
-// the same, so a piece changes the avatar by color, fabric sheen and, for the
-// striped shirt, pinstripes and a chain with a tank top showing.
+// The wardrobe. A piece lists the rigged garments it puts on the avatar, by
+// slot (the vest is a layer over the striped shirt). Pieces without garments
+// recolor the avatar's built-in sweater or jeans instead.
 export const OUTFIT_PIECES = [
   {
     id: "striped-button-down",
@@ -14,7 +14,7 @@ export const OUTFIT_PIECES = [
     roughness: 0.7,
     pinstripe: 0x8fa6c9,
     showsAccents: true,
-    model: "/closet/striped-button-down.glb",
+    wearables: { top: "blue-striped-shirt" },
     modelAlt: "A pale blue pinstriped Polo button-down",
     story: "A Polo-branded button down I thrifted in Madrid for $13, and my best find to date. I usually wear it with a chain showing and a white tank top underneath.",
   },
@@ -24,7 +24,7 @@ export const OUTFIT_PIECES = [
     name: "Northwestern Rose Bowl hoodie",
     color: 0xc9c9c9,
     roughness: 0.95,
-    model: "/closet/nu-rose-bowl.glb",
+    wearables: { top: "northwestern-rose-bowl-sweatshirt" },
     modelAlt: "A heather gray Northwestern Rose Bowl sweatshirt with a purple helmet and a rose",
     story: "The quintessential Northwestern alumni hoodie. We'll never forget the Rose Bowl.",
   },
@@ -34,7 +34,7 @@ export const OUTFIT_PIECES = [
     name: "Prince sweater vest",
     color: 0x1f3b63,
     roughness: 0.95,
-    model: "/closet/prince-vest.glb",
+    wearables: { top: "blue-striped-shirt", layer: "prince-cable-knit-vest" },
     modelAlt: "A navy cable-knit Prince sweater vest with a white and tan V-neck and a P patch",
     story: "Sweater vests unlock my indie side.",
   },
@@ -44,7 +44,7 @@ export const OUTFIT_PIECES = [
     name: "The Urban Indian hoodie",
     color: 0x5b302b,
     roughness: 0.95,
-    model: "/closet/urban-indian.glb",
+    wearables: { top: "urban-indian-sweatshirt" },
     modelAlt: "A faded maroon hoodie printed with The Urban Indian and the word love in several Indian scripts down one side",
     story: "Bought in an exclusive drop, in the middle of dance practice, with one of my best friends from college. It's engraved with The Urban Indian and the word love in several languages, and it's representative of my Indian roots.",
   },
@@ -54,7 +54,7 @@ export const OUTFIT_PIECES = [
     name: "Skims black tee",
     color: 0x151515,
     roughness: 0.8,
-    model: null,
+    wearables: {},
     modelAlt: "",
     story: "A gift from my friends, and my go-to black tee for when I'm out and about.",
   },
@@ -64,7 +64,7 @@ export const OUTFIT_PIECES = [
     name: "Brown corduroy pants",
     color: 0xa27c55,
     roughness: 0.95,
-    model: "/closet/brown-corduroy.glb",
+    wearables: { bottom: "tan-corduroy-trousers" },
     modelAlt: "Tan-brown corduroy pants",
     story: "Brown corduroy pants I thrifted in New York City when I was 19.",
   },
@@ -74,7 +74,7 @@ export const OUTFIT_PIECES = [
     name: "Levi's straight-leg jeans",
     color: 0x1a2236,
     roughness: 0.85,
-    model: "/closet/uncle-jeans.glb",
+    wearables: { bottom: "indigo-straight-jeans" },
     modelAlt: "Dark indigo straight-leg baggy Levi's jeans",
     story: "Straight-leg, baggy-ish denim, a gift from my uncle in India. It's my first pair of Levi's ever.",
   },
@@ -84,7 +84,7 @@ export const OUTFIT_PIECES = [
     name: "Light blue jeans",
     color: 0x86a9d1,
     roughness: 0.85,
-    model: null,
+    wearables: {},
     modelAlt: "",
     story: "You can never go wrong with a nice pair of blue jeans.",
   },
@@ -94,7 +94,7 @@ export const OUTFIT_PIECES = [
     name: "Brown trousers",
     color: 0x35261f,
     roughness: 0.9,
-    model: "/closet/brown-trousers.glb",
+    wearables: { bottom: "charcoal-pleated-trousers" },
     modelAlt: "Dark brown dress trousers",
     story: "It's important to have elevated style sometimes.",
   },
@@ -122,6 +122,20 @@ export function saveOutfit(storage, outfit) {
   }
 }
 
+const SLOTS = ["top", "bottom", "layer"];
+const WEARABLES_URL = "/wardrobe/wearables";
+
+export function wearablesFor(outfit) {
+  const chosen = { ...findPiece(outfit.bottom)?.wearables, ...findPiece(outfit.top)?.wearables };
+  return Object.fromEntries(SLOTS.map((slot) => [slot, chosen[slot] ?? null]));
+}
+
+// The Fashion panel shows the outermost garment, so the vest rather than the shirt under it.
+export function showcaseModelUrl(piece) {
+  const outermost = piece.wearables.layer ?? piece.wearables.top ?? piece.wearables.bottom;
+  return outermost ? `${WEARABLES_URL}/${outermost}.glb` : null;
+}
+
 export function findPiece(id) {
   return OUTFIT_PIECES.find((piece) => piece.id === id);
 }
@@ -146,8 +160,8 @@ export function shadeForRole(hex, role) {
   return (shaded[0] << 16) | (shaded[1] << 8) | shaded[2];
 }
 
-// Recolors the avatar's clothes in place. Geometry stays the same, so for now
-// a piece differs by color and fabric sheen only.
+// Recolors the avatar's built-in sweater and jeans. They only show for pieces
+// without rigged garments; the others hide them (see avatarWardrobe.js).
 export function applyOutfit(avatarRoot, outfit) {
   const pieces = { top: findPiece(outfit.top), bottom: findPiece(outfit.bottom) };
   avatarRoot.traverse((object) => {

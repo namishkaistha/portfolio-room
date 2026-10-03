@@ -2,7 +2,8 @@ import { create } from "./dom.js";
 import { createGarmentViewer } from "./garmentViewer.js";
 import { scrambleText } from "./textScramble.js";
 import { installOutfitAccents } from "./outfitAccents.js";
-import { OUTFIT_PIECES, applyOutfit, findPiece, readSavedOutfit, saveOutfit } from "./outfits.js";
+import { createAvatarDresser } from "./avatarWardrobe.js";
+import { OUTFIT_PIECES, applyOutfit, findPiece, readSavedOutfit, saveOutfit, showcaseModelUrl } from "./outfits.js";
 
 const HEADING = "FASHION";
 const HEADING_SCRAMBLE_MS = 800;
@@ -12,12 +13,13 @@ const GARMENTS = [
   { id: "closetBottoms", garment: "bottom" },
 ];
 
-const state = { isOpen: false, onExit: null, outfit: null, avatar: null, finishHeading: null, finishName: null, selected: null, viewer: null };
+const state = { isOpen: false, onExit: null, outfit: null, avatar: null, finishHeading: null, finishName: null, selected: null, viewer: null, dress: null };
 
 export function wearSavedOutfit(avatarRoot) {
   state.outfit = readSavedOutfit(localStorage);
   installOutfitAccents(avatarRoot);
-  applyOutfit(avatarRoot, state.outfit);
+  state.dress = createAvatarDresser(avatarRoot);
+  dressAvatar(avatarRoot);
 }
 
 export function wireCloset(avatarRoot) {
@@ -82,10 +84,15 @@ function buildChip(piece) {
 
 function wear(piece) {
   state.outfit = { ...state.outfit, [piece.garment]: piece.id };
-  applyOutfit(state.avatar, state.outfit);
+  dressAvatar(state.avatar);
   saveOutfit(localStorage, state.outfit);
   showPiece(piece);
   syncChips();
+}
+
+function dressAvatar(avatarRoot) {
+  applyOutfit(avatarRoot, state.outfit);
+  state.dress(state.outfit);
 }
 
 // The piece's name scrambles in, then its 3D model and story fade up beneath it.
@@ -103,7 +110,8 @@ function showPiece(piece) {
 
 function showModel(piece) {
   const stage = document.getElementById("closetModelFrame");
-  const hasModel = Boolean(piece.model);
+  const modelUrl = showcaseModelUrl(piece);
+  const hasModel = Boolean(modelUrl);
   stage.classList.toggle("is-empty", !hasModel);
   stage.classList.toggle("is-loading", hasModel);
   stage.style.setProperty("--swatch", `#${piece.color.toString(16).padStart(6, "0")}`);
@@ -113,7 +121,7 @@ function showModel(piece) {
     state.viewer.clear();
     return;
   }
-  state.viewer.show(piece.model).then((isCurrent) => {
+  state.viewer.show(modelUrl).then((isCurrent) => {
     if (isCurrent) stage.classList.remove("is-loading");
   }).catch(() => {
     if (state.selected !== piece) return;
@@ -124,7 +132,7 @@ function showModel(piece) {
 
 // The enlarged view borrows the same canvas, so the model keeps its angle.
 function openLightbox() {
-  if (!state.selected?.model) return;
+  if (!showcaseModelUrl(state.selected)) return;
   document.getElementById("closetLightboxStage").append(state.viewer.canvas);
   document.getElementById("closetLightbox").classList.remove("hidden");
   state.viewer.fit();
