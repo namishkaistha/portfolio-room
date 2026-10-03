@@ -173,7 +173,7 @@ function addPrint(wall, borderMaterial, photoMaterial, { y, z }) {
   addBox(wall, photoMaterial, { size: [0.003, height - border * 2, width - border * 2], position: [WALL_SURFACE_X - 0.002, y, z] });
 }
 
-function buildDeskChair() {
+export function buildDeskChair() {
   const chair = new THREE.Group();
   chair.name = "DESK_CHAIR";
   const leather = solid(COLOR.leather, 0.55);

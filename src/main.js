@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { buildScene, installLights, resolveMovement } from "./world.js";
+import { buildScene, installLights } from "./world.js";
 import { DoorController } from "./door.js";
 import { Player } from "./player.js";
 import { Joystick } from "./joystick.js";
@@ -70,12 +70,12 @@ async function bootstrap() {
   window.addEventListener("resize", resizeToViewport);
   resizeToViewport();
 
-  const { doorGroup, closetDoors: doors, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer } = await buildScene(scene);
+  const { doorGroup, closetDoors: doors, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer, collider } = await buildScene(scene);
   roomGroup = room;
   frontWall = wall;
   closetDoors = doors;
   roomMixer = mixer;
-  player = new Player(avatar);
+  player = new Player(avatar, collider);
   stations = createStations({ player, closetDoors });
   wearSavedOutfit(avatar.root);
   wireCloset(avatar.root);
@@ -100,34 +100,38 @@ async function bootstrap() {
   renderer.setAnimationLoop(step);
 }
 
-function step() {
-  const delta = clock.getDelta();
-  const elapsed = clock.getElapsedTime();
-
-  if (stage.current === "door") {
-    door.update(delta);
-  } else if (stage.current === "entering") {
+// What each stage moves forward every frame, on top of the room's own
+// animations below.
+const STAGE_UPDATES = {
+  loading: () => {},
+  door: (delta) => door.update(delta),
+  entering: (delta) => {
     door.update(delta);
     advanceCameraTravel(delta);
-    player.advance(delta, resolveMovement);
-  } else if (stage.current === "room") {
-    player.advance(delta, resolveMovement);
+    player.advance(delta);
+  },
+  room: (delta, elapsed) => {
+    player.advance(delta);
     updateFootsteps(player.position);
-    syncMobileControls();
     refreshHotspotUi();
     highlights.update(elapsed);
-  } else if (stage.current === "leaving") {
+  },
+  leaving: (delta) => {
     advanceCameraTravel(delta);
-    player.advance(delta, resolveMovement);
-  } else if (stage.current === "seated") {
-    player.advance(delta, resolveMovement);
+    player.advance(delta);
+  },
+  seated: (delta) => {
+    player.advance(delta);
     updateFootsteps(player.position);
-    syncMobileControls();
     director.update(delta);
-  }
+  },
+};
 
+function step() {
+  const delta = clock.getDelta();
+  STAGE_UPDATES[stage.current](delta, clock.getElapsedTime());
   roomMixer.update(delta);
-  closetDoors?.update(delta);
+  closetDoors.update(delta);
   updateRecordShelf(delta);
   updateBookPull(delta);
   // The globe overlay is opaque, so skip drawing the room underneath it.
@@ -143,7 +147,7 @@ function revealRoomBehindDoor() {
 }
 
 function presentDoorIntro() {
-  stage.current = "door";
+  setStage("door");
   const intro = document.getElementById("doorIntro");
   const textNode = document.getElementById("dialogText");
   if (!intro || !textNode) return;
@@ -154,7 +158,7 @@ function presentDoorIntro() {
 function onDoorOpenStart() {
   revealRoomBehindDoor();
   dismissDoorIntro();
-  stage.current = "entering";
+  setStage("entering");
   startCameraTravel({
     path: new THREE.CubicBezierCurve3(camera.position.clone(), ...ENTRY_PATH_CONTROLS, overheadView().position),
     lookPath: new THREE.QuadraticBezierCurve3(CAMERA_INTRO_LOOK, ENTRY_LOOK_CONTROL, CAMERA_LOOK_TARGET),
@@ -192,9 +196,8 @@ function restoreWallOncePastDoorway(t) {
 }
 
 function leaveRoom() {
-  stage.current = "leaving";
-  setPrompt(null);
-  highlights.clearGlow();
+  setStage("leaving");
+  clearHotspotUi();
   hideRoomHud();
   pausePlayback();
   hideNowPlaying();
@@ -215,7 +218,7 @@ async function seeVisitorOut() {
 }
 
 async function finishLeaving() {
-  stage.current = "door";
+  setStage("door");
   await door.close();
   hideRoomForIntro();
   door.attach();
@@ -227,7 +230,7 @@ function hideRoomHud() {
 }
 
 function enterRoom() {
-  stage.current = "room";
+  setStage("room");
   player.attach();
   player.setControlsEnabled(true);
   door.detach();
@@ -236,10 +239,6 @@ function enterRoom() {
   document.getElementById("hud")?.classList.remove("hidden");
   revealNowPlaying();
   showControlsToast();
-
-  if (hasTouch) {
-    document.getElementById("mobileControls")?.classList.remove("hidden");
-  }
 }
 
 function cutAwayFrontWall() {
@@ -263,6 +262,7 @@ function showControlsToast() {
 
 function refreshHotspotUi() {
   const next = findActiveHotspot(player.position);
+  if (next === activeHotspot) return;
   activeHotspot = next;
   setPrompt(next);
   highlights.setActive(next?.id ?? null);
@@ -270,6 +270,12 @@ function refreshHotspotUi() {
 
 function dismissOpenStation() {
   if (visit?.station.isOpen()) visit.station.dismiss();
+}
+
+function clearHotspotUi() {
+  activeHotspot = null;
+  setPrompt(null);
+  highlights.clearGlow();
 }
 
 function setPrompt(hotspot) {
@@ -347,15 +353,14 @@ function openHotspotView(id) {
 // back out to the overhead view. Music the station paused picks back up.
 async function visitStation(current) {
   const { station } = current;
-  stage.current = "seated";
-  setPrompt(null);
-  highlights.clearGlow();
+  setStage("seated");
+  clearHotspotUi();
   station.approach?.();
   if (station.spot) await approachSpot(station.spot);
   if (!current.isCancelled) await station.open();
   resumePlayback();
   if (station.spot) await leaveSpot();
-  stage.current = "room";
+  setStage("room");
   visit = null;
 }
 
@@ -456,9 +461,10 @@ function overheadView() {
   return { position, look: CAMERA_LOOK_TARGET };
 }
 
-function syncMobileControls() {
-  if (!hasTouch) return;
-  document.getElementById("mobileControls")?.classList.toggle("hidden", stage.current === "seated");
+// Touch controls show only while walking around the room.
+function setStage(next) {
+  stage.current = next;
+  if (hasTouch) document.getElementById("mobileControls")?.classList.toggle("hidden", next !== "room");
 }
 
 function applyIntroCameraPullback() {

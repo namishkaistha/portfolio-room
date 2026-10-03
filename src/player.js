@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { ROOM_SPAWN } from "./roomConfig.js";
 
-const PLAYER_RADIUS = 0.18;
+export const PLAYER_RADIUS = 0.18;
 const WALK_SPEED = 1.75;
 const FACING_TURN_RATE = 12;
 const MIN_WALK_STEP_SQUARED = 1e-8;
@@ -9,8 +9,9 @@ const GLIDE_SECONDS = 0.7;
 
 // Movement is world-relative so it stays independent of the camera and mouse.
 export class Player {
-  constructor(avatar) {
+  constructor(avatar, resolveMovement) {
     this.avatar = avatar;
+    this.resolveMovement = resolveMovement;
     this.position = ROOM_SPAWN.clone();
     this.facingYaw = 0;
     this.targetYaw = 0;
@@ -65,9 +66,9 @@ export class Player {
     this.joystick.set(x, y);
   }
 
-  advance(deltaSeconds, resolveMovement) {
+  advance(deltaSeconds) {
     if (this.glide) this.advanceGlide(deltaSeconds);
-    else if (!this.isAtSpot && this.areControlsEnabled) this.advanceWalking(deltaSeconds, resolveMovement);
+    else if (!this.isAtSpot && this.areControlsEnabled) this.advanceWalking(deltaSeconds);
     this.avatar.update(deltaSeconds);
   }
 
@@ -92,10 +93,10 @@ export class Player {
     glide.resolve();
   }
 
-  advanceWalking(deltaSeconds, resolveMovement) {
+  advanceWalking(deltaSeconds) {
     const intent = this.readMovementIntent();
     const desired = this.position.clone().addScaledVector(intent, WALK_SPEED * deltaSeconds);
-    const resolved = resolveMovement(this.position, desired, PLAYER_RADIUS);
+    const resolved = this.resolveMovement(this.position, desired, PLAYER_RADIUS);
     const isWalking = resolved.distanceToSquared(this.position) > MIN_WALK_STEP_SQUARED;
     this.position.set(resolved.x, 0, resolved.z);
     if (intent.lengthSq() > 0) this.targetYaw = Math.atan2(intent.x, intent.z);

@@ -108,6 +108,3 @@ export const SPOTS = {
     closeUpView: { position: new THREE.Vector3(-0.3, 1.58, -1.36), look: PULLED_BOOK },
   },
 };
-
-// Filled from the GLB's bounding boxes once the model loads (see world.js).
-export const OBSTACLES = [];
