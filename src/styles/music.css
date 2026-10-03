@@ -1,0 +1,119 @@
+/* Top-right, beside the menu button: what Namish is listening to, and below
+   it the record player once a visitor plays something from the top 10. */
+.music-corner {
+  position: fixed;
+  top: calc(12px + var(--safe-top));
+  right: 66px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(320px, calc(100vw - 88px));
+}
+.now-playing,
+.record-player {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px 10px 10px;
+  background: var(--panel);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  animation: iframeIn 220ms ease-out;
+}
+.now-playing-art,
+.record-player-art {
+  width: 52px; height: 52px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  object-fit: cover;
+  background: rgba(245, 241, 232, 0.08);
+}
+.now-playing-text,
+.record-player-text { flex: 1; min-width: 0; }
+.now-playing-eyebrow,
+.record-player-eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.now-playing-title,
+.now-playing-artist,
+.record-player-title,
+.record-player-artist {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.now-playing-title,
+.record-player-title {
+  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.now-playing-artist,
+.record-player-artist { font-size: 12px; color: var(--ink-dim); }
+
+/* Live: a pulsing green dot before "Namish is listening to". */
+.now-playing-eyebrow { display: flex; align-items: center; gap: 6px; color: #1ed760; font-weight: 600; }
+.now-playing-eyebrow::before {
+  content: "";
+  width: 7px; height: 7px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #1ed760;
+  animation: livePulse 1.6s ease-in-out infinite;
+}
+@keyframes livePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(30, 215, 96, 0.55); }
+  50% { box-shadow: 0 0 0 5px rgba(30, 215, 96, 0); }
+}
+/* Silent: one quiet line with a grey dot. */
+.now-playing.is-silent { padding: 10px 12px; }
+.now-playing.is-silent .now-playing-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.02em; text-transform: none; color: var(--ink-dim); }
+.now-playing.is-silent .now-playing-eyebrow::before { background: rgba(245, 241, 232, 0.35); animation: none; }
+.now-playing.is-silent .now-playing-title,
+.now-playing.is-silent .now-playing-artist { display: none; }
+
+.record-player { border-color: rgba(255, 197, 107, 0.55); }
+.record-player-eyebrow { color: #ffc56b; }
+.record-player-toggle,
+.record-player-close {
+  flex-shrink: 0;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.record-player-toggle {
+  width: 38px; height: 38px;
+  border: 1px solid #ffc56b;
+  background: #ffc56b;
+  color: #2b1409;
+  font-size: 13px;
+}
+.record-player-close {
+  width: 28px; height: 28px;
+  border: 1px solid var(--hairline);
+  background: transparent;
+  color: var(--ink-dim);
+  font-size: 12px;
+}
+.record-player-close:hover { color: var(--ink); background: rgba(245, 241, 232, 0.08); }
+
+/* Must stay inside the viewport: Spotify's embed is lazy-loaded and never
+   loads (or plays) while it is positioned off-screen. */
+.spotify-player {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  height: 80px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .now-playing-eyebrow::before { animation: none; }
+}

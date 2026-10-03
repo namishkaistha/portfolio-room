@@ -7,7 +7,8 @@ import { HOTSPOTS, findActiveHotspot } from "./hotspots.js";
 import { installHighlights } from "./highlights.js";
 import { createStations, wireStations } from "./stations.js";
 import { installCloset } from "./closetPanel.js";
-import { hideNowPlaying, mountNowPlaying, pausePlayback, resumePlayback, revealNowPlaying } from "./nowPlaying.js";
+import { hideListeningStatus, showListeningStatus } from "./listeningStatus.js";
+import { hideRecordPlayer, resumeRecordPlayer, showRecordPlayer } from "./recordPlayer.js";
 import { updateRecordShelf } from "./recordShelf.js";
 import { updateBookPull } from "./bookPull.js";
 import { typeIntroMessage } from "./introText.js";
@@ -93,7 +94,6 @@ async function bootstrap() {
   wireMobile();
   wireStations();
 
-  mountNowPlaying();
   finishLoading();
   presentDoorIntro();
   renderer.setAnimationLoop(step);
@@ -198,8 +198,8 @@ function leaveRoom() {
   setStage("leaving");
   clearHotspotUi();
   hideRoomHud();
-  pausePlayback();
-  hideNowPlaying();
+  hideRecordPlayer();
+  hideListeningStatus();
   player.setControlsEnabled(false);
   seeVisitorOut();
   startCameraTravel({
@@ -236,7 +236,8 @@ function enterRoom() {
   canvas.style.cursor = "";
 
   document.getElementById("hud")?.classList.remove("hidden");
-  revealNowPlaying();
+  showListeningStatus();
+  showRecordPlayer();
   showControlsToast();
 }
 
@@ -357,7 +358,7 @@ async function visitStation(current) {
   station.approach?.();
   if (station.spot) await approachSpot(station.spot);
   if (!current.isCancelled) await station.open();
-  resumePlayback();
+  resumeRecordPlayer();
   if (station.spot) await leaveSpot();
   setStage("room");
   visit = null;

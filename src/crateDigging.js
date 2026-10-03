@@ -1,4 +1,4 @@
-import { playTrackNow } from "./nowPlaying.js";
+import { currentRecordUri, playRecord, prepareRecordPlayer } from "./recordPlayer.js";
 import { playRecordPull } from "./sfx.js";
 import { element } from "./dom.js";
 import { RECORD_COUNT, pullOutRecord, wrapSleeves } from "./recordShelf.js";
@@ -11,7 +11,6 @@ const ERROR_MESSAGE = "Couldn't reach Spotify. Try again in a bit.";
 const state = {
   tracks: null,
   focusedIndex: 0,
-  playingUri: null,
   isOpen: false,
 };
 const exit = createExitSignal();
@@ -55,6 +54,7 @@ async function loadTopTracks() {
   const tracks = await fetchTopTracks().catch(() => []);
   state.tracks = tracks.slice(0, RECORD_COUNT).map((track, index) => ({ ...track, rank: index + 1 }));
   wrapSleeves(state.tracks);
+  if (state.tracks.length > 0) prepareRecordPlayer(state.tracks[0]);
   renderHud();
 }
 
@@ -76,10 +76,8 @@ function focusRecord(index) {
 }
 
 function playFocusedRecord() {
-  const track = state.tracks?.[state.focusedIndex];
-  if (!track) return;
-  state.playingUri = track.uri;
-  playTrackNow({ ...track, source: "top" });
+  if (!state.tracks?.length) return;
+  playRecord(state.tracks, state.focusedIndex);
   renderHud();
 }
 
@@ -97,7 +95,7 @@ function renderHud() {
   element("crateRank").textContent = `#${track.rank} of ${state.tracks.length}`;
   element("crateTrack").textContent = track.title;
   element("crateArtist").textContent = track.artist;
-  const isPlaying = track.uri === state.playingUri;
+  const isPlaying = track.uri === currentRecordUri();
   element("cratePlay").textContent = isPlaying ? "Now spinning" : "▶ Play this one";
   element("cratePlay").disabled = isPlaying;
   element("cratePrev").disabled = state.focusedIndex === 0;
