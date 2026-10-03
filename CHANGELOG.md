@@ -8,6 +8,7 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- Amritsar: "The serenity I felt at the Golden Temple was irreplaceable" (was "immaculate").
 - Travel writing, reviewed place by place against the earlier versions. Restored the earlier, closer-to-the-original wording for Seattle, Chiang Mai, Hà Giang, Kangra, Amritsar, Kerala and Copenhagen, with a few requested tweaks: "plenty of nights of liquid mischief" (Chiang Mai), the Kangra opening paragraph now ends on the Dalai Lama line, Amritsar says kirtan and drops "One moment stands out", Kerala uses a hostels, beach and tea plantations sentence and the "each state brings its own food, culture and mentality" line, and Copenhagen ends on "sitting with your thoughts". Chicago, Madrid, the Dolomites and Amsterdam stay as they were.
 - Fashion: each piece now shows a 3D model you can drag to turn (with an enlarge button for a full-screen view) instead of its photo. The models are built from the photos by `scripts/garments/` (Segment Anything cut-out, then a puffy double-sided cloth mesh with folds read from the photo's shading and printed graphics painted off the back). The Prince vest's shoulder, hidden under a hoodie in the photo, is rebuilt from its other side. The original photos are removed.
 - Madrid: photos reordered so streets, buildings, the café and the park class alternate.
