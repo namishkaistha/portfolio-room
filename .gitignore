@@ -7,3 +7,4 @@ dist
 *.log
 # iCloud conflict copies
 * [0-9].*
+__pycache__/

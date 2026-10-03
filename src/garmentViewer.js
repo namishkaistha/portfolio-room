@@ -5,7 +5,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 // renderer so it can move between the Fashion panel and the enlarged view.
 const SPIN = { autoRadiansPerSecond: 0.45, dragRadiansPerPixel: 0.011, inertiaDecayPerSecond: 3, tiltLimit: 0.6, restTilt: 0.12 };
 const RESUME_AUTO_SPIN_MS = 1600;
-const FRAME_MARGIN = 1.18;
+const FRAME_MARGIN = 1.08;
 const FIELD_OF_VIEW = 30;
 const ENTRANCE_SECONDS = 0.6;
 
@@ -18,7 +18,7 @@ export function createGarmentViewer() {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.1;
+  renderer.toneMappingExposure = 1.25;
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
   const scene = new THREE.Scene();
@@ -27,7 +27,7 @@ export function createGarmentViewer() {
   const turntable = new THREE.Group();
   scene.add(turntable);
 
-  const view = { yaw: 0, tilt: SPIN.restTilt, velocity: SPIN.autoRadiansPerSecond, drag: null, lastInteraction: 0, entrance: 1, radius: 1, url: null };
+  const view = { yaw: 0, tilt: SPIN.restTilt, velocity: SPIN.autoRadiansPerSecond, drag: null, lastInteraction: 0, entrance: 1, size: new THREE.Vector3(1, 1, 0.1), url: null };
   const clock = new THREE.Clock(false);
   const resizeObserver = new ResizeObserver(() => fit());
   resizeObserver.observe(canvas);
@@ -38,10 +38,12 @@ export function createGarmentViewer() {
     if (!width || !height) return;
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
-    const halfFov = THREE.MathUtils.degToRad(FIELD_OF_VIEW / 2);
-    const fitHeight = view.radius / Math.sin(halfFov);
-    const fitWidth = view.radius / Math.sin(Math.atan(Math.tan(halfFov) * camera.aspect));
-    camera.position.set(0, 0, Math.max(fitHeight, fitWidth) * FRAME_MARGIN);
+    // While it spins, the widest the piece gets on screen is its width-depth diagonal.
+    const halfTan = Math.tan(THREE.MathUtils.degToRad(FIELD_OF_VIEW / 2));
+    const halfWidth = Math.hypot(view.size.x, view.size.z) / 2;
+    const fitHeight = view.size.y / 2 / halfTan;
+    const fitWidth = halfWidth / (halfTan * camera.aspect);
+    camera.position.set(0, 0, (Math.max(fitHeight, fitWidth) + halfWidth) * FRAME_MARGIN);
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
   }
@@ -71,7 +73,7 @@ export function createGarmentViewer() {
       if (view.url !== url) return false;
       turntable.clear();
       turntable.add(model);
-      view.radius = model.userData.radius;
+      view.size.copy(model.userData.size);
       view.yaw = -0.5;
       view.entrance = 0;
       fit();
@@ -101,7 +103,7 @@ function loadModel(url) {
       const box = new THREE.Box3().setFromObject(scene);
       scene.position.sub(box.getCenter(new THREE.Vector3()));
       const holder = new THREE.Group().add(scene);
-      holder.userData.radius = box.getBoundingSphere(new THREE.Sphere()).radius;
+      holder.userData.size = box.getSize(new THREE.Vector3());
       return holder;
     }).catch((error) => {
       modelCache.delete(url);
@@ -110,7 +112,7 @@ function loadModel(url) {
   }
   return modelCache.get(url).then((holder) => {
     const copy = holder.clone();
-    copy.userData.radius = holder.userData.radius;
+    copy.userData.size = holder.userData.size;
     return copy;
   });
 }

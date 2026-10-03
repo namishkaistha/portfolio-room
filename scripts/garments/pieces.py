@@ -15,6 +15,8 @@ class Piece:
     height_metres: float
     keep: list = field(default_factory=list)
     drop: list = field(default_factory=list)
+    # Graphics printed on the front that the plain back should not repeat.
+    has_front_print: bool = False
     # A hoodie covers the vest's left shoulder, so that side is rebuilt from the right.
     mirror_axis_x: int | None = None
 
@@ -31,15 +33,17 @@ PIECES = [
           drop=[(200, 720), (150, 50), (420, 680), (430, 180)]),
     Piece("nu-rose-bowl", "IMG_7229", 0.7,
           keep=[(225, 300), (225, 500), (60, 400), (400, 400), (230, 600), (330, 280)],
-          drop=[(240, 175), (100, 720), (425, 520), (30, 60)]),
+          drop=[(240, 175), (100, 720), (425, 520), (30, 60)],
+          has_front_print=True),
     Piece("brown-trousers", "IMG_7230", 1.0,
           keep=[(150, 250), (330, 300), (100, 500), (320, 550), (120, 600), (380, 450)],
           drop=[(250, 30), (230, 710), (440, 300), (20, 560)]),
     Piece("prince-vest", "IMG_7231", 0.68,
           keep=[(250, 450), (150, 400), (350, 500), (320, 250), (260, 600), (100, 550)],
           drop=[(100, 150), (80, 260), (300, 40), (410, 250), (200, 750)],
-          mirror_axis_x=223),
+          has_front_print=True, mirror_axis_x=223),
     Piece("urban-indian", "IMG_7232", 0.68,
           keep=[(220, 350), (220, 500), (80, 350), (380, 380), (340, 550)],
-          drop=[(100, 700), (300, 100), (230, 180), (30, 600)]),
+          drop=[(100, 700), (300, 100), (230, 180), (30, 600)],
+          has_front_print=True),
 ]
