@@ -152,7 +152,7 @@
       <h2 id="closetTitle" class="closet-title" aria-label="Fashion"></h2>
       <p class="closet-blurb">My style is a way for me to express myself in public. Here are some of my favorite pieces, each of which has a story.</p>
       <article id="closetPiece" class="closet-piece">
-        <div id="closetModelFrame" class="closet-photo"><div id="closetModelStage" class="closet-model-stage"></div><span class="closet-photo-empty">No 3D model yet</span><span class="closet-model-loading" aria-hidden="true">Loading 3D</span><button id="closetEnlarge" class="closet-enlarge" type="button" aria-label="Enlarge the 3D view">⤢</button><span class="closet-model-hint" aria-hidden="true">Drag to turn</span></div>
+        <button id="closetPhoto" class="closet-photo" type="button" aria-label="Open the 3D view"><img id="closetPhotoImage" alt="" /><span class="closet-photo-empty">No 3D model yet</span><span class="closet-enlarge" aria-hidden="true">⤢</span><span class="closet-model-hint" aria-hidden="true">Tap for 3D</span></button>
         <h3 id="closetPieceName" class="closet-piece-name"></h3>
         <p id="closetStory" class="closet-story"></p>
       </article>
@@ -160,7 +160,7 @@
       <div class="closet-group"><p class="closet-group-label">Bottoms</p><div id="closetBottoms" class="closet-chips"></div></div>
       <button id="closetDone" class="closet-done" type="button">Done</button>
     </aside>
-    <div id="closetLightbox" class="closet-lightbox hidden" role="dialog" aria-label="3D view"><div id="closetLightboxStage" class="closet-lightbox-stage"></div><button id="closetLightboxClose" class="closet-lightbox-close" type="button">Close</button></div>
+    <div id="closetLightbox" class="closet-lightbox hidden" role="dialog" aria-label="3D view"><div id="closetLightboxStage" class="closet-lightbox-stage"></div><span class="closet-lightbox-loading" aria-hidden="true">Loading 3D</span><span class="closet-lightbox-hint" aria-hidden="true">Drag to turn</span><button id="closetLightboxClose" class="closet-lightbox-close" type="button">Close</button></div>
 
     <div id="notesPanel" class="notes-panel hidden" role="dialog" aria-modal="true" aria-label="Post-it note wall">
       <div class="notes-sheet">

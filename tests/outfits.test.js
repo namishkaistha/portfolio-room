@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { OUTFIT_PIECES, defaultOutfit, materialRole, readSavedOutfit, shadeForRole, showcaseModelUrl, wearablesFor } from "../src/outfits.js";
+import { OUTFIT_PIECES, defaultOutfit, materialRole, readSavedOutfit, shadeForRole, garmentPhotoUrl, showcaseGarment, wearablesFor } from "../src/outfits.js";
 import manifest from "../src/wardrobeManifest.json" with { type: "json" };
 
 const channels = (hex) => [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255];
@@ -68,20 +68,26 @@ test("an outfit dresses each slot from its top and bottom", () => {
   assert.deepEqual(wearablesFor({ top: "nu-rose-bowl", bottom: "uncle-jeans" }), { top: "northwestern-rose-bowl-sweatshirt", bottom: "indigo-straight-jeans", layer: null });
 });
 
-test("the vest is worn over the striped shirt", () => {
-  assert.deepEqual(wearablesFor({ top: "prince-vest", bottom: "brown-trousers" }), { top: "blue-striped-shirt", bottom: "charcoal-pleated-trousers", layer: "prince-cable-knit-vest" });
+test("the vest is worn over a white tee", () => {
+  assert.deepEqual(wearablesFor({ top: "prince-vest", bottom: "brown-trousers" }), { top: "white-tee", bottom: "charcoal-pleated-trousers", layer: "prince-cable-knit-vest" });
 });
 
 test("pieces without garments leave their slots empty", () => {
   assert.deepEqual(wearablesFor({ top: "skims-tee", bottom: "blue-jeans" }), { top: null, bottom: null, layer: null });
 });
 
-test("the panel shows the vest itself, not the shirt beneath it", () => {
-  assert.equal(showcaseModelUrl(OUTFIT_PIECES.find((piece) => piece.id === "prince-vest")), "/wardrobe/wearables/prince-cable-knit-vest.glb");
+test("the panel shows the vest itself, not the tee beneath it", () => {
+  assert.equal(showcaseGarment(OUTFIT_PIECES.find((piece) => piece.id === "prince-vest")), "prince-cable-knit-vest");
 });
 
-test("a piece without garments has no showcase model", () => {
-  assert.equal(showcaseModelUrl(OUTFIT_PIECES.find((piece) => piece.id === "skims-tee")), null);
+test("a piece without garments has nothing to show", () => {
+  assert.equal(showcaseGarment(OUTFIT_PIECES.find((piece) => piece.id === "skims-tee")), null);
+});
+
+test("every piece's showcase garment has a rendered photo on disk", () => {
+  for (const garmentId of OUTFIT_PIECES.map(showcaseGarment).filter(Boolean)) {
+    assert.ok(existsSync(new URL(`../public${garmentPhotoUrl(garmentId)}`, import.meta.url)), `${garmentId} photo is missing`);
+  }
 });
 
 test("no story uses an em dash", () => {

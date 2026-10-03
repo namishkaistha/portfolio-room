@@ -228,6 +228,30 @@
         "Thigh_R",
         "Shin_R"
       ]
+    },
+    {
+      "id": "white-tee",
+      "name": "White tee",
+      "slot": "top",
+      "photo": null,
+      "color": "#f3f1ec",
+      "fabric": "cotton",
+      "cut": "tee",
+      "description": "Plain white crew-neck tee with bare forearms, worn under the Prince vest. Built by scripts/wardrobe/buildWhiteTee.js from the Northwestern sweatshirt's rig.",
+      "file": "wearables/white-tee.glb",
+      "bytes": 635036,
+      "requiredJoints": [
+        "Hips",
+        "Spine",
+        "UpperArm_L",
+        "Forearm_L",
+        "UpperArm_R",
+        "Forearm_R",
+        "Thigh_L",
+        "Shin_L",
+        "Thigh_R",
+        "Shin_R"
+      ]
     }
   ]
 }
