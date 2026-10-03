@@ -2,6 +2,9 @@
 
 ## 2026-10-03
 
+### Changed
+- The About card photo is now the same picture as the creative portfolio's (black shirt, Chicago skyline at dusk), cropped the way that site frames it.
+
 ### Fixed
 - Amritsar: "bhajans playing all day" now reads "kirtan playing all day".
 - Post-it wall: the panel used to open empty and the notes popped in about a second later. The notes now start loading as soon as you head to the wall and are on the board when the panel appears, settling in with a staggered fade. On a very slow connection the panel shows "Loading the wall…" and fills in when the notes arrive.

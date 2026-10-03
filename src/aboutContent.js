@@ -2,7 +2,7 @@ export { RESUME_URL } from "./projects.js";
 
 export const PORTRAIT = {
   src: "/about-portrait.jpg",
-  alt: "Namish smiling in a navy jacket and gold pendant necklace at a candlelit restaurant table",
+  alt: "Namish grinning in a black button-down shirt on a boat at dusk, the Chicago skyline behind him",
 };
 
 export const HEADING = "Hi, I'm Namish.";

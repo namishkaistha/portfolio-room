@@ -57,7 +57,13 @@
       </div>
       <button id="nowPlayingToggle" class="now-playing-toggle" aria-label="Play">▶</button>
     </div>
-    <div class="spotify-player" aria-hidden="true"><div id="nowPlayingEmbed"></div></div>
+    <div id="spotifyPlayer" class="spotify-player">
+      <div class="spotify-hint">
+        <span id="spotifyHintText" class="spotify-hint-text"></span>
+        <button id="spotifyHintClose" class="spotify-hint-close" type="button" aria-label="Dismiss">✕</button>
+      </div>
+      <div id="nowPlayingEmbed"></div>
+    </div>
 
     <div id="hud" class="hud hidden">
       <button id="menuBtn" class="hud-btn" aria-label="Menu">☰</button>
