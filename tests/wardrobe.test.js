@@ -1,7 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import * as THREE from "three";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { Wardrobe } from "../src/wardrobe.js";
+import manifest from "../src/wardrobeManifest.json" with { type: "json" };
 
 test("equipping hides only the replaced base garment", async () => {
   const context = fixture();
@@ -91,6 +94,40 @@ test("disposing restores the base outfit and rejects future equips", async () =>
   context.wardrobe.dispose();
   const error = await context.wardrobe.equip("shirt").then(() => null, (failure) => failure.message);
   assert.deepEqual({ error, visible: context.baseTop.visible }, { error: "This wardrobe has been disposed", visible: true });
+});
+
+test("base clothing beside the rig is hidden and restored", async () => {
+  const context = fixture();
+  const scene = new THREE.Scene();
+  scene.add(context.avatar, context.baseTop, context.baseBottom);
+  const wardrobe = new Wardrobe({ avatar: scene, loader: context.loader, manifest: context.wardrobe.manifest, baseUrl: "http://localhost/assets/" });
+  await wardrobe.equip("shirt");
+  const hidden = !context.baseTop.visible;
+  wardrobe.clear("top");
+  assert.deepEqual({ hidden, restored: context.baseTop.visible }, { hidden: true, restored: true });
+});
+
+test("a different avatar body fit is rejected before changing visibility", () => {
+  const context = fixture();
+  context.wardrobe.manifest.avatar.bodyFit = "athletic-v1";
+  assert.throws(() => new Wardrobe({ avatar: context.avatar, loader: context.loader, manifest: context.wardrobe.manifest, baseUrl: "http://localhost/assets/" }), /matching updated Namish_Avatar/);
+});
+
+// The wardrobe refuses a mismatched avatar at startup, which would stop the
+// room loading, so the shipped files are checked against each other here.
+const AVATAR_BYTES = readFileSync(new URL("../public/avatar.glb", import.meta.url));
+const GLB_JSON_LENGTH_OFFSET = 12;
+const GLB_JSON_START = 20;
+
+test("the shipped avatar is the one the manifest describes", () => {
+  assert.equal(createHash("sha256").update(AVATAR_BYTES).digest("hex"), manifest.avatar.sha256);
+});
+
+test("the shipped avatar carries the body fit the garments were made for", () => {
+  const jsonLength = AVATAR_BYTES.readUInt32LE(GLB_JSON_LENGTH_OFFSET);
+  const gltf = JSON.parse(AVATAR_BYTES.subarray(GLB_JSON_START, GLB_JSON_START + jsonLength).toString("utf8"));
+  const root = gltf.nodes.find((node) => node.name === manifest.avatar.rootNode);
+  assert.equal(root.extras.bodyFit, manifest.avatar.bodyFit);
 });
 
 function fixture({ topVisible = true } = {}) {

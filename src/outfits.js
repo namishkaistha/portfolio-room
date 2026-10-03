@@ -1,10 +1,11 @@
 const OUTFIT_KEY = "namish-room:outfit";
 const SHADOW_FACTOR = 0.68;
-const HIGHLIGHT_MIX = 0.16;
+const CLOTH_MATERIALS = ["heather_cloth", "denim_cloth"];
+const TRIM_MATERIAL = "Ribbed_trim";
 
-// The wardrobe. A piece lists the rigged garments it puts on the avatar, by
-// slot (the vest is a layer over a white tee). Pieces without garments
-// recolor the avatar's built-in sweater or jeans instead.
+// The wardrobe. A piece lists the rigged garment it puts on the avatar, by
+// slot (the Prince vest comes with its white tee built in). A piece without
+// one recolors the avatar's built-in sweater or jeans instead.
 export const OUTFIT_PIECES = [
   {
     id: "striped-button-down",
@@ -12,7 +13,6 @@ export const OUTFIT_PIECES = [
     name: "Striped button down",
     color: 0xe3e8f1,
     roughness: 0.7,
-    pinstripe: 0x8fa6c9,
     showsAccents: true,
     wearables: { top: "blue-striped-shirt" },
     modelAlt: "A pale blue pinstriped Polo button-down",
@@ -34,7 +34,7 @@ export const OUTFIT_PIECES = [
     name: "Prince sweater vest",
     color: 0x1f3b63,
     roughness: 0.95,
-    wearables: { top: "white-tee", layer: "prince-cable-knit-vest" },
+    wearables: { top: "prince-cable-knit-vest" },
     modelAlt: "A navy cable-knit Prince sweater vest with a white and tan V-neck and a P patch",
     story: "Sweater vests unlock my indie side.",
   },
@@ -54,8 +54,8 @@ export const OUTFIT_PIECES = [
     name: "Skims black tee",
     color: 0x151515,
     roughness: 0.8,
-    wearables: {},
-    modelAlt: "",
+    wearables: { top: "black-skims-tshirt" },
+    modelAlt: "A black SKIMS crew-neck tee",
     story: "A gift from my friends, and my go-to black tee for when I'm out and about.",
   },
   {
@@ -122,7 +122,7 @@ export function saveOutfit(storage, outfit) {
   }
 }
 
-const SLOTS = ["top", "bottom", "layer"];
+const SLOTS = ["top", "bottom"];
 const WARDROBE_URL = "/wardrobe";
 
 export function wearablesFor(outfit) {
@@ -130,9 +130,8 @@ export function wearablesFor(outfit) {
   return Object.fromEntries(SLOTS.map((slot) => [slot, chosen[slot] ?? null]));
 }
 
-// The Fashion panel shows the outermost garment, so the vest rather than the tee under it.
 export function showcaseGarment(piece) {
-  return piece.wearables.layer ?? piece.wearables.top ?? piece.wearables.bottom ?? null;
+  return piece.wearables.top ?? piece.wearables.bottom ?? null;
 }
 
 export function garmentModelUrl(garmentId) {
@@ -148,71 +147,42 @@ export function findPiece(id) {
   return OUTFIT_PIECES.find((piece) => piece.id === id);
 }
 
-// The avatar's clothing materials are named "Sweater • ..." and "Jeans • ...",
-// with separate shades for the main cloth, seams and cuffs, and highlights.
-export function materialRole(materialName) {
-  const garment = materialName.startsWith("Sweater") ? "top" : materialName.startsWith("Jeans") ? "bottom" : null;
-  if (!garment) return null;
-  if (/highlight|stitch/i.test(materialName)) return { garment, role: "highlight" };
-  if (/seam|fold|cuff|ribbed|hem/i.test(materialName)) return { garment, role: "shadow" };
-  return { garment, role: "base" };
+// The built-in clothes' cloth takes the piece's color and their ribbed trim a
+// darker shade of it; stitching and buttons keep their own colors.
+export function fabricRole(materialName) {
+  if (CLOTH_MATERIALS.includes(materialName)) return "base";
+  if (materialName === TRIM_MATERIAL) return "shadow";
+  return null;
 }
 
 export function shadeForRole(hex, role) {
-  const channels = [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255];
-  const shaded = channels.map((value) => {
-    if (role === "shadow") return Math.round(value * SHADOW_FACTOR);
-    if (role === "highlight") return Math.round(value + (255 - value) * HIGHLIGHT_MIX);
-    return value;
-  });
-  return (shaded[0] << 16) | (shaded[1] << 8) | shaded[2];
+  if (role !== "shadow") return hex;
+  const channels = [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255].map((value) => Math.round(value * SHADOW_FACTOR));
+  return (channels[0] << 16) | (channels[1] << 8) | channels[2];
 }
 
-// Recolors the avatar's built-in sweater and jeans. They only show for pieces
-// without rigged garments; the others hide them (see avatarWardrobe.js).
+// Recolors the avatar's built-in sweater and jeans, tagged by slot in the
+// avatar file. They show only for a piece with no rigged garment (or one that
+// failed to load); the rest hide them (see avatarWardrobe.js). The fabric
+// texture is dropped so a light color like pale denim reads true.
 export function applyOutfit(avatarRoot, outfit) {
   const pieces = { top: findPiece(outfit.top), bottom: findPiece(outfit.bottom) };
   avatarRoot.traverse((object) => {
-    if (!object.isMesh) return;
-    for (const material of [object.material].flat()) {
-      const match = materialRole(material.name ?? "");
-      const piece = match && pieces[match.garment];
-      if (!piece) continue;
-      material.color.setHex(shadeForRole(piece.color, match.role));
-      material.roughness = piece.roughness;
-      if (match.garment === "top") setPinstripe(material, piece.pinstripe);
-    }
+    const piece = object.isMesh && pieces[object.userData.baseSlot];
+    const role = piece && fabricRole(object.material.name);
+    if (role) recolorFabric(object.material, { piece, role });
   });
   const accents = avatarRoot.getObjectByName(ACCENTS_NAME);
   if (accents) accents.visible = Boolean(pieces.top?.showsAccents);
 }
 
 export const ACCENTS_NAME = "OUTFIT_ACCENTS";
-const STRIPE_SPACING = 85;
-const STRIPE_WIDTH = 0.36;
 
-// The avatar has no texture coordinates, so pinstripes are drawn in the fabric
-// shader from the surface's position instead. The uniform is switched per piece.
-function setPinstripe(material, stripeHex) {
-  const stripe = material.userData.pinstripe ?? patchForPinstripes(material);
-  stripe.amount.value = stripeHex ? 1 : 0;
-  if (stripeHex) stripe.color.value = [(stripeHex >> 16) / 255, ((stripeHex >> 8) & 255) / 255, (stripeHex & 255) / 255];
-}
-
-function patchForPinstripes(material) {
-  const stripe = { amount: { value: 0 }, color: { value: [0, 0, 0] } };
-  material.userData.pinstripe = stripe;
-  material.customProgramCacheKey = () => "pinstripe";
-  material.onBeforeCompile = (shader) => {
-    shader.uniforms.uPinstripe = stripe.amount;
-    shader.uniforms.uStripeColor = stripe.color;
-    shader.vertexShader = shader.vertexShader
-      .replace("#include <common>", "#include <common>\nvarying vec3 vOutfitPosition;")
-      .replace("#include <begin_vertex>", "#include <begin_vertex>\nvOutfitPosition = position;");
-    shader.fragmentShader = shader.fragmentShader
-      .replace("#include <common>", `#include <common>\nuniform float uPinstripe;\nuniform vec3 uStripeColor;\nvarying vec3 vOutfitPosition;`)
-      .replace("#include <color_fragment>", `#include <color_fragment>\nfloat stripe = step(${(1 - STRIPE_WIDTH).toFixed(2)}, fract(vOutfitPosition.x * ${STRIPE_SPACING.toFixed(1)}));\ndiffuseColor.rgb = mix(diffuseColor.rgb, uStripeColor, stripe * uPinstripe);`);
-  };
-  material.needsUpdate = true;
-  return stripe;
+function recolorFabric(material, { piece, role }) {
+  if (material.map) {
+    material.map = null;
+    material.needsUpdate = true;
+  }
+  material.color.setHex(shadeForRole(piece.color, role));
+  material.roughness = piece.roughness;
 }
