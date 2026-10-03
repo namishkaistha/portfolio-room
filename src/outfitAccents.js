@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { ACCENTS_NAME } from "./outfits.js";
+import { requireNode } from "./meshHelpers.js";
 
 const CHAIN_RADIUS = 0.004;
 const GOLD = 0xd8a740;
@@ -18,18 +18,17 @@ const CHAIN_PATH = [
 const TANK = { halfWidth: 0.075, top: 1.405, tip: 1.21, z: 0.133 };
 
 // A white tank top V and a gold chain that show where the striped shirt is
-// worn open. Built once and shown only for pieces that ask for it.
+// worn open. Returns the group, hidden; the wearer shows it per piece.
 export function installOutfitAccents(avatarRoot) {
-  if (avatarRoot.getObjectByName(ACCENTS_NAME)) return;
-  const spine = avatarRoot.getObjectByName("Spine");
-  if (!spine) return;
+  const spine = requireNode(avatarRoot, "Spine");
   const accents = new THREE.Group();
-  accents.name = ACCENTS_NAME;
+  accents.name = "OUTFIT_ACCENTS";
   accents.add(buildTank(), buildChain(), buildPendant());
   accents.visible = false;
   avatarRoot.add(accents);
   avatarRoot.updateMatrixWorld(true);
   spine.attach(accents);
+  return accents;
 }
 
 function buildTank() {

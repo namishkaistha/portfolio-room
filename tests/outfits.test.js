@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { OUTFIT_PIECES, defaultOutfit, fabricRole, readSavedOutfit, shadeForRole, garmentPhotoUrl, showcaseGarment, wearablesFor } from "../src/outfits.js";
+import { OUTFIT_PIECES, defaultOutfit, readSavedOutfit, garmentPhotoUrl, showcaseGarment, wearablesFor } from "../src/outfits.js";
+import { fabricRole, shadeForRole } from "../src/baseClothes.js";
 import manifest from "../src/wardrobeManifest.json" with { type: "json" };
 
 const channels = (hex) => [(hex >> 16) & 255, (hex >> 8) & 255, hex & 255];

@@ -6,7 +6,7 @@ import { Joystick } from "./joystick.js";
 import { HOTSPOTS, findActiveHotspot } from "./hotspots.js";
 import { installHighlights } from "./highlights.js";
 import { createStations, wireStations } from "./stations.js";
-import { wearSavedOutfit, wireCloset } from "./closetPanel.js";
+import { installCloset } from "./closetPanel.js";
 import { hideNowPlaying, mountNowPlaying, pausePlayback, resumePlayback, revealNowPlaying } from "./nowPlaying.js";
 import { updateRecordShelf } from "./recordShelf.js";
 import { updateBookPull } from "./bookPull.js";
@@ -77,8 +77,7 @@ async function bootstrap() {
   roomMixer = mixer;
   player = new Player(avatar, collider);
   stations = createStations({ player, closetDoors });
-  wearSavedOutfit(avatar.root);
-  wireCloset(avatar.root);
+  installCloset(avatar.root);
   installLights(scene);
   highlights = installHighlights(roomGroup, HOTSPOTS);
 

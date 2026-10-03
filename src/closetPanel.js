@@ -1,9 +1,8 @@
-import { create, replayAnimation } from "./dom.js";
+import { closeOnBackdropClick, create, replayAnimation } from "./dom.js";
 import { createGarmentViewer } from "./garmentViewer.js";
 import { scrambleText } from "./textScramble.js";
-import { installOutfitAccents } from "./outfitAccents.js";
 import { createAvatarDresser } from "./avatarWardrobe.js";
-import { OUTFIT_PIECES, applyOutfit, findPiece, garmentModelUrl, garmentPhotoUrl, readSavedOutfit, saveOutfit, showcaseGarment } from "./outfits.js";
+import { OUTFIT_PIECES, findPiece, garmentModelUrl, garmentPhotoUrl, readSavedOutfit, saveOutfit, showcaseGarment } from "./outfits.js";
 import { createExitSignal } from "./exitSignal.js";
 
 const HEADING = "FASHION";
@@ -14,27 +13,20 @@ const GARMENTS = [
   { id: "closetBottoms", garment: "bottom" },
 ];
 
-const state = { isOpen: false, outfit: null, avatar: null, finishHeading: null, finishName: null, selected: null, viewer: null, dress: null };
+const state = { isOpen: false, outfit: null, finishHeading: null, finishName: null, selected: null, viewer: null, dress: null };
 const exit = createExitSignal();
 
-export function wearSavedOutfit(avatarRoot) {
+// Dresses the avatar in the saved outfit and wires up the Fashion panel.
+export function installCloset(avatarRoot) {
   state.outfit = readSavedOutfit();
-  installOutfitAccents(avatarRoot);
   state.dress = createAvatarDresser(avatarRoot);
-  dressAvatar(avatarRoot);
-}
-
-export function wireCloset(avatarRoot) {
-  state.avatar = avatarRoot;
-  state.outfit ??= readSavedOutfit();
+  state.dress(state.outfit);
   document.getElementById("closetDone").addEventListener("click", closeCloset);
   state.viewer = createGarmentViewer();
   document.getElementById("closetLightboxStage").append(state.viewer.canvas);
   document.getElementById("closetPhoto").addEventListener("click", openLightbox);
   document.getElementById("closetLightboxClose").addEventListener("click", closeLightbox);
-  document.getElementById("closetLightbox").addEventListener("click", (event) => {
-    if (event.target === event.currentTarget) closeLightbox();
-  });
+  closeOnBackdropClick(document.getElementById("closetLightbox"), closeLightbox);
   for (const { id, garment } of GARMENTS) {
     const row = document.getElementById(id);
     for (const piece of OUTFIT_PIECES.filter((candidate) => candidate.garment === garment)) row.append(buildChip(piece));
@@ -84,15 +76,10 @@ function buildChip(piece) {
 
 function wear(piece) {
   state.outfit = { ...state.outfit, [piece.garment]: piece.id };
-  dressAvatar(state.avatar);
+  state.dress(state.outfit);
   saveOutfit(state.outfit);
   showPiece(piece);
   syncChips();
-}
-
-function dressAvatar(avatarRoot) {
-  applyOutfit(avatarRoot, state.outfit);
-  state.dress(state.outfit);
 }
 
 // The piece's name scrambles in, then its photo and story fade up beneath it.
