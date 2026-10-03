@@ -9,7 +9,7 @@ import { installRecordShelf } from "./crateDigging.js";
 import { replaceShelfTopDecor } from "./shelfDecor.js";
 import { installBookPull } from "./bookPull.js";
 import { installClosetDoors } from "./closetDoors.js";
-import { addBox, addCylinder } from "./meshHelpers.js";
+import { addBox, addCylinder, requireNode } from "./meshHelpers.js";
 
 const ROOM_MODEL_URL = "/room.glb";
 
@@ -202,20 +202,19 @@ function enableShadows(root) {
 
 function applyLayoutOffsets(root) {
   for (const [name, scale] of Object.entries(LAYOUT_WIDTH_SCALES)) {
-    root.getObjectByName(name)?.scale.setX(scale);
+    requireNode(root, name).scale.setX(scale);
   }
   for (const [name, offset] of Object.entries(LAYOUT_OFFSETS)) {
-    root.getObjectByName(name)?.position.add(offset);
+    requireNode(root, name).position.add(offset);
   }
   for (const [name, yaw] of Object.entries(LAYOUT_YAWS)) {
-    root.getObjectByName(name)?.rotation.set(0, yaw, 0);
+    requireNode(root, name).rotation.set(0, yaw, 0);
   }
   shortenBed(root);
 }
 
 function shortenBed(root) {
-  const bed = root.getObjectByName("BED");
-  if (!bed) return;
+  const bed = requireNode(root, "BED");
   root.updateMatrixWorld(true);
   const before = new THREE.Box3().setFromObject(bed);
   bed.scale.z *= BED_LENGTH_SCALE;
@@ -247,7 +246,7 @@ function populateObstacles(roomGroup) {
   roomGroup.updateMatrixWorld(true);
   for (const name of OBSTACLE_NODE_NAMES) {
     const inflate = name === "HOTSPOT_TRIPOD" ? TRIPOD_INFLATE : OBSTACLE_INFLATE;
-    roomGroup.getObjectByName(name)?.traverse((child) => {
+    requireNode(roomGroup, name).traverse((child) => {
       if (child.isMesh) addMeshObstacle(child, inflate);
     });
   }

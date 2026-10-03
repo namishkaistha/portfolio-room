@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { requireNode } from "./meshHelpers.js";
 
 const RING_INNER_MARGIN = 0.05;
 const RING_THICKNESS = 0.1;
@@ -56,7 +57,7 @@ function createHighlight(roomGroup, spot, index) {
 function collectMeshes(roomGroup, spot) {
   const meshes = [];
   for (const name of spot.objects ?? []) {
-    roomGroup.getObjectByName(name)?.traverse((child) => {
+    requireNode(roomGroup, name).traverse((child) => {
       if (!child.isMesh) return;
       if (!Array.isArray(child.material)) child.material = child.material.clone();
       child.userData.hotspotId = spot.id;

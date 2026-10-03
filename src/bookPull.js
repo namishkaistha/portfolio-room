@@ -1,4 +1,5 @@
 import { approach, smoothstep } from "./motion.js";
+import { requireNode } from "./meshHelpers.js";
 
 const PULLED_BOOK_NAME = "Book_005";
 const PULL = { distance: 0.14, lift: 0.03, turn: 1.3, slideShare: 0.55, speed: 1.8 };
@@ -6,7 +7,7 @@ const PULL = { distance: 0.14, lift: 0.03, turn: 1.3, slideShare: 0.55, speed: 1
 const state = { book: null, basePosition: null, baseYaw: 0, pull: 0, target: 0, onArrive: null };
 
 export function installBookPull(roomGroup) {
-  state.book = roomGroup.getObjectByName(PULLED_BOOK_NAME);
+  state.book = requireNode(roomGroup, PULLED_BOOK_NAME);
   state.basePosition = state.book.position.clone();
   state.baseYaw = state.book.rotation.y;
 }

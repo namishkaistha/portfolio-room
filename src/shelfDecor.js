@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { addBox, addCylinder, solid } from "./meshHelpers.js";
+import { addBox, addCylinder, requireNode, solid } from "./meshHelpers.js";
 
 // The GLB modelled the cap as a plain block (rebuilt below) and the trophy is
 // left off the shelf entirely.
@@ -15,7 +15,7 @@ const COLOR = {
 };
 
 export function replaceShelfTopDecor(roomGroup) {
-  for (const name of REPLACED_DECOR_NAMES) roomGroup.getObjectByName(name)?.removeFromParent();
+  for (const name of REPLACED_DECOR_NAMES) requireNode(roomGroup, name).removeFromParent();
   roomGroup.add(buildNorthwesternCap());
 }
 
