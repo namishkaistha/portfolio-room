@@ -72,9 +72,7 @@ let roomMixer = null;
 let activeHotspot = null;
 let wasModalOpen = false;
 let closetDoors = null;
-let windowView = null;
 const sleepOverlay = createViewOverlay("sleepOverlay", ["Space", "Enter"]);
-const windowOverlay = createViewOverlay("windowOverlay");
 
 bootstrap();
 
@@ -82,11 +80,10 @@ async function bootstrap() {
   window.addEventListener("resize", resizeToViewport);
   resizeToViewport();
 
-  const { doorGroup, closetDoors: doors, windowView: view, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer } = await buildScene(scene);
+  const { doorGroup, closetDoors: doors, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer } = await buildScene(scene);
   roomGroup = room;
   frontWall = wall;
   closetDoors = doors;
-  windowView = view;
   roomMixer = mixer;
   player = new Player(avatar);
   wearSavedOutfit(avatar.root);
@@ -146,7 +143,6 @@ function step() {
 
   roomMixer.update(delta);
   closetDoors?.update(delta);
-  windowView?.update(delta);
   updateRecordShelf(delta);
   updateBookPull(delta);
   // The globe overlay is opaque, so skip drawing the room underneath it.
@@ -309,11 +305,10 @@ function closeOpenModal() {
   else if (isNotesPanelOpen()) dismissNotesLayer();
   else if (isClosetOpen()) closeCloset();
   else if (sleepOverlay.isOpen()) sleepOverlay.close();
-  else if (windowOverlay.isOpen()) windowOverlay.close();
 }
 
 function isModalOpen() {
-  return isTravelGlobeOpen() || isIDEOpen() || isIframePanelOpen() || isCrateDiggingOpen() || isBookReaderOpen() || isAboutCardOpen() || isNotesPanelOpen() || isClosetOpen() || sleepOverlay.isOpen() || windowOverlay.isOpen();
+  return isTravelGlobeOpen() || isIDEOpen() || isIframePanelOpen() || isCrateDiggingOpen() || isBookReaderOpen() || isAboutCardOpen() || isNotesPanelOpen() || isClosetOpen() || sleepOverlay.isOpen();
 }
 
 function setPrompt(hotspot) {
@@ -398,10 +393,6 @@ function openHotspotView(id) {
     visitSpotAndOpen(SPOTS.closet, startDressing);
     return;
   }
-  if (id === "window") {
-    visitSpotAndOpen(SPOTS.window, startLookingOutside);
-    return;
-  }
   if (id === "notes") {
     visitSpotAndOpen(SPOTS.notes, (onExit) => openNotesPanel({ onExit }));
     return;
@@ -440,12 +431,6 @@ async function startDressing(onExit) {
   closetDoors?.open();
   await player.glideTo(SPOTS.closet.position, FACING_RIGHT_WALL, DRESSING_TURN_SECONDS);
   openCloset({ onExit: () => { closetDoors?.close(); onExit(); } });
-}
-
-function startLookingOutside(onExit) {
-  player.setVisible(false);
-  windowView?.setBlindsOpen(true);
-  windowOverlay.open({ onExit: () => { windowView?.setBlindsOpen(false); player.setVisible(true); onExit(); } });
 }
 
 async function openReadingList(onExit) {

@@ -9,8 +9,6 @@ import { installRecordShelf } from "./crateDigging.js";
 import { replaceShelfTopDecor } from "./shelfDecor.js";
 import { installBookPull } from "./bookPull.js";
 import { installClosetDoors } from "./closetDoors.js";
-import { installWindowView } from "./windowView.js";
-import { GOALS } from "./aboutContent.js";
 import { addBox, addCylinder } from "./meshHelpers.js";
 
 const ROOM_MODEL_URL = "/room.glb";
@@ -102,7 +100,6 @@ export async function buildScene(scene) {
   roomGroup.add(avatar.root);
   const roomMixer = loopRoomAnimations(roomModel);
   const closetDoors = installClosetDoors(roomGroup);
-  const windowView = installWindowView(roomGroup, GOALS.map((goal) => goal.title));
 
   const frontWall = buildHallway();
   scene.add(frontWall);
@@ -110,7 +107,7 @@ export async function buildScene(scene) {
   const doorGroup = buildDoorGroup();
   scene.add(doorGroup);
 
-  return { doorGroup, roomGroup, frontWall, avatar, roomMixer, closetDoors, windowView };
+  return { doorGroup, roomGroup, frontWall, avatar, roomMixer, closetDoors };
 }
 
 export function installLights(scene) {

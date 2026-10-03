@@ -44,7 +44,6 @@ const PHOTO_COLLAGE_CENTER = new THREE.Vector3(2.0, 1.72, 0.95);
 const POSTIT_WALL_CENTER = new THREE.Vector3(-2.04, 1.58, 1.72);
 const BED_CENTER = new THREE.Vector3(0.23, 0.8, -1.4);
 const CLOSET_CENTER = new THREE.Vector3(-1.7, 1.15, -0.5);
-export const WINDOW_CENTER = new THREE.Vector3(2.05, 1.48, -0.945);
 
 // The bookcase's body starts just above the mattress at the head wall, so the
 // avatar lies diagonally: feet near the foot's right corner, head clear of it.
@@ -95,13 +94,6 @@ export const SPOTS = {
     pose: "Idle",
     shoulderView: { position: new THREE.Vector3(0.2, 1.9, 0.7), look: CLOSET_CENTER },
     closeUpView: { position: new THREE.Vector3(1.05, 1.55, -0.5), look: new THREE.Vector3(-1.5, 1.05, -0.5) },
-  },
-  window: {
-    position: new THREE.Vector3(1.55, 0, -0.4),
-    yaw: Math.PI / 2,
-    pose: "Idle",
-    shoulderView: { position: new THREE.Vector3(0.5, 2.0, 0.5), look: WINDOW_CENTER },
-    closeUpView: { position: new THREE.Vector3(0.1, 1.55, -0.945), look: WINDOW_CENTER },
   },
   notes: {
     position: new THREE.Vector3(-1.5, 0, 1.85),

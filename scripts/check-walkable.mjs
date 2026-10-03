@@ -17,7 +17,6 @@ const TRIPS = [
   ["spawn to vinyl", [0, 0.6], [-0.95, -1.25]],
   ["spawn to closet", [0, 0.6], [-1.35, -0.45]],
   ["spawn to bed foot", [0, 0.6], [0.2, -0.1]],
-  ["spawn to window", [0, 0.6], [1.45, -0.95]],
   ["spawn to door ring", [0, 0.6], [0, 1.95]],
 ];
 

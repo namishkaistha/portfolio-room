@@ -50,17 +50,6 @@ const HOTSPOT_LIST = [
     arc: HALF_TOWARD_RIGHT_WALL,
   },
   {
-    id: "window",
-    label: "the window",
-    promptLabel: "to look outside",
-    objects: ["WINDOW"],
-    trigger: SPOTS.window.position.toArray(),
-    highlight: [2.0, 1.4, -0.945],
-    color: 0x9fd8ff,
-    radius: 0.3,
-    arc: HALF_AWAY_FROM_DESK,
-  },
-  {
     id: "door",
     label: "the way out",
     promptLabel: "to head out",
