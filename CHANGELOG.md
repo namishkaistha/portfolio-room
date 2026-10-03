@@ -2,6 +2,9 @@
 
 ## 2026-10-03
 
+### Added
+- Amritsar: a fourth photo, the jalebi stall.
+
 ### Fixed
 - Fashion section on phones: the outfit buttons are now 44 px tall (they were 38 px) and Done is wider, so they are easier to tap.
 
