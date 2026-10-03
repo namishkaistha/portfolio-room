@@ -49,9 +49,9 @@ test("offers at least two tops and two bottoms", () => {
   assert.ok(OUTFIT_PIECES.filter((piece) => piece.garment === "bottom").length >= 2);
 });
 
-test("every piece that lists a photo has that file on disk", () => {
-  for (const piece of OUTFIT_PIECES.filter((candidate) => candidate.photo)) {
-    assert.ok(existsSync(new URL(`../public${piece.photo}`, import.meta.url)), `${piece.photo} is missing`);
+test("every piece that lists a 3D model has that file on disk", () => {
+  for (const piece of OUTFIT_PIECES.filter((candidate) => candidate.model)) {
+    assert.ok(existsSync(new URL(`../public${piece.model}`, import.meta.url)), `${piece.model} is missing`);
   }
 });
 

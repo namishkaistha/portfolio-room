@@ -202,8 +202,9 @@ export const TRAVEL_PLACES = [
     lat: 47.6062,
     lon: -122.3321,
     paragraphs: [
-      "Seattle was a spring break trip with two friends from Northwestern. We planned almost nothing and somehow stumbled into cherry blossom season. It's a city that lets whatever happens happen.",
-      "It was my first mountain hike (Poo Poo Point is harder than it sounds), and it's where I grew close to two friends who are still close today. The tech and indie scenes blend in a way that shouldn't work but does, and the cherry blossoms are the cherry on top. Corny, I know.",
+      "Seattle was a spring break trip that two friends from Northwestern and I took. It was not well planned at all, but somehow we stumbled upon cherry blossom season right when we were there. It's a city that lends itself to letting whatever happens happen.",
+      "The scenery around the city was incredible. It was the first mountain hike I'd ever been on (Poo Poo Point is actually a difficult hike), and it's where I got close to two friends who I still consider very close from my college days.",
+      "The tech and indie scenes seem to meld together in a way you wouldn't think is possible, but somehow they do. And the cherry blossoms are truly the cherry on top. (Corny, I know.)",
     ],
     photos: [
       { src: "/travel/seattle-1.jpg", alt: "Namish and two friends with their arms around each other beneath a street of blooming cherry trees" },
