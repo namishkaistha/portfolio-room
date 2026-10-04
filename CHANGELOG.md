@@ -8,6 +8,7 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- About: removed "Feel free to click around."
 - About: the story opens with being fascinated by "what makes people tick".
 - Laptop: the file explorer no longer lists a readme.md (it opened nothing).
 - About: removed the paragraph about creative and professional work from the story.
