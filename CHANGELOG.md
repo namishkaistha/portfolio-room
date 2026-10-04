@@ -8,6 +8,7 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- About: removed the paragraph about creative and professional work from the story.
 - Music status: when Namish isn't listening, the card keeps the live layout (dot plus bold uppercase line) in red, "Namish isn't listening to music right now", with no song or cover; on phones the line wraps evenly.
 - Laptop typing sound: the key clicks are now real keyboard recordings (a Cherry keyboard, CC0 pack by unicaegames), eight variants trimmed to the keystroke and matched in loudness. The old clips were a low impact thud that didn't sound like a keyboard.
 - About: the story ends with an invitation to reach out and say hi.
