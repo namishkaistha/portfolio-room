@@ -71,10 +71,10 @@
   0%, 100% { box-shadow: 0 0 0 0 rgba(30, 215, 96, 0.55); }
   50% { box-shadow: 0 0 0 5px rgba(30, 215, 96, 0); }
 }
-/* Silent: one quiet line with a grey dot. */
-.now-playing.is-silent { padding: 10px 12px; }
-.now-playing.is-silent .now-playing-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.02em; text-transform: none; color: var(--ink-dim); }
-.now-playing.is-silent .now-playing-eyebrow::before { background: rgba(245, 241, 232, 0.35); animation: none; }
+/* Silent: the same line in red, with no song or cover. */
+.now-playing.is-silent { padding: 12px 14px; }
+.now-playing.is-silent .now-playing-eyebrow { color: #ff5a4f; line-height: 1.4; text-wrap: balance; }
+.now-playing.is-silent .now-playing-eyebrow::before { background: #ff5a4f; animation: none; }
 .now-playing.is-silent .now-playing-title,
 .now-playing.is-silent .now-playing-artist { display: none; }
 

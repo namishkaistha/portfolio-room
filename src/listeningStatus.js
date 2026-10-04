@@ -6,7 +6,7 @@ import { isSitePlay } from "./sitePlays.js";
 const LISTENING_ENDPOINT = "/api/now-playing";
 const REFRESH_MS = 30000;
 const LISTENING_EYEBROW = "Namish is listening to";
-const SILENT_MESSAGE = "Namish isn't listening to music right now.";
+const SILENT_MESSAGE = "Namish isn't listening to music right now";
 
 const state = { timer: null };
 
