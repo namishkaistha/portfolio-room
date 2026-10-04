@@ -8,6 +8,7 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- About: the story opens with being fascinated by "what makes people tick".
 - Laptop: the file explorer no longer lists a readme.md (it opened nothing).
 - About: removed the paragraph about creative and professional work from the story.
 - Music status: when Namish isn't listening, the card keeps the live layout (dot plus bold uppercase line) in red, "Namish isn't listening to music right now", with no song or cover; on phones the line wraps evenly.

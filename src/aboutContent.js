@@ -24,7 +24,7 @@ export const TABS = [
 ];
 
 export const STORY = [
-  "Ever since I was a kid, I've been fascinated by people. It astounded me that everyone's individual experiences built them into who they are today, and everything I've done since has been an attempt to learn about and tell people's stories.",
+  "Ever since I was a kid, I've been fascinated by what makes people tick; it astounded me that everyone's individual experiences built them into who they are today. Everything I've done since has been an attempt to learn about and tell people's stories.",
   "This website is my story told through my world, which for much of my life has been this tiny room. It holds trinkets from my life: some I wish I could get rid of, some I wouldn't trade for the world, and all of them a part of me. Feel free to click around. Almost every artifact here has some significance to me and can be interacted with.",
   "If anything about my story resonates with you, feel free to reach out and say hi. I'm always willing to meet people working on what they are passionate about :)",
 ];
