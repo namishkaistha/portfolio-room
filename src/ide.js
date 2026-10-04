@@ -164,9 +164,12 @@ function onStrayKeyDown(event) {
   playKeyClick();
 }
 
+// Clicking around an open project card closes it, back to the terminal;
+// otherwise a click anywhere in the laptop puts the cursor in the terminal.
 function onPanelClick(event) {
-  if (isProjectCardOpen() || event.target.closest("a, button, input")) return;
-  focusInputForDevice();
+  if (event.target.closest("a, button, input, .cli-card")) return;
+  if (isProjectCardOpen()) closeProjectCard().then(focusInputForDevice);
+  else focusInputForDevice();
 }
 
 function requireInput() {

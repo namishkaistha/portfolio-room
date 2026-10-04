@@ -8,6 +8,8 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- Laptop: clicking outside an open project card closes it and returns to the terminal (it used to need Escape).
+- Pantry check-in project: says its backend was built test-first (TDD) instead of quoting test counts and coverage.
 - Music: the top-right card now only shows what Namish is listening to on Spotify ("Namish is listening to" with the song, or "Namish isn't listening to music right now."), refreshed every 30 seconds; it no longer plays anything, links to the song, or shuffles his playlists. Visitors play music from the vinyl instead: "Play this one" opens a separate record-player pop-up under the card (rank, song, play/pause, stop), which moves on to the next of the top 10 when a record ends and stops after #10. `/api/now-playing` now returns only the live track, dropping the playlist fetch. Removed the unused Spotify hint markup.
 - Fashion: the striped button down no longer adds a gold chain and white tank top to the avatar.
 - Fashion: clicking the room around the panel closes it, like the other stations.

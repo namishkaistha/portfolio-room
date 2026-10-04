@@ -10,7 +10,7 @@ export const PROJECTS = [
     tech: ["React 19", "TypeScript", "FastAPI", "Neon Postgres", "Vercel"],
     details: [
       { label: "what", text: "A mobile check-in tool for Evanston's food pantry. Guests enter their phone number on their own phone, hand it to a volunteer who long-presses to approve, and each household gets one bag per week." },
-      { label: "how", text: "React 19 + TypeScript frontend and a FastAPI backend on Vercel with Neon Postgres. English and Spanish, WCAG 2.1 AA, atomic design, and a test-first backend — 158 tests, 97% backend coverage." },
+      { label: "how", text: "React 19 + TypeScript frontend and a FastAPI backend on Vercel with Neon Postgres. English and Spanish, WCAG 2.1 AA, atomic design, and a backend built test-first (TDD)." },
       { label: "impact", text: "Used by 250+ visitors at the pantry, cutting volunteer time per guest by about 80%." },
     ],
     shots: [
