@@ -8,6 +8,7 @@
 - Kangra: new photos of the temple Buddha and the prayer wheels.
 
 ### Changed
+- Hà Giang: "met a ton of new people from all over the world" (was "all over the United States and the world").
 - About: removed "Feel free to click around."
 - About: the story opens with being fascinated by "what makes people tick".
 - Laptop: the file explorer no longer lists a readme.md (it opened nothing).

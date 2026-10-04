@@ -109,7 +109,7 @@ export const TRAVEL_PLACES = [
     lat: 23.1,
     lon: 105.2,
     paragraphs: [
-      "I almost canceled this trip three days before it was meant to start because I wasn't sure it was safe, and thank God I went. I stayed at Cheers Hostel and met a ton of new people from all over the United States and the world.",
+      "I almost canceled this trip three days before it was meant to start because I wasn't sure it was safe, and thank God I went. I stayed at Cheers Hostel and met a ton of new people from all over the world.",
       "Local tour guides took us through their homes, their villages and the mountain scenery. I spent eight hours a day on the back of a motorcycle talking to my guide, and my nights talking with old and new friends about chasing your dreams, doing what you want, heartbreak, and moving forward. We shared what we'd learned about the countries we came from and what's important to each of us.",
       "These are all parts of a post-grad experience I never want to take for granted, and experiences I'll never forget.",
     ],
