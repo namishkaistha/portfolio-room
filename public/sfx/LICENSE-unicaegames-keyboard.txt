@@ -1,0 +1,9 @@
+Keyboard Soundpack #1 [Typing and Single Keystrokes] by unicaegames
+https://opengameart.org/content/keyboard-soundpack-1-typing-and-single-keystrokes
+
+License: Creative Commons Zero (CC0)
+http://creativecommons.org/publicdomain/zero/1.0/
+
+Used for key-1.mp3 to key-8.mp3 (single keypresses 001, 004, 006, 007, 013,
+017, 019 and 030), trimmed to the keystroke and matched in loudness.
+Recorded on a Cherry KC 1000 keyboard with a Shure SM7B microphone.

@@ -6,12 +6,12 @@ const MUTED_KEY = "namish-room:sfx-muted";
 const MASTER_GAIN = 0.7;
 const STRIDE_METERS = 0.8;
 
-// Real recordings (CC0, Kenney.nl) cut into small clips. Each kind has a base
-// gain because the sources were recorded at very different levels, and a pitch
-// range so repeats never sound identical.
+// Real recordings (CC0: Kenney.nl, and unicaegames for the keyboard) cut into
+// small clips. Each kind has a base gain because the sources were recorded at
+// very different levels, and a pitch range so repeats never sound identical.
 const SOUNDS = {
   step: { files: ["step-1", "step-2", "step-3", "step-4", "step-5"], gain: 0.9, pitch: [0.9, 1.1] },
-  key: { files: ["key-1", "key-2", "key-3", "key-4", "key-5"], gain: 0.55, pitch: [0.92, 1.15] },
+  key: { files: ["key-1", "key-2", "key-3", "key-4", "key-5", "key-6", "key-7", "key-8"], gain: 0.6, pitch: [0.96, 1.06] },
   page: { files: ["page-1", "page-2", "page-3"], gain: 1.5, pitch: [0.96, 1.04] },
   record: { files: ["record-1", "record-2"], gain: 1.1, pitch: [0.97, 1.03] },
 };
