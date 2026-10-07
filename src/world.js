@@ -10,6 +10,7 @@ import { replaceShelfTopDecor } from "./shelfDecor.js";
 import { installBookPull } from "./bookPull.js";
 import { installClosetDoors } from "./closetDoors.js";
 import { applyLayoutCorrections, buildTripodStool } from "./roomLayout.js";
+import { buildTravelTable } from "./travelTable.js";
 import { collectObstacles, createCollider } from "./collision.js";
 import { buildDoorGroup, buildHallway } from "./entrance.js";
 
@@ -30,7 +31,7 @@ export async function buildScene(scene) {
   installRecordShelf(roomGroup);
   replaceShelfTopDecor(roomGroup);
   installBookPull(roomGroup);
-  roomGroup.add(buildTripodStool());
+  roomGroup.add(buildTripodStool(), buildTravelTable());
   const obstacles = collectObstacles(roomGroup);
   const collider = createCollider(obstacles);
   scene.add(roomGroup);

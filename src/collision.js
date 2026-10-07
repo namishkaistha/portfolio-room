@@ -14,6 +14,7 @@ const OBSTACLE_INFLATE = {
   WINDOW: 0.01,
   DESK_CHAIR: 0.01,
   TRIPOD_STOOL: 0.01,
+  TRAVEL_TABLE: 0.02,
 };
 
 // Wall-mounted pieces above this height (shelves, frames) never block walking.

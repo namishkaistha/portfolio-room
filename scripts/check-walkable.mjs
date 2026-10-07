@@ -6,6 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { ROOM } from "../src/roomConfig.js";
 import { applyLayoutCorrections, buildTripodStool } from "../src/roomLayout.js";
 import { buildDeskChair } from "../src/deskSetup.js";
+import { buildTravelTable } from "../src/travelTable.js";
 import { collectObstacles, isBlocked } from "../src/collision.js";
 import { PLAYER_RADIUS } from "../src/player.js";
 import { HOTSPOTS } from "../src/hotspots.js";
@@ -25,7 +26,7 @@ const buffer = fs.readFileSync("public/room.glb");
 const gltf = await new GLTFLoader().parseAsync(buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength), "");
 const room = gltf.scene;
 applyLayoutCorrections(room);
-room.add(buildDeskChair(), buildTripodStool());
+room.add(buildDeskChair(), buildTripodStool(), buildTravelTable());
 const obstacles = collectObstacles(room);
 
 let hasFailed = false;

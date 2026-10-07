@@ -6,22 +6,20 @@ import { addCylinder, requireNode } from "./meshHelpers.js";
 // (sealing off the floor in front of the window), the tripod sits back against
 // the left wall, the bookshelf clears the record-player lamp, and the window
 // slides along its wall so the corner is free for posters, as in the real room.
-// The guitar moves out of that corner to the gap between the window and the
-// desk, so visitors read the corner as travel rather than music.
+// The guitar leaves the poster corner, which visitors kept reading as music,
+// for the wall above the turntable (see mountGuitar).
 const LAYOUT_OFFSETS = {
   BED: new THREE.Vector3(0.08, 0, -0.22),
   HOTSPOT_LIBRARY: new THREE.Vector3(0.2, 0, 0),
   WINDOW: new THREE.Vector3(0, 0, 0.4),
   HOTSPOT_DESK: new THREE.Vector3(0, 0, 0.3),
   HOTSPOT_TRIPOD: new THREE.Vector3(-0.25, 0, 0),
-  Acoustic_Guitar: new THREE.Vector3(0.18, 0, 2.04),
 };
 
 // The tripod is turned so its phone screen faces into the room, toward the
-// stool, and the guitar so its face is toward the camera.
+// stool.
 const LAYOUT_YAWS = {
   HOTSPOT_TRIPOD: Math.PI / 2,
-  Acoustic_Guitar: 0,
 };
 
 // A slimmer bed leaves breathing room by the bookshelf spot.
@@ -34,6 +32,13 @@ const LAYOUT_WIDTH_SCALES = {
 const BED_LENGTH_SCALE = 0.86;
 const BED_SHIFT_X = -0.1;
 
+// Moves the guitar from its stand in the back-right corner to hang centred at
+// x -1.6 against the back wall (z -2.345), its bottom at y 1.22, just above
+// the record on the turntable.
+const GUITAR_MOUNT_OFFSET = new THREE.Vector3(-3.185, 1.1, -0.22);
+const GUITAR_HOOK_POSITION = [-1.6, 2.2, -2.3];
+const GUITAR_HOOK_COLOR = 0x2b2b2b;
+
 const SEAT_COLOR = 0x2a2522;
 const STOOL = { radius: 0.18, seatHeight: 0.45, seatThickness: 0.05, postRadius: 0.03 };
 
@@ -42,6 +47,7 @@ export function applyLayoutCorrections(root) {
   for (const [name, offset] of Object.entries(LAYOUT_OFFSETS)) requireNode(root, name).position.add(offset);
   for (const [name, yaw] of Object.entries(LAYOUT_YAWS)) requireNode(root, name).rotation.set(0, yaw, 0);
   shortenBed(root);
+  mountGuitar(root);
 }
 
 export function buildTripodStool() {
@@ -55,6 +61,19 @@ export function buildTripodStool() {
   stool.position.copy(SPOTS.tripod.position);
   stool.rotation.y = SPOTS.tripod.yaw;
   return stool;
+}
+
+// Takes the guitar off its floor stand and hangs it face-out on the back
+// wall above the turntable, on a small hook, clear of the record lamp. It
+// hangs above body height, so it never blocks walking.
+function mountGuitar(root) {
+  requireNode(root, "Acoustic_Guitar__Stand_graphite").removeFromParent();
+  const guitar = requireNode(root, "Acoustic_Guitar");
+  guitar.rotation.set(0, 0, 0);
+  guitar.position.add(GUITAR_MOUNT_OFFSET);
+  const hook = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.06), new THREE.MeshStandardMaterial({ color: GUITAR_HOOK_COLOR, roughness: 0.4 }));
+  hook.position.set(...GUITAR_HOOK_POSITION);
+  root.add(hook);
 }
 
 function shortenBed(root) {
