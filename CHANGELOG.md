@@ -2,10 +2,7 @@
 
 ## 2026-10-07
 
-#### Fixed
-- Project cards on phones: the card was sized to the screen but sits inside the narrower, shorter laptop window, so its right edge (the close button, year and screenshot) and its last lines were cut off. It is now capped to the window, with a tighter header and padding, and thumbnails share one short height instead of stretching to the tallest screenshot.
-
-## Added
+### Added
 - Click (or tap) any glowing object, or its circle on the floor, and the avatar walks over to it, around the furniture, and opens it on arrival. Pressing a movement key or the joystick mid-walk cancels it. `scripts/check-walkable.mjs` now also checks there's a route from spawn to every object.
 - How-to-explore instructions docked top-left the whole time you're in the room: walk, go to, open, back. On phones it opens across the top on entry and folds into a pill between the joystick and the action button. It replaces the WASD toast that faded after five seconds.
 - A "Personal portfolio" card at the top of the laptop's projects: three.js and Vite, 3D assets made with Astra in Blender, Spotify and Neon Postgres behind Vercel functions.
@@ -18,6 +15,9 @@
 - The room is brighter. A brightness survey of the overhead view found the turntable wall, closet, post-it wall, desk and travel corner dim. A brass picture light over the guitar, a single warm fill near the ceiling (no visible fixture, since the overhead view cuts the ceiling away) and a bulb inside the Chiang Mai lamp now light them, all in the old lamp's colour. An earlier version with five fixtures looked busy; this one gets within about 10 points of it everywhere with three lights, keeps the posters and window from washing out, and casts no shadows so phones stay smooth.
 - The floor circles are easier to spot: thicker and brighter, with a faint ring slowly spreading out from each.
 - The ☰ menu is gone; you get around by walking or clicking. Its sound effects switch is now a speaker button, top right.
+
+### Fixed
+- Project cards on phones: the card was sized to the screen but sits inside the narrower, shorter laptop window, so its right edge (the close button, year and screenshot) and its last lines were cut off. It is now capped to the window, with a tighter header and padding, and thumbnails share one short height instead of stretching to the tallest screenshot.
 
 ## 2026-10-03
 
