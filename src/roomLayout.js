@@ -4,7 +4,7 @@ import { addCylinder, requireNode } from "./meshHelpers.js";
 
 // Corrections to the GLB layout: the bed's foot touched the desk's end
 // (sealing off the floor in front of the window), the tripod sits back against
-// the left wall, the bookshelf clears the record-player lamp, and the window
+// the left wall, the bookshelf sits clear of the turntable corner, and the window
 // slides along its wall so the corner is free for posters, as in the real room.
 // The guitar leaves the poster corner, which visitors kept reading as music,
 // for the wall above the turntable (see mountGuitar).
@@ -39,6 +39,8 @@ const GUITAR_MOUNT_OFFSET = new THREE.Vector3(-3.185, 1.1, -0.22);
 const GUITAR_HOOK_POSITION = [-1.6, 2.2, -2.3];
 const GUITAR_HOOK_COLOR = 0x2b2b2b;
 
+const RECORD_LAMP_PARTS = ["Lamp_Stem", "Lamp_Shade", "Record_Lamp_Glow"];
+
 const SEAT_COLOR = 0x2a2522;
 const STOOL = { radius: 0.18, seatHeight: 0.45, seatThickness: 0.05, postRadius: 0.03 };
 
@@ -48,6 +50,7 @@ export function applyLayoutCorrections(root) {
   for (const [name, yaw] of Object.entries(LAYOUT_YAWS)) requireNode(root, name).rotation.set(0, yaw, 0);
   shortenBed(root);
   mountGuitar(root);
+  removeRecordLamp(root);
 }
 
 export function buildTripodStool() {
@@ -64,7 +67,7 @@ export function buildTripodStool() {
 }
 
 // Takes the guitar off its floor stand and hangs it face-out on the back
-// wall above the turntable, on a small hook, clear of the record lamp. It
+// wall above the turntable, on a small hook. It
 // hangs above body height, so it never blocks walking.
 function mountGuitar(root) {
   requireNode(root, "Acoustic_Guitar__Stand_graphite").removeFromParent();
@@ -74,6 +77,12 @@ function mountGuitar(root) {
   const hook = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.06), new THREE.MeshStandardMaterial({ color: GUITAR_HOOK_COLOR, roughness: 0.4 }));
   hook.position.set(...GUITAR_HOOK_POSITION);
   root.add(hook);
+}
+
+// The reading lamp beside the turntable, and the warm light it casts, are gone
+// at Namish's request.
+function removeRecordLamp(root) {
+  for (const name of RECORD_LAMP_PARTS) requireNode(root, name).removeFromParent();
 }
 
 function shortenBed(root) {
