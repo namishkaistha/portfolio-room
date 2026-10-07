@@ -41,10 +41,12 @@
   left: 0;
   right: 0;
   z-index: 30;
-  max-height: calc(100dvh - 96px - var(--safe-top) - var(--safe-bot));
+  max-height: min(calc(100dvh - 96px - var(--safe-top) - var(--safe-bot)), calc(100% - 72px - var(--safe-top)));
   display: flex;
   flex-direction: column;
-  width: min(1080px, 94vw);
+  /* The card sits inside the laptop window, which is smaller than the
+     screen on phones, so its size is capped to the window as well. */
+  width: min(1080px, 94vw, calc(100% - 16px));
   margin: 0 auto;
   border: 1px dashed #7ce38b;
   background: #0e1116;
@@ -88,8 +90,12 @@
 .cli-card-shot { display: block; width: 100%; height: auto; border: 1px solid #2a303b; }
 .cli-card-main-shot { max-height: 56dvh; object-fit: cover; object-position: top; }
 .cli-card-thumbs { display: flex; gap: 8px; }
+/* Thumbnails share one short height, cropped from the top, so a tall
+   screenshot doesn't stretch the whole row. */
 .cli-card-thumb {
   width: 96px;
+  height: 60px;
+  overflow: hidden;
   padding: 0;
   border: 1px dashed #3a4150;
   background: none;
@@ -98,7 +104,7 @@
 }
 .cli-card-thumb.is-active,
 .cli-card-thumb:hover { border-color: #7ce38b; opacity: 1; }
-.cli-card-thumb .cli-card-shot { border: 0; }
+.cli-card-thumb .cli-card-shot { height: 100%; border: 0; object-fit: cover; object-position: top; }
 .cli-card-noshot {
   display: flex;
   align-items: center;
@@ -130,6 +136,14 @@
 @media (hover: none), (max-width: 640px) {
   .key-hint { display: none; }
   .cli-card-close { padding: 13px 8px; font-size: 14px; }
+}
+@media (max-width: 640px) {
+  .cli-card { width: calc(100% - 12px); }
+  .cli-card-bar { padding: 0 6px 0 12px; }
+  .cli-card-path { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cli-card-body { gap: 16px; padding: 14px; }
+  .cli-card-thumb { width: 84px; height: 52px; }
+  .cli-card-detail dd { font-size: 14px; line-height: 1.55; }
 }
 .cli-card-main-shot,
 .cli-card-media.is-phone-row .cli-card-shot { cursor: zoom-in; }

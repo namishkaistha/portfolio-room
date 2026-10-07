@@ -2,7 +2,10 @@
 
 ## 2026-10-07
 
-### Added
+#### Fixed
+- Project cards on phones: the card was sized to the screen but sits inside the narrower, shorter laptop window, so its right edge (the close button, year and screenshot) and its last lines were cut off. It is now capped to the window, with a tighter header and padding, and thumbnails share one short height instead of stretching to the tallest screenshot.
+
+## Added
 - Click (or tap) any glowing object, or its circle on the floor, and the avatar walks over to it, around the furniture, and opens it on arrival. Pressing a movement key or the joystick mid-walk cancels it. `scripts/check-walkable.mjs` now also checks there's a route from spawn to every object.
 - How-to-explore instructions docked top-left the whole time you're in the room: walk, go to, open, back. On phones it opens across the top on entry and folds into a pill between the joystick and the action button. It replaces the WASD toast that faded after five seconds.
 - A "Personal portfolio" card at the top of the laptop's projects: three.js and Vite, 3D assets made with Astra in Blender, Spotify and Neon Postgres behind Vercel functions.
