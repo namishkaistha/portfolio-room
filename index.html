@@ -39,7 +39,6 @@
       </div>
     </div>
 
-
     <div id="prompt" class="prompt hidden" role="button" tabindex="0">
       <span class="prompt-key">SPACE</span>
       <span class="prompt-label">to view</span>
@@ -68,18 +67,9 @@
     <div class="spotify-player"><div id="recordPlayerEmbed"></div></div>
 
     <div id="hud" class="hud hidden">
-      <button id="menuBtn" class="hud-btn" aria-label="Menu">☰</button>
-    </div>
-
-    <button id="guideBtn" class="hud-btn guide-btn hidden" type="button" aria-label="How to explore">?</button>
-
-    <div id="guideBoard" class="guide-board-overlay hidden" role="dialog" aria-label="How to explore my room">
-      <div class="guide-board">
-        <h2 class="guide-board-title">How to explore my room</h2>
-        <ol id="guideBoardSteps" class="guide-board-steps"></ol>
-        <button id="guideBoardClose" class="guide-board-close" type="button">Start exploring</button>
-        <div class="guide-board-tray" aria-hidden="true"><span class="marker blue"></span><span class="marker red"></span><span class="marker black"></span></div>
-      </div>
+      <button id="sfxToggle" class="hud-btn sfx-toggle" type="button" aria-label="Sound effects" aria-pressed="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z" /><path class="sfx-on" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11" /><path class="sfx-off" d="M16.5 9.5l5 5m0-5l-5 5" /></svg>
+      </button>
     </div>
 
     <aside id="guideSide" class="guide-side hidden" aria-label="How to explore">
@@ -87,21 +77,6 @@
       <ol id="guideSideSteps" class="guide-side-steps"></ol>
     </aside>
 
-    <div id="menu" class="overlay center hidden">
-      <div class="menu-card">
-        <div class="brand small">Menu</div>
-        <button data-target="about" class="menu-item">Photo wall · meet Namish</button>
-        <button data-target="notes" class="menu-item">Post-it wall · leave me a note</button>
-        <button data-target="closet" class="menu-item">Closet · mix and match</button>
-        <button data-target="bed" class="menu-item">Bed · take a nap</button>
-        <button data-target="laptop" class="menu-item">Desk · projects &amp; resume</button>
-        <button data-target="tripod" class="menu-item">Tripod · creative portfolio</button>
-        <button data-target="vinyl" class="menu-item">Vinyl · top 10 this month</button>
-        <button data-target="library" class="menu-item">Bookshelf · reading list</button>
-        <button data-target="travel" class="menu-item">Travel · places I've been</button>
-        <button id="sfxToggle" class="menu-item" type="button">Sound effects · on</button>
-        <button id="menuClose" class="menu-close">Back to room</button>
-      </div>
     </div>
 
     <div id="mobileControls" class="mobile-controls hidden" aria-hidden="true">

@@ -1,6 +1,6 @@
-/* Top-right, beside the menu button: what Namish is listening to, and below
+/* Top-right, beside the sound button: what Namish is listening to, and below
    it the record player once a visitor plays something from the top 10. On
-   phones it leaves the top-left corner free for the how-to-explore button. */
+   phones it leaves the top-left corner free for the how-to-explore panel. */
 .music-corner {
   position: fixed;
   top: calc(12px + var(--safe-top));

@@ -18,7 +18,7 @@ const DRESSING_TURN_SECONDS = 0.5;
 //   spot      where the avatar and camera go first (none: opens in place)
 //   approach  runs as the visit starts, while the camera is still moving
 //   open      shows the station; resolves once the visitor has closed it
-//   close     closes it outright (switching stations from the menu)
+//   close     closes it outright
 //   dismiss   steps back one layer (Escape): an open card first, then the station
 export function createStations({ player, closetDoors }) {
   const sleepOverlay = createViewOverlay("sleepOverlay", ["Space", "Enter"]);

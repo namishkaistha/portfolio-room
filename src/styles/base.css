@@ -167,35 +167,10 @@ body {
   font-size: 20px;
   cursor: pointer;
 }
-.menu-card {
-  max-width: 380px; width: 100%;
-  padding: 22px;
-  background: var(--panel);
-  border: 1px solid var(--hairline);
-  border-radius: 18px;
-  display: grid; gap: 10px;
-}
-.menu-item {
-  text-align: left;
-  padding: 12px 14px;
-  background: rgba(245, 241, 232, 0.04);
-  border: 1px solid var(--hairline);
-  border-radius: 12px;
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 14px;
-  cursor: pointer;
-}
-.menu-item:hover { background: rgba(247, 197, 106, 0.12); border-color: rgba(247, 197, 106, 0.4); }
-.menu-close {
-  margin-top: 8px;
-  padding: 10px;
-  background: transparent;
-  border: 1px solid var(--hairline);
-  border-radius: 10px;
-  color: var(--ink-dim);
-  cursor: pointer;
-}
+.sfx-toggle { display: grid; place-items: center; }
+.sfx-toggle svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.sfx-toggle[aria-pressed="true"] .sfx-off,
+.sfx-toggle[aria-pressed="false"] .sfx-on { display: none; }
 .mobile-controls { position: fixed; inset: 0; z-index: 6; pointer-events: none; }
 .joystick {
   position: absolute;

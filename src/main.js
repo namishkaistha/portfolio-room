@@ -3,7 +3,7 @@ import { buildScene, installLights } from "./world.js";
 import { DoorController } from "./door.js";
 import { Player } from "./player.js";
 import { createWayfinder } from "./wayfinder.js";
-import { greetVisitor, installGuide, showGuideInRoom } from "./guide.js";
+import { installGuide, showGuideInRoom } from "./guide.js";
 import { Joystick } from "./joystick.js";
 import { HOTSPOTS, findActiveHotspot } from "./hotspots.js";
 import { installHighlights } from "./highlights.js";
@@ -63,7 +63,7 @@ let activeHotspot = null;
 let closetDoors = null;
 let routeTo = null;
 let stations = null;
-// The station being visited: { station, isCancelled, finished }.
+// The station being visited: { station }.
 let visit = null;
 
 bootstrap();
@@ -91,7 +91,6 @@ async function bootstrap() {
 
   hideRoomForIntro();
   wireInteraction();
-  wireMenu();
   wireSoundEffects();
   wireMobile();
   wireStations();
@@ -241,7 +240,6 @@ function enterRoom() {
   document.getElementById("hud")?.classList.remove("hidden");
   showListeningStatus();
   showRecordPlayer();
-  greetVisitor();
 }
 
 function cutAwayFrontWall() {
@@ -346,20 +344,18 @@ function openHotspotView(id) {
     leaveRoom();
     return;
   }
-  const current = { station: stations[id], isCancelled: false };
-  current.finished = visitStation(current);
-  visit = current;
+  visit = { station: stations[id] };
+  visitStation(visit);
 }
 
 // Walks up to the station, opens it, and once the visitor closes it, steps
 // back out to the overhead view. Music the station paused picks back up.
-async function visitStation(current) {
-  const { station } = current;
+async function visitStation({ station }) {
   setStage("seated");
   clearHotspotUi();
   station.approach?.();
   if (station.spot) await approachSpot(station.spot);
-  if (!current.isCancelled) await station.open();
+  await station.open();
   resumeRecordPlayer();
   if (station.spot) await leaveSpot();
   setStage("room");
@@ -375,45 +371,16 @@ async function leaveSpot() {
   await Promise.all([player.returnFromSpot(), director.flyTo(overheadView(), RETURN_TO_OVERHEAD_SECONDS)]);
 }
 
-// Picking a station while visiting another closes that one, waits for the
-// camera to come back, then opens the new one.
-async function openStationFromMenu(target) {
-  if (visit) {
-    visit.isCancelled = true;
-    visit.station.close();
-    await visit.finished;
-  }
-  openHotspotView(target);
-}
-
-function wireMenu() {
-  const menu = document.getElementById("menu");
-  document.getElementById("menuBtn")?.addEventListener("click", () => {
-    menu?.classList.remove("hidden");
-  });
-  document.getElementById("menuClose")?.addEventListener("click", () => {
-    menu?.classList.add("hidden");
-  });
-  menu?.querySelectorAll(".menu-item").forEach((button) => {
-    button.addEventListener("click", () => {
-      const target = button.getAttribute("data-target");
-      if (!target) return;
-      menu.classList.add("hidden");
-      openStationFromMenu(target);
-    });
-  });
-}
-
 function wireSoundEffects() {
   window.addEventListener("pointerdown", unlockAudio);
   window.addEventListener("keydown", unlockAudio);
   const toggle = document.getElementById("sfxToggle");
-  const showState = () => { toggle.textContent = `Sound effects · ${isMuted() ? "off" : "on"}`; };
-  toggle?.addEventListener("click", () => {
+  const showState = () => toggle.setAttribute("aria-pressed", String(!isMuted()));
+  toggle.addEventListener("click", () => {
     setMuted(!isMuted());
     showState();
   });
-  if (toggle) showState();
+  showState();
 }
 
 function wireMobile() {

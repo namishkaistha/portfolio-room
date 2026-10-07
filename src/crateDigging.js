@@ -112,7 +112,7 @@ function onDiggingKeyDown(event) {
 
 // Clicking the room around the record player steps back, like leaving the crate.
 function onOutsideClick(event) {
-  if (!event.target.closest("#crateHud, #hud, #menu")) closeCrateDigging();
+  if (!event.target.closest("#crateHud, #hud")) closeCrateDigging();
 }
 
 function setStatus(message) {

@@ -134,7 +134,7 @@ function isLightboxOpen() {
 
 // Clicking the room around the panel steps back out, as at every other station.
 function onOutsideClick(event) {
-  if (!event.target.closest("#closetPanel, #closetLightbox, #hud, #menu")) closeCloset();
+  if (!event.target.closest("#closetPanel, #closetLightbox, #hud")) closeCloset();
 }
 
 function syncChips() {
