@@ -110,8 +110,13 @@
 @keyframes guideFade { from { opacity: 0; } }
 @keyframes guideRise { from { opacity: 0; transform: translateY(14px) rotate(-0.6deg); } }
 
+/* Phones: the top bar only has room for a button, so the folded sidebar
+   becomes a "?" like the whiteboard's, and opens into a card over the bar. */
 @media (max-width: 600px) {
   .guide-board { padding: 20px 20px 46px; border-width: 8px; }
   .guide-board-step { grid-template-columns: 58px 1fr; gap: 8px; }
-  .guide-side { width: min(240px, calc(100vw - 150px)); }
+  .guide-side { z-index: 12; width: calc(100vw - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)); }
+  .guide-side.is-collapsed { width: 44px; height: 44px; padding: 0; }
+  .guide-side.is-collapsed .guide-side-toggle { height: 100%; justify-content: center; font-size: 0; }
+  .guide-side.is-collapsed .guide-side-toggle::after { content: "?"; margin: 0; color: var(--ink); font: 22px var(--font-hand-title); }
 }
