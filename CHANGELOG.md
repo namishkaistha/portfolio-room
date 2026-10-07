@@ -9,7 +9,7 @@
 - The laptop's welcome now says "type `cat resume` to download my resume."
 
 ### Changed
-- The poster corner reads as travel: Bia Hà Nội now hangs under Air India, Frank Ocean's Blonde took its old spot on the side wall, and a small side table holds three trinkets from Namish's travels (a toy auto rickshaw from India, a glazed spice pot from Morocco and a painted paper lamp from Chiang Mai's night market, lit from inside). Only the travel pieces glow and open the travel globe; the prompt calls them "the travel posters".
+- The poster corner reads as travel: Bia Hà Nội now hangs under Air India, Frank Ocean's Blonde took its old spot on the side wall, and a small side table holds three trinkets from Namish's travels (a toy auto rickshaw from India, a cast-iron tea kettle and a painted paper lamp from Chiang Mai's night market, lit from inside). Only the travel pieces glow and open the travel globe; the prompt calls them "the travel posters".
 - The guitar came off its floor stand in that corner and hangs on the wall above the turntable.
 - The lamp beside the turntable, and its warm glow, are gone.
 - The room is brighter. A brightness survey of the overhead view found the turntable wall, closet, post-it wall, desk and travel corner dim. A brass picture light over the guitar, a single warm fill near the ceiling (no visible fixture, since the overhead view cuts the ceiling away) and a bulb inside the Chiang Mai lamp now light them, all in the old lamp's colour. An earlier version with five fixtures looked busy; this one gets within about 10 points of it everywhere with three lights, keeps the posters and window from washing out, and casts no shadows so phones stay smooth.

@@ -3,8 +3,8 @@ import { addBox, addCylinder, solid } from "./meshHelpers.js";
 import { buildLight } from "./roomLamps.js";
 
 // A small round side table in the poster corner holding three things Namish
-// brought home: a toy auto rickshaw from India, a glazed spice pot from
-// Morocco and a painted paper lamp from Chiang Mai. It belongs to the travel
+// brought home: a toy auto rickshaw from India, a cast-iron tea kettle and a
+// painted paper lamp from Chiang Mai. It belongs to the travel
 // station, so the table and everything on it glow and open the globe.
 const TABLE = { center: [1.76, -2.06], radius: 0.23, height: 0.58, topThickness: 0.03 };
 // The trinkets are drawn larger than life so they read from the overhead camera.
@@ -14,9 +14,8 @@ const COLOR = {
   rickshawGreen: 0x2f7d3a,
   rickshawYellow: 0xf2c230,
   tyre: 0x1c1c1c,
-  terracotta: 0xb5653a,
-  glaze: 0x1f4fa8,
-  brass: 0xc9a24a,
+  castIron: 0x1d1d1f,
+  jute: 0xc9b088,
   lanternFrame: 0x24160d,
   lanternPaper: 0xf3d9a4,
 };
@@ -28,6 +27,8 @@ const LANTERN_GLOW = 0.4;
 const LANTERN_BULB = { intensity: 3.5, distance: 1.5 };
 const LANTERN_PANEL_PIXELS = [128, 192];
 const QUARTER_TURN = Math.PI / 2;
+// How much of the handle's arch, centred on the top, is wrapped in jute.
+const JUTE_WRAP_ARC = 1.3;
 
 export function buildTravelTable() {
   const table = new THREE.Group();
@@ -35,7 +36,7 @@ export function buildTravelTable() {
   addTable(table);
   const top = TABLE.height;
   table.add(placed(buildAutoRickshaw(), [-0.1, top, 0.1], -0.6));
-  table.add(placed(buildSpicePot(), [0.12, top, 0.09], 0));
+  table.add(placed(buildIronKettle(), [0.12, top, 0.09], -0.5));
   table.add(placed(buildLantern(), [0.03, top, -0.12], Math.PI / 4 + 0.35));
   const [x, z] = TABLE.center;
   table.position.set(x, 0, z);
@@ -73,20 +74,29 @@ function addWheel(group, material, position) {
   group.add(wheel);
 }
 
-// A small tagine-style pot: terracotta base, cobalt glazed cone lid, brass knob.
-function buildSpicePot() {
-  const pot = new THREE.Group();
-  const terracotta = solid(COLOR.terracotta, 0.7);
-  const glaze = solid(COLOR.glaze, 0.3);
-  addCylinder(pot, terracotta, { radius: 0.055, height: 0.012, position: [0, 0.006, 0] });
-  addCylinder(pot, glaze, { radius: 0.042, height: 0.03, position: [0, 0.027, 0] });
-  const lid = new THREE.Mesh(new THREE.ConeGeometry(0.045, 0.08, 24), glaze);
-  lid.position.y = 0.082;
-  pot.add(lid);
-  const knob = new THREE.Mesh(new THREE.SphereGeometry(0.009, 12, 8), solid(COLOR.brass, 0.3));
-  knob.position.y = 0.126;
-  pot.add(knob);
-  return pot;
+// A squat cast-iron tea kettle: round body, small lid and knob, a short
+// spout angled up and an arched handle wrapped in jute across the top.
+function buildIronKettle() {
+  const kettle = new THREE.Group();
+  const iron = new THREE.MeshStandardMaterial({ color: COLOR.castIron, roughness: 0.65, metalness: 0.35 });
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.05, 24, 16), iron);
+  body.scale.set(1, 0.68, 1);
+  body.position.y = 0.034;
+  kettle.add(body);
+  addCylinder(kettle, iron, { radius: 0.03, height: 0.008, position: [0, 0.068, 0] });
+  addCylinder(kettle, iron, { radius: 0.007, height: 0.014, position: [0, 0.079, 0] });
+  const spout = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.012, 0.045, 12), iron);
+  spout.position.set(-0.056, 0.042, 0);
+  spout.rotation.z = 0.85;
+  kettle.add(spout);
+  const handle = new THREE.Mesh(new THREE.TorusGeometry(0.046, 0.0032, 8, 32, Math.PI), iron);
+  handle.position.y = 0.062;
+  kettle.add(handle);
+  const jute = new THREE.Mesh(new THREE.TorusGeometry(0.046, 0.0065, 8, 24, JUTE_WRAP_ARC), solid(COLOR.jute, 0.95));
+  jute.position.y = 0.062;
+  jute.rotation.z = (Math.PI - JUTE_WRAP_ARC) / 2;
+  kettle.add(jute);
+  return kettle;
 }
 
 // The panels are one paper shade (a four-sided frustum) painted later by
