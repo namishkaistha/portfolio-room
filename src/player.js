@@ -5,6 +5,7 @@ export const PLAYER_RADIUS = 0.18;
 const WALK_SPEED = 1.75;
 const FACING_TURN_RATE = 12;
 const MIN_WALK_STEP_SQUARED = 1e-8;
+const MIN_WALK_STEP = 1e-4;
 const GLIDE_SECONDS = 0.7;
 
 // Movement is world-relative so it stays independent of the camera and mouse.
@@ -21,6 +22,7 @@ export class Player {
     this.isAtSpot = false;
     this.areControlsEnabled = true;
     this.glide = null;
+    this.route = null;
     this.standingSpot = null;
     this.lying = null;
     this.syncAvatar();
@@ -66,13 +68,25 @@ export class Player {
     this.joystick.set(x, y);
   }
 
+  // Walks through the given floor points at walking pace. Resolves true on
+  // arrival, or false if the visitor takes over with the keys or joystick,
+  // or a new walk or glide replaces it.
+  walkAlong(points) {
+    this.endRoute(false);
+    return new Promise((resolve) => {
+      this.route = { points: points.slice(1).map(({ x, z }) => new THREE.Vector3(x, 0, z)), resolve };
+    });
+  }
+
   advance(deltaSeconds) {
     if (this.glide) this.advanceGlide(deltaSeconds);
+    else if (this.route) this.advanceRoute(deltaSeconds);
     else if (!this.isAtSpot && this.areControlsEnabled) this.advanceWalking(deltaSeconds);
     this.avatar.update(deltaSeconds);
   }
 
   glideTo(target, yaw, seconds = GLIDE_SECONDS) {
+    this.endRoute(false);
     return new Promise((resolve) => {
       this.glide = { from: this.position.clone(), to: target.clone(), fromYaw: this.facingYaw, turn: wrapAngle(yaw - this.facingYaw), seconds, elapsed: 0, resolve };
       this.avatar.play("Walk");
@@ -91,6 +105,40 @@ export class Player {
     this.glide = null;
     this.avatar.play("Idle");
     glide.resolve();
+  }
+
+  advanceRoute(deltaSeconds) {
+    if (this.readMovementIntent().lengthSq() > 0) {
+      this.endRoute(false);
+      return;
+    }
+    let budget = WALK_SPEED * deltaSeconds;
+    while (budget > 0 && this.route.points.length > 0) {
+      const next = this.route.points[0];
+      const toNext = next.clone().sub(this.position);
+      const distance = toNext.length();
+      if (distance > MIN_WALK_STEP) this.targetYaw = Math.atan2(toNext.x, toNext.z);
+      if (distance <= budget) {
+        this.position.copy(next);
+        this.route.points.shift();
+        budget -= distance;
+      } else {
+        this.position.addScaledVector(toNext, budget / distance);
+        budget = 0;
+      }
+    }
+    this.easeFacing(deltaSeconds);
+    this.syncAvatar();
+    this.avatar.play("Walk");
+    if (this.route.points.length === 0) this.endRoute(true);
+  }
+
+  endRoute(hasArrived) {
+    const route = this.route;
+    if (!route) return;
+    this.route = null;
+    this.avatar.play("Idle");
+    route.resolve(hasArrived);
   }
 
   advanceWalking(deltaSeconds) {

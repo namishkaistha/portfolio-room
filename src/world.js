@@ -31,7 +31,8 @@ export async function buildScene(scene) {
   replaceShelfTopDecor(roomGroup);
   installBookPull(roomGroup);
   roomGroup.add(buildTripodStool());
-  const collider = createCollider(collectObstacles(roomGroup));
+  const obstacles = collectObstacles(roomGroup);
+  const collider = createCollider(obstacles);
   scene.add(roomGroup);
   roomGroup.add(avatar.root);
   const roomMixer = loopRoomAnimations(roomModel);
@@ -43,7 +44,7 @@ export async function buildScene(scene) {
   const doorGroup = buildDoorGroup();
   scene.add(doorGroup);
 
-  return { doorGroup, roomGroup, frontWall, avatar, roomMixer, closetDoors, collider };
+  return { doorGroup, roomGroup, frontWall, avatar, roomMixer, closetDoors, collider, obstacles };
 }
 
 export function installLights(scene) {

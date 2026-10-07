@@ -8,6 +8,8 @@ import { applyLayoutCorrections, buildTripodStool } from "../src/roomLayout.js";
 import { buildDeskChair } from "../src/deskSetup.js";
 import { collectObstacles, isBlocked } from "../src/collision.js";
 import { PLAYER_RADIUS } from "../src/player.js";
+import { HOTSPOTS } from "../src/hotspots.js";
+import { createWayfinder } from "../src/wayfinder.js";
 
 const CELL = 0.04;
 const SPAWN = [0, 0.6];
@@ -31,6 +33,13 @@ for (const [label, target] of TRIPS) {
   const result = canReach(SPAWN, target);
   if (result !== "reachable") hasFailed = true;
   console.log(`spawn to ${label.padEnd(16)} ${result}`);
+}
+// Clicking an object walks there, so every hotspot needs a route from spawn.
+const routeTo = createWayfinder(obstacles);
+for (const hotspot of HOTSPOTS) {
+  const route = routeTo({ x: SPAWN[0], z: SPAWN[1] }, hotspot);
+  if (!route) hasFailed = true;
+  console.log(`click-walk to ${hotspot.id.padEnd(9)} ${route ? `${route.length - 1} legs` : "NO ROUTE"}`);
 }
 process.exit(hasFailed ? 1 : 0);
 
