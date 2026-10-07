@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-07
+
+### Added
+- Click (or tap) any glowing object and the avatar walks over to it, around the furniture, and opens it on arrival. Pressing a movement key or the joystick mid-walk cancels it. `scripts/check-walkable.mjs` now also checks there's a route from spawn to every object.
+- How-to-explore instructions, in two versions to choose between (on test.namishkaistha.com for now): `?guide=whiteboard` (default) greets you with a whiteboard on entry, reopened with the "?" button top-left; `?guide=sidebar` keeps a panel docked top-left the whole time you're in the room, folded by default on phones. They replace the WASD toast that faded after five seconds.
+- A "This portfolio" card at the top of the laptop's projects: three.js and Vite, 3D assets made with Astra in Blender, Spotify and Neon Postgres behind Vercel functions.
+- The laptop's welcome now says "type `cat resume` to download my resume."
+
 ## 2026-10-03
 
 ### Added

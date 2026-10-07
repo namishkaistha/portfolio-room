@@ -1,5 +1,6 @@
 /* Global styles first, then one file per station, in cascade order. */
 @import "./styles/base.css";
+@import "./styles/guide.css";
 @import "./styles/ide.css";
 @import "./styles/music.css";
 @import "./styles/crate.css";

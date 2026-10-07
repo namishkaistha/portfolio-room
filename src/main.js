@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { buildScene, installLights } from "./world.js";
 import { DoorController } from "./door.js";
 import { Player } from "./player.js";
+import { createWayfinder } from "./wayfinder.js";
+import { greetVisitor, installGuide, showGuideInRoom } from "./guide.js";
 import { Joystick } from "./joystick.js";
 import { HOTSPOTS, findActiveHotspot } from "./hotspots.js";
 import { installHighlights } from "./highlights.js";
@@ -28,8 +30,6 @@ import {
 } from "./roomConfig.js";
 
 const CAMERA_TRAVEL_SECONDS = 3.4;
-const CONTROLS_FADE_DELAY_MS = 5400;
-const CONTROLS_HIDE_DELAY_MS = 6400;
 const SHOULDER_SHOT_SECONDS = 1.3;
 const CLOSE_UP_SECONDS = 0.7;
 const RETURN_TO_OVERHEAD_SECONDS = 1.2;
@@ -61,6 +61,7 @@ let frontWall = null;
 let roomMixer = null;
 let activeHotspot = null;
 let closetDoors = null;
+let routeTo = null;
 let stations = null;
 // The station being visited: { station, isCancelled, finished }.
 let visit = null;
@@ -71,12 +72,13 @@ async function bootstrap() {
   window.addEventListener("resize", resizeToViewport);
   resizeToViewport();
 
-  const { doorGroup, closetDoors: doors, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer, collider } = await buildScene(scene);
+  const { doorGroup, closetDoors: doors, roomGroup: room, frontWall: wall, avatar, roomMixer: mixer, collider, obstacles } = await buildScene(scene);
   roomGroup = room;
   frontWall = wall;
   closetDoors = doors;
   roomMixer = mixer;
   player = new Player(avatar, collider);
+  routeTo = createWayfinder(obstacles);
   stations = createStations({ player, closetDoors });
   installCloset(avatar.root);
   installLights(scene);
@@ -93,6 +95,7 @@ async function bootstrap() {
   wireSoundEffects();
   wireMobile();
   wireStations();
+  installGuide(hasTouch);
 
   finishLoading();
   presentDoorIntro();
@@ -225,7 +228,7 @@ async function finishLeaving() {
 }
 
 function hideRoomHud() {
-  for (const id of ["hud", "mobileControls", "controlsToast"]) document.getElementById(id)?.classList.add("hidden");
+  for (const id of ["hud", "mobileControls"]) document.getElementById(id)?.classList.add("hidden");
 }
 
 function enterRoom() {
@@ -238,7 +241,7 @@ function enterRoom() {
   document.getElementById("hud")?.classList.remove("hidden");
   showListeningStatus();
   showRecordPlayer();
-  showControlsToast();
+  greetVisitor();
 }
 
 function cutAwayFrontWall() {
@@ -249,15 +252,6 @@ function cutAwayFrontWall() {
 function restoreFrontWall() {
   frontWall.visible = true;
   door.pivot.visible = true;
-}
-
-function showControlsToast() {
-  const controls = document.getElementById("controlsToast");
-  if (!controls) return;
-  controls.classList.remove("hidden");
-  controls.classList.remove("fading");
-  window.setTimeout(() => controls.classList.add("fading"), CONTROLS_FADE_DELAY_MS);
-  window.setTimeout(() => controls.classList.add("hidden"), CONTROLS_HIDE_DELAY_MS);
 }
 
 function refreshHotspotUi() {
@@ -316,8 +310,16 @@ function wireObjectClicks() {
     if (!id) return;
     canvas.style.cursor = "";
     highlights.setHovered(null);
-    openHotspotView(id);
+    walkToHotspot(id);
   });
+}
+
+// Clicking an object walks the avatar over to it, around the furniture, and
+// opens it on arrival. Taking over with the keys or joystick cancels the walk.
+async function walkToHotspot(id) {
+  const route = routeTo(player.position, HOTSPOTS.find((hotspot) => hotspot.id === id));
+  if (route && route.length > 1 && !(await player.walkAlong(route))) return;
+  openHotspotView(id);
 }
 
 function wireInteraction() {
@@ -464,6 +466,7 @@ function overheadView() {
 // Touch controls show only while walking around the room.
 function setStage(next) {
   stage.current = next;
+  showGuideInRoom(next === "room");
   if (hasTouch) document.getElementById("mobileControls")?.classList.toggle("hidden", next !== "room");
 }
 

@@ -39,12 +39,6 @@
       </div>
     </div>
 
-    <div id="controlsToast" class="controls-toast hidden" role="status">
-      <div class="toast-row desktop-only"><span class="key">W A S D</span> <span>walk</span></div>
-      <div class="toast-row desktop-only"><span class="key">Space / E</span> <span>interact</span></div>
-      <div class="toast-row mobile-only"><span class="key">Stick</span> <span>walk</span></div>
-      <div class="toast-row mobile-only"><span class="key">◉</span> <span>interact</span></div>
-    </div>
 
     <div id="prompt" class="prompt hidden" role="button" tabindex="0">
       <span class="prompt-key">SPACE</span>
@@ -76,6 +70,22 @@
     <div id="hud" class="hud hidden">
       <button id="menuBtn" class="hud-btn" aria-label="Menu">☰</button>
     </div>
+
+    <button id="guideBtn" class="hud-btn guide-btn hidden" type="button" aria-label="How to explore">?</button>
+
+    <div id="guideBoard" class="guide-board-overlay hidden" role="dialog" aria-label="How to explore my room">
+      <div class="guide-board">
+        <h2 class="guide-board-title">How to explore my room</h2>
+        <ol id="guideBoardSteps" class="guide-board-steps"></ol>
+        <button id="guideBoardClose" class="guide-board-close" type="button">Start exploring</button>
+        <div class="guide-board-tray" aria-hidden="true"><span class="marker blue"></span><span class="marker red"></span><span class="marker black"></span></div>
+      </div>
+    </div>
+
+    <aside id="guideSide" class="guide-side hidden" aria-label="How to explore">
+      <button id="guideSideToggle" class="guide-side-toggle" type="button" aria-expanded="true">How to explore</button>
+      <ol id="guideSideSteps" class="guide-side-steps"></ol>
+    </aside>
 
     <div id="menu" class="overlay center hidden">
       <div class="menu-card">
