@@ -1,7 +1,7 @@
 import { create, element } from "./dom.js";
 
-// How-to-explore instructions, docked top-left the whole time the visitor is
-// walking around the room. On phones it starts folded into a "?" button.
+// How-to-explore instructions, open top-left whenever the visitor is walking
+// around the room, until they fold it away.
 const STEPS = [
   { key: "Walk", desktop: "W A S D or the arrow keys", touch: "Drag the stick, bottom left" },
   { key: "Go to", desktop: "Click anything that glows, or a circle on the floor, and you'll walk right over", touch: "Tap anything that glows, or a circle on the floor, and you'll walk right over" },
@@ -13,7 +13,6 @@ export function installGuide(isTouch) {
   const steps = STEPS.map((step) => buildStep(step.key, isTouch ? step.touch : step.desktop));
   element("guideSideSteps").replaceChildren(...steps);
   element("guideSideToggle").addEventListener("click", toggleSide);
-  if (isTouch) setSideExpanded(false);
 }
 
 // The panel belongs to walking around the room, not to the stations, the
