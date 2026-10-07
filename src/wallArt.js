@@ -3,7 +3,10 @@ import { addBox, requireNode, solid } from "./meshHelpers.js";
 import { createSeededRandom } from "./seededRandom.js";
 
 // The GLB's flat-color prints sat behind the bookshelf; the corner gallery
-// below replaces them with the posters from the real room.
+// below replaces them with the posters from the real room. The travel pieces
+// (Air India and Bia Hà Nội stacked on the back wall, the beach photo) form
+// their own group, so only they glow and open the travel globe; Blonde and
+// the abstract print are just decoration.
 const REPLACED_PRINT_NAMES = [
   "Air_India_Print_Frame",
   "Air_India_Print",
@@ -21,19 +24,21 @@ const TEXTURE_PIXELS_PER_METER = 1100;
 
 // Back-wall pieces are centred at [x, y]; right-wall pieces at [z, y].
 const ARTWORKS = [
-  { wall: "back", center: [1.7, 1.95], size: [0.38, 0.56], isFramed: true, draw: drawAirIndia },
-  { wall: "back", center: [1.7, 1.38], size: [0.32, 0.44], isFramed: false, draw: drawBlonde },
-  { wall: "right", center: [-2.05, 1.9], size: [0.42, 0.48], isFramed: true, draw: drawHaNoiCans },
-  { wall: "right", center: [-2.19, 1.36], size: [0.2, 0.24], isFramed: true, draw: drawAbstract },
-  { wall: "right", center: [-1.9, 1.36], size: [0.28, 0.24], isFramed: true, draw: drawBeachPhoto },
+  { group: "TRAVEL_POSTERS", wall: "back", center: [1.7, 1.95], size: [0.38, 0.56], isFramed: true, draw: drawAirIndia },
+  { group: "TRAVEL_POSTERS", wall: "back", center: [1.7, 1.34], size: [0.42, 0.48], isFramed: true, draw: drawHaNoiCans },
+  { group: "TRAVEL_POSTERS", wall: "right", center: [-1.9, 1.36], size: [0.28, 0.24], isFramed: true, draw: drawBeachPhoto },
+  { group: "CORNER_ART", wall: "right", center: [-2.05, 1.9], size: [0.32, 0.44], isFramed: false, draw: drawBlonde },
+  { group: "CORNER_ART", wall: "right", center: [-2.19, 1.36], size: [0.2, 0.24], isFramed: true, draw: drawAbstract },
 ];
 
 export function hangCornerGallery(roomGroup) {
   for (const name of REPLACED_PRINT_NAMES) requireNode(roomGroup, name).removeFromParent();
-  const gallery = new THREE.Group();
-  gallery.name = "CORNER_GALLERY";
-  for (const artwork of ARTWORKS) gallery.add(buildArtwork(artwork));
-  roomGroup.add(gallery);
+  for (const name of new Set(ARTWORKS.map((artwork) => artwork.group))) {
+    const group = new THREE.Group();
+    group.name = name;
+    for (const artwork of ARTWORKS.filter((piece) => piece.group === name)) group.add(buildArtwork(artwork));
+    roomGroup.add(group);
+  }
 }
 
 function buildArtwork(artwork) {

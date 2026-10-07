@@ -104,9 +104,9 @@ const HOTSPOT_LIST = [
   },
   {
     id: "travel",
-    label: "posters & guitar",
+    label: "the travel posters",
     promptLabel: "to see where I've been",
-    objects: ["CORNER_GALLERY", "Acoustic_Guitar"],
+    objects: ["TRAVEL_POSTERS"],
     trigger: [1.5, 0, -1.25],
     highlight: [1.7, 1.95, -2.3],
     color: 0x9ec7e0,

@@ -9,6 +9,7 @@
 - The laptop's welcome now says "type `cat resume` to download my resume."
 
 ### Changed
+- The poster corner reads as travel: the guitar moved to the gap between the window and the desk, Bia Hà Nội now hangs under Air India, and Frank Ocean's Blonde took its old spot on the side wall. Only the travel pieces (Air India, Bia Hà Nội and the beach photo) glow and open the travel globe; the prompt calls them "the travel posters".
 - The floor circles are easier to spot: thicker and brighter, with a faint ring slowly spreading out from each.
 - The ☰ menu is gone; you get around by walking or clicking. Its sound effects switch is now a speaker button, top right.
 

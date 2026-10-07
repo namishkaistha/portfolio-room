@@ -14,7 +14,7 @@ import { createWayfinder } from "../src/wayfinder.js";
 const CELL = 0.04;
 const SPAWN = [0, 0.6];
 const TRIPS = [
-  ["guitar", [1.5, -1.25]],
+  ["travel posters", [1.5, -1.25]],
   ["vinyl", [-0.95, -1.25]],
   ["closet", [-1.35, -0.45]],
   ["bed foot", [0.2, -0.1]],

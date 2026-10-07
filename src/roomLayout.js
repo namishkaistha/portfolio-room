@@ -6,17 +6,22 @@ import { addCylinder, requireNode } from "./meshHelpers.js";
 // (sealing off the floor in front of the window), the tripod sits back against
 // the left wall, the bookshelf clears the record-player lamp, and the window
 // slides along its wall so the corner is free for posters, as in the real room.
+// The guitar moves out of that corner to the gap between the window and the
+// desk, so visitors read the corner as travel rather than music.
 const LAYOUT_OFFSETS = {
   BED: new THREE.Vector3(0.08, 0, -0.22),
   HOTSPOT_LIBRARY: new THREE.Vector3(0.2, 0, 0),
   WINDOW: new THREE.Vector3(0, 0, 0.4),
   HOTSPOT_DESK: new THREE.Vector3(0, 0, 0.3),
   HOTSPOT_TRIPOD: new THREE.Vector3(-0.25, 0, 0),
+  Acoustic_Guitar: new THREE.Vector3(0.18, 0, 2.04),
 };
 
-// The tripod is turned so its phone screen faces into the room, toward the stool.
+// The tripod is turned so its phone screen faces into the room, toward the
+// stool, and the guitar so its face is toward the camera.
 const LAYOUT_YAWS = {
   HOTSPOT_TRIPOD: Math.PI / 2,
+  Acoustic_Guitar: 0,
 };
 
 // A slimmer bed leaves breathing room by the bookshelf spot.
@@ -25,7 +30,7 @@ const LAYOUT_WIDTH_SCALES = {
 };
 
 // A shorter bed, kept flush with the head wall, opens the walkway between its
-// foot and the desk so the guitar corner is easy to reach.
+// foot and the desk so the poster corner is easy to reach.
 const BED_LENGTH_SCALE = 0.86;
 const BED_SHIFT_X = -0.1;
 
