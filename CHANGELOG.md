@@ -12,6 +12,7 @@
 - The poster corner reads as travel: Bia Hà Nội now hangs under Air India, Frank Ocean's Blonde took its old spot on the side wall, and a small side table holds three trinkets from Namish's travels (a toy auto rickshaw from India, a glazed spice pot from Morocco and a painted paper lamp from Chiang Mai's night market, lit from inside). Only the travel pieces glow and open the travel globe; the prompt calls them "the travel posters".
 - The guitar came off its floor stand in that corner and hangs on the wall above the turntable.
 - The lamp beside the turntable, and its warm glow, are gone.
+- The room is brighter. A brightness survey of the overhead view (rendered once with real materials and once all-white, to separate light from dark materials) found the turntable wall, closet, post-it wall, desk and photo collage, and travel corner dim. Warm lights in the old lamp's colour now hang there: brass picture-light bars over the guitar, closet, post-it wall and photo collage, a strip along the top of the bookshelf, and a bulb inside the Chiang Mai lamp. They sit out from the walls so the plaster doesn't glare, keep the posters and window from washing out, and cast no shadows so phones stay smooth.
 - The floor circles are easier to spot: thicker and brighter, with a faint ring slowly spreading out from each.
 - The ☰ menu is gone; you get around by walking or clicking. Its sound effects switch is now a speaker button, top right.
 

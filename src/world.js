@@ -11,6 +11,7 @@ import { installBookPull } from "./bookPull.js";
 import { installClosetDoors } from "./closetDoors.js";
 import { applyLayoutCorrections, buildTripodStool } from "./roomLayout.js";
 import { buildTravelTable, paintLanternPanels } from "./travelTable.js";
+import { installRoomLamps } from "./roomLamps.js";
 import { collectObstacles, createCollider } from "./collision.js";
 import { buildDoorGroup, buildHallway } from "./entrance.js";
 
@@ -33,6 +34,7 @@ export async function buildScene(scene) {
   installBookPull(roomGroup);
   roomGroup.add(buildTripodStool(), buildTravelTable());
   paintLanternPanels(roomGroup);
+  installRoomLamps(roomGroup);
   const obstacles = collectObstacles(roomGroup);
   const collider = createCollider(obstacles);
   scene.add(roomGroup);

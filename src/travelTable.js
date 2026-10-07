@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { addBox, addCylinder, solid } from "./meshHelpers.js";
+import { buildLight } from "./roomLamps.js";
 
 // A small round side table in the poster corner holding three things Namish
 // brought home: a toy auto rickshaw from India, a glazed spice pot from
@@ -23,6 +24,8 @@ const COLOR = {
 // wooden frame and four painted paper panels lit from inside.
 const LANTERN = { baseWidth: 0.13, topWidth: 0.085, height: 0.19, frame: 0.008 };
 const LANTERN_GLOW = 0.4;
+// A small warm bulb inside the lamp lights up the table and the corner.
+const LANTERN_BULB = { intensity: 3.5, distance: 1.5 };
 const LANTERN_PANEL_PIXELS = [128, 192];
 const QUARTER_TURN = Math.PI / 2;
 
@@ -101,6 +104,7 @@ function buildLantern() {
   lantern.add(shade);
   addBox(lantern, wood, { size: [baseWidth * 1.08, frame, baseWidth * 1.08], position: [0, frame / 2, 0], yaw: Math.PI / 4 });
   addBox(lantern, wood, { size: [topWidth * 1.1, frame, topWidth * 1.1], position: [0, frame + height + frame / 2, 0], yaw: Math.PI / 4 });
+  lantern.add(buildLight([0, frame + height / 2, 0, LANTERN_BULB.intensity, LANTERN_BULB.distance]));
   return lantern;
 }
 
