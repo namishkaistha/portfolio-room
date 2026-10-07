@@ -1,9 +1,9 @@
 import * as THREE from "three";
-import { addBox, addCylinder, glowing, solid } from "./meshHelpers.js";
+import { addBox, addCylinder, solid } from "./meshHelpers.js";
 
 // A small round side table in the poster corner holding three things Namish
 // brought home: a toy auto rickshaw from India, a glazed spice pot from
-// Morocco and a paper lantern from Chiang Mai. It belongs to the travel
+// Morocco and a painted paper lamp from Chiang Mai. It belongs to the travel
 // station, so the table and everything on it glow and open the globe.
 const TABLE = { center: [1.76, -2.06], radius: 0.23, height: 0.58, topThickness: 0.03 };
 // The trinkets are drawn larger than life so they read from the overhead camera.
@@ -16,10 +16,14 @@ const COLOR = {
   terracotta: 0xb5653a,
   glaze: 0x1f4fa8,
   brass: 0xc9a24a,
-  lanternPaper: 0xe2552f,
-  lanternTrim: 0x3a2416,
+  lanternFrame: 0x24160d,
+  lanternPaper: 0xf3d9a4,
 };
-const LANTERN_GLOW = 0.55;
+// The Chiang Mai lamp: a tapered square box, wider at the base, with a dark
+// wooden frame and four painted paper panels lit from inside.
+const LANTERN = { baseWidth: 0.13, topWidth: 0.085, height: 0.19, frame: 0.008 };
+const LANTERN_GLOW = 0.4;
+const LANTERN_PANEL_PIXELS = [128, 192];
 const QUARTER_TURN = Math.PI / 2;
 
 export function buildTravelTable() {
@@ -27,9 +31,9 @@ export function buildTravelTable() {
   table.name = "TRAVEL_TABLE";
   addTable(table);
   const top = TABLE.height;
-  table.add(placed(buildAutoRickshaw(), [-0.08, top, 0.09], -0.6));
-  table.add(placed(buildSpicePot(), [0.11, top, 0.07], 0));
-  table.add(placed(buildHangingLantern(), [-0.04, top, -0.11], 0.4));
+  table.add(placed(buildAutoRickshaw(), [-0.1, top, 0.1], -0.6));
+  table.add(placed(buildSpicePot(), [0.12, top, 0.09], 0));
+  table.add(placed(buildLantern(), [0.03, top, -0.12], Math.PI / 4 + 0.35));
   const [x, z] = TABLE.center;
   table.position.set(x, 0, z);
   return table;
@@ -82,21 +86,131 @@ function buildSpicePot() {
   return pot;
 }
 
-// A round paper lantern hanging from a little wooden stand, lit from inside.
-function buildHangingLantern() {
-  const stand = new THREE.Group();
-  const trim = solid(COLOR.lanternTrim, 0.6);
-  addCylinder(stand, trim, { radius: 0.035, height: 0.01, position: [0, 0.005, 0] });
-  addCylinder(stand, trim, { radius: 0.005, height: 0.3, position: [0, 0.15, 0] });
-  addBox(stand, trim, { size: [0.08, 0.008, 0.008], position: [0.04, 0.3, 0] });
-  addCylinder(stand, trim, { radius: 0.0015, height: 0.03, position: [0.075, 0.285, 0] });
-  const paper = new THREE.Mesh(new THREE.SphereGeometry(0.05, 20, 14), glowing(COLOR.lanternPaper, LANTERN_GLOW));
-  paper.scale.y = 1.15;
-  paper.position.set(0.075, 0.215, 0);
-  stand.add(paper);
-  for (const y of [0.268, 0.162]) addCylinder(stand, trim, { radius: 0.018, height: 0.008, position: [0.075, y, 0] });
-  addCylinder(stand, trim, { radius: 0.003, height: 0.04, position: [0.075, 0.138, 0] });
-  return stand;
+// The panels are one paper shade (a four-sided frustum) painted later by
+// paintLanternPanels, since painting needs a browser canvas.
+function buildLantern() {
+  const lantern = new THREE.Group();
+  const wood = solid(COLOR.lanternFrame, 0.6);
+  const { baseWidth, topWidth, height, frame } = LANTERN;
+  const shade = new THREE.Mesh(
+    new THREE.CylinderGeometry(topWidth / Math.SQRT2, baseWidth / Math.SQRT2, height, 4, 1, true),
+    new THREE.MeshStandardMaterial({ color: COLOR.lanternPaper, emissive: 0xffffff, emissiveIntensity: LANTERN_GLOW, side: THREE.DoubleSide, roughness: 0.9 }),
+  );
+  shade.name = "CHIANG_MAI_LANTERN_SHADE";
+  shade.position.y = frame + height / 2;
+  lantern.add(shade);
+  addBox(lantern, wood, { size: [baseWidth * 1.08, frame, baseWidth * 1.08], position: [0, frame / 2, 0], yaw: Math.PI / 4 });
+  addBox(lantern, wood, { size: [topWidth * 1.1, frame, topWidth * 1.1], position: [0, frame + height + frame / 2, 0], yaw: Math.PI / 4 });
+  return lantern;
+}
+
+// Paints the lamp's four panels like the souvenir lamps in Chiang Mai's night
+// market: a seated Buddha on red, a plum blossom branch, a red sun over
+// bamboo and a spray of flowers, each in a dark wooden frame.
+export function paintLanternPanels(roomGroup) {
+  const shade = roomGroup.getObjectByName("CHIANG_MAI_LANTERN_SHADE");
+  const [panelWidth, panelHeight] = LANTERN_PANEL_PIXELS;
+  const canvas = document.createElement("canvas");
+  canvas.width = panelWidth * LANTERN_PANELS.length;
+  canvas.height = panelHeight;
+  const ctx = canvas.getContext("2d");
+  LANTERN_PANELS.forEach((paint, index) => {
+    ctx.save();
+    ctx.translate(index * panelWidth, 0);
+    paint(ctx, panelWidth, panelHeight);
+    drawPanelFrame(ctx, panelWidth, panelHeight);
+    ctx.restore();
+  });
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  shade.material.color.set(0xffffff);
+  shade.material.map = texture;
+  shade.material.emissiveMap = texture;
+  shade.material.needsUpdate = true;
+}
+
+const LANTERN_PANELS = [drawBuddhaPanel, drawBlossomPanel, drawSunPanel, drawFlowerPanel];
+
+function drawBuddhaPanel(ctx, w, h) {
+  ctx.fillStyle = "#e0471f";
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = "#7a1d0c";
+  ctx.beginPath();
+  ctx.ellipse(w / 2, h * 0.36, w * 0.11, h * 0.08, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(w / 2, h * 0.24);
+  ctx.lineTo(w * 0.47, h * 0.29);
+  ctx.lineTo(w * 0.53, h * 0.29);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(w * 0.38, h * 0.45);
+  ctx.quadraticCurveTo(w / 2, h * 0.42, w * 0.62, h * 0.45);
+  ctx.lineTo(w * 0.72, h * 0.72);
+  ctx.quadraticCurveTo(w / 2, h * 0.78, w * 0.28, h * 0.72);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function drawBlossomPanel(ctx, w, h) {
+  ctx.fillStyle = "#f6e6c0";
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = "#3b2416";
+  ctx.lineWidth = w * 0.04;
+  ctx.beginPath();
+  ctx.moveTo(w * 0.2, h * 0.9);
+  ctx.quadraticCurveTo(w * 0.35, h * 0.5, w * 0.7, h * 0.15);
+  ctx.moveTo(w * 0.36, h * 0.55);
+  ctx.lineTo(w * 0.7, h * 0.5);
+  ctx.stroke();
+  ctx.fillStyle = "#cf2a2a";
+  for (const [x, y] of [[0.68, 0.17], [0.55, 0.28], [0.45, 0.4], [0.62, 0.5], [0.72, 0.46], [0.3, 0.66], [0.5, 0.2]]) {
+    ctx.beginPath();
+    ctx.arc(w * x, h * y, w * 0.055, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawSunPanel(ctx, w, h) {
+  ctx.fillStyle = "#f3d27a";
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = "#d8322a";
+  ctx.beginPath();
+  ctx.arc(w * 0.55, h * 0.3, w * 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = "#2f3a1e";
+  ctx.lineWidth = w * 0.035;
+  for (const x of [0.25, 0.4]) {
+    ctx.beginPath();
+    ctx.moveTo(w * x, h);
+    ctx.lineTo(w * (x + 0.03), h * 0.45);
+    ctx.stroke();
+  }
+}
+
+function drawFlowerPanel(ctx, w, h) {
+  ctx.fillStyle = "#f08a2b";
+  ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = "#4b6b2a";
+  ctx.lineWidth = w * 0.03;
+  ctx.beginPath();
+  ctx.moveTo(w / 2, h * 0.92);
+  ctx.lineTo(w / 2, h * 0.35);
+  ctx.stroke();
+  ctx.fillStyle = "#b8202a";
+  for (const [x, y] of [[0.5, 0.3], [0.35, 0.45], [0.65, 0.5], [0.42, 0.62]]) {
+    ctx.beginPath();
+    ctx.arc(w * x, h * y, w * 0.08, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawPanelFrame(ctx, w, h) {
+  ctx.strokeStyle = "#24160d";
+  ctx.lineWidth = w * 0.12;
+  ctx.strokeRect(0, 0, w, h);
+  ctx.fillStyle = "#24160d";
+  ctx.fillRect(0, h * 0.84, w, h * 0.05);
 }
 
 function placed(object, position, yaw) {
