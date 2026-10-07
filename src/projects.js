@@ -4,16 +4,16 @@ export const RESUME_URL = "/Kaistha_Namish_Resume.pdf";
 // public; `phone` marks portrait mobile screenshots.
 export const PROJECTS = [
   {
-    slug: "this-portfolio",
-    title: "This portfolio",
+    slug: "personal-portfolio",
+    title: "Personal portfolio",
     year: "2026",
     tech: ["three.js", "Vite", "Blender + Astra", "Vercel Functions", "Neon Postgres", "Spotify API"],
     details: [
       { label: "what", text: "The room you're standing in: a 3D model of my real bedroom where every object you can walk up to opens a part of my life, from projects and travel to books, music and style." },
       { label: "how", text: "Vanilla JavaScript and three.js on Vite. The 3D assets were made in Blender with Astra, and the avatar is rigged so its outfits swap at runtime. Vercel serverless functions read my live listening and top 10 from the Spotify Web API and store the post-it wall in Neon Postgres. Covered by node:test unit tests and scripted browser checks." },
-      { label: "impact", text: "Live at namishkaistha.com, replacing my old static portfolio with a place you can explore." },
+      { label: "impact", text: "Live at namishkaistha.com as a place you can explore." },
     ],
-    shots: [{ src: "/projects/this-portfolio-1.jpg", alt: "Overhead view of the 3D room with the avatar standing in it" }],
+    shots: [{ src: "/projects/personal-portfolio-1.jpg", alt: "Overhead view of the 3D room with the avatar standing in it" }],
     href: "https://github.com/namishkaistha/portfolio-room",
   },
   {
