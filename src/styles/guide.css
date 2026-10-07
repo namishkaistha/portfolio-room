@@ -34,7 +34,7 @@
 .guide-side.is-collapsed .guide-side-toggle::after { content: "+"; margin-left: 10px; }
 .guide-side.is-collapsed .guide-side-steps { display: none; }
 .guide-side-steps { margin: 10px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-.guide-side-step { display: grid; grid-template-columns: 46px 1fr; gap: 8px; font-size: 12px; line-height: 1.35; }
+.guide-side-step { display: grid; grid-template-columns: 54px 1fr; gap: 8px; font-size: 12px; line-height: 1.35; }
 .guide-side-key { color: var(--ink); font-weight: 600; }
 .guide-side-text { color: var(--ink-dim); }
 

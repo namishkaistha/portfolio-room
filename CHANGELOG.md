@@ -4,7 +4,7 @@
 
 ### Added
 - Click (or tap) any glowing object, or its circle on the floor, and the avatar walks over to it, around the furniture, and opens it on arrival. Pressing a movement key or the joystick mid-walk cancels it. `scripts/check-walkable.mjs` now also checks there's a route from spawn to every object.
-- How-to-explore instructions docked top-left the whole time you're in the room: walk, go to, open, back. On phones it opens across the top on entry and folds into a pill between the joystick and the action button. It replaces the WASD toast that faded after five seconds.
+- How-to-explore instructions docked top-left the whole time you're in the room: explore (anything with a circle beside it opens a part of the story), walk, go to, open, back. On phones it opens across the top on entry and folds into a pill between the joystick and the action button. It replaces the WASD toast that faded after five seconds.
 - A "Personal portfolio" card at the top of the laptop's projects: three.js and Vite, 3D assets made with Astra in Blender, Spotify and Neon Postgres behind Vercel functions.
 - The laptop's welcome now says "type `cat resume` to download my resume."
 
