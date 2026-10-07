@@ -7,6 +7,7 @@ import { createExitSignal } from "./exitSignal.js";
 const WELCOME_LINES = [
   "welcome to my personal projects.",
   "type `cd projects` to browse.",
+  "type `cat resume` to download my resume.",
   "type `help` for commands.",
 ];
 const WELCOME_TYPE_INTERVAL_MS = 32;
