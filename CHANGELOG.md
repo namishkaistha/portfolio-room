@@ -3,10 +3,14 @@
 ## 2026-10-07
 
 ### Added
-- Click (or tap) any glowing object and the avatar walks over to it, around the furniture, and opens it on arrival. Pressing a movement key or the joystick mid-walk cancels it. `scripts/check-walkable.mjs` now also checks there's a route from spawn to every object.
-- How-to-explore instructions, in two versions to choose between (on test.namishkaistha.com for now): `?guide=whiteboard` (default) greets you with a whiteboard on entry, reopened with the "?" button top-left; `?guide=sidebar` keeps a panel docked top-left the whole time you're in the room, folded into a "?" button on phones, where the music widget now leaves the top-left corner free. They replace the WASD toast that faded after five seconds.
+- Click (or tap) any glowing object, or its circle on the floor, and the avatar walks over to it, around the furniture, and opens it on arrival. Pressing a movement key or the joystick mid-walk cancels it. `scripts/check-walkable.mjs` now also checks there's a route from spawn to every object.
+- How-to-explore instructions docked top-left the whole time you're in the room: walk, go to, open, back. On phones it folds into a "?" button, and the music widget leaves that corner free. It replaces the WASD toast that faded after five seconds.
 - A "This portfolio" card at the top of the laptop's projects: three.js and Vite, 3D assets made with Astra in Blender, Spotify and Neon Postgres behind Vercel functions.
 - The laptop's welcome now says "type `cat resume` to download my resume."
+
+### Changed
+- The floor circles are easier to spot. Four styles to compare with `?rings=`: `ripple` (default; thicker, brighter, with a ring spreading outward), `bold`, `glow` (the disc inside fills with light) and `subtle` (the old look).
+- The ☰ menu is gone; you get around by walking or clicking. Its sound effects switch is now a speaker button, top right.
 
 ## 2026-10-03
 

@@ -5,6 +5,22 @@ const RING_INNER_MARGIN = 0.05;
 const RING_THICKNESS = 0.1;
 const RING_SEGMENTS = 48;
 const RING_OPACITY = { idle: 0.1, active: 0.35 };
+const RING_PULSE_SPEED = 1.4;
+const RIPPLE = { seconds: 2.2, thickness: 0.035, growth: 0.45, opacity: 0.5 };
+// How loudly the floor circles call attention to themselves while Namish
+// compares them; pick one with ?rings=<name>.
+//   boost    added to the resting opacity of the ring
+//   pulse    how far the ring's opacity swings as it breathes
+//   widen    ring thickness multiplier
+//   fill     resting opacity of the disc inside the ring, and its swing
+//   ripple   a thin ring that keeps spreading outward and fading
+const RING_STYLES = {
+  subtle: { boost: 0, pulse: 0.06, widen: 1, fill: [0.03, 0.03], ripple: false },
+  bold: { boost: 0.25, pulse: 0.2, widen: 1.6, fill: [0.05, 0.05], ripple: false },
+  ripple: { boost: 0.2, pulse: 0.12, widen: 1.4, fill: [0.04, 0.04], ripple: true },
+  glow: { boost: 0.15, pulse: 0.12, widen: 1.2, fill: [0.12, 0.12], ripple: false },
+};
+const ringStyle = RING_STYLES[new URLSearchParams(location.search).get("rings")] ?? RING_STYLES.ripple;
 const GLOW_COLOR = new THREE.Color(0xffd9a3);
 // Interactive furniture breathes very faintly at rest and warms up when the
 // visitor hovers it or walks up to it; nothing extra is drawn in the room.
@@ -12,6 +28,7 @@ const GLOW = { idle: 0.035, focused: 0.16, breathSpeed: 0.9, easing: 0.12 };
 
 export function installHighlights(roomGroup, hotspots) {
   const highlights = hotspots.map((spot, index) => createHighlight(roomGroup, spot, index));
+  const pickable = highlights.flatMap((highlight) => [...highlight.meshes, highlight.ringMesh]);
   let hoveredId = null;
   let activeId = null;
   return {
@@ -26,8 +43,7 @@ export function installHighlights(roomGroup, hotspots) {
       for (const highlight of highlights) highlight.tick(elapsedSeconds, highlight.id === activeId || highlight.id === hoveredId, highlight.id === activeId);
     },
     pick(raycaster) {
-      const meshes = highlights.flatMap((highlight) => highlight.meshes);
-      const hit = raycaster.intersectObjects(meshes, false)[0];
+      const hit = raycaster.intersectObjects(pickable, false)[0];
       return hit ? hit.object.userData.hotspotId : null;
     },
   };
@@ -41,6 +57,7 @@ function createHighlight(roomGroup, spot, index) {
   return {
     id: spot.id,
     meshes,
+    ringMesh: ring.mesh,
     clearGlow() {
       level = 0;
       for (const mesh of meshes) applyGlow(mesh, 0);
@@ -80,25 +97,37 @@ function applyGlow(mesh, level) {
   }
 }
 
+// The floor circle in front of an object, the disc it encloses and, for the
+// ripple style, a ring spreading out from it. Clicking the circle counts as
+// clicking the object.
 function createRing(scene, spot) {
   const outerRadius = spot.radius;
-  const innerRadius = outerRadius - (spot.ringEmphasis?.thickness ?? RING_THICKNESS);
-  const idleOpacity = spot.ringEmphasis?.opacity ?? RING_OPACITY.idle;
+  const innerRadius = outerRadius - (spot.ringEmphasis?.thickness ?? RING_THICKNESS) * ringStyle.widen;
+  const idleOpacity = (spot.ringEmphasis?.opacity ?? RING_OPACITY.idle) + ringStyle.boost;
   const { start, length } = spot.arc;
   const material = transparentMaterial(spot.color, idleOpacity);
   const ring = new THREE.Mesh(new THREE.RingGeometry(innerRadius, outerRadius, RING_SEGMENTS, 1, start, length), material);
-  const glowMaterial = transparentMaterial(spot.color, 0.04);
+  ring.userData.hotspotId = spot.id;
+  const glowMaterial = transparentMaterial(spot.color, ringStyle.fill[0]);
   const glow = new THREE.Mesh(new THREE.CircleGeometry(innerRadius - RING_INNER_MARGIN, RING_SEGMENTS, start, length), glowMaterial);
-  for (const [mesh, height] of [[glow, 0.014], [ring, 0.015]]) {
+  const rippleMaterial = transparentMaterial(spot.color, 0);
+  const ripple = new THREE.Mesh(new THREE.RingGeometry(outerRadius - RIPPLE.thickness, outerRadius, RING_SEGMENTS, 1, start, length), rippleMaterial);
+  ripple.visible = ringStyle.ripple;
+  for (const [mesh, height] of [[glow, 0.014], [ring, 0.015], [ripple, 0.016]]) {
     mesh.rotation.x = -Math.PI / 2;
     mesh.position.set(spot.trigger.x, height, spot.trigger.z);
     scene.add(mesh);
   }
+  const [fillRest, fillSwing] = ringStyle.fill;
   return {
+    mesh: ring,
     tick(elapsed, isActive) {
-      const pulse = 0.5 + 0.5 * Math.sin(elapsed * 1.4);
-      material.opacity = isActive ? Math.max(RING_OPACITY.active, idleOpacity + 0.2) : idleOpacity + pulse * 0.06;
-      glowMaterial.opacity = isActive ? 0.14 : 0.03 + pulse * 0.03 + (idleOpacity - RING_OPACITY.idle) * 0.25;
+      const pulse = 0.5 + 0.5 * Math.sin(elapsed * RING_PULSE_SPEED);
+      material.opacity = isActive ? Math.max(RING_OPACITY.active, idleOpacity + 0.2) : idleOpacity + pulse * ringStyle.pulse;
+      glowMaterial.opacity = isActive ? Math.max(0.14, fillRest + fillSwing) : fillRest + pulse * fillSwing;
+      const spread = (elapsed / RIPPLE.seconds) % 1;
+      ripple.scale.setScalar(1 + spread * RIPPLE.growth);
+      rippleMaterial.opacity = isActive ? 0 : RIPPLE.opacity * (1 - spread);
     },
   };
 }
